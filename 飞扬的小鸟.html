@@ -1654,6 +1654,71 @@
 
         /* ========== 字体大小缩放（HTML UI） ========== */
         /* 通过 JS 的 applyFontSizeScale() 动态设置 zoom 属性 */
+
+        /* ========== 联机对战 ========== */
+        .multiplayer-score-bar {
+            display: none; position: absolute; top: 10px; left: 50%;
+            transform: translateX(-50%); z-index: 12;
+            background: rgba(0,0,0,0.75); border: 2px solid rgba(255,215,0,0.6);
+            border-radius: 20px; padding: 8px 20px;
+            font-size: 16px; color: #fff; white-space: nowrap;
+            pointer-events: none; min-width: 160px; text-align: center;
+        }
+        .multiplayer-score-bar.show { display: flex; align-items: center; gap: 12px; justify-content: center; }
+        .multiplayer-score-bar .vs-text { color: #f39c12; font-weight: bold; }
+        .multiplayer-score-bar .mp-player { display: flex; align-items: center; gap: 4px; }
+        .multiplayer-score-bar .mp-you { color: #4dc9f6; }
+        .multiplayer-score-bar .mp-opponent { color: #e74c3c; }
+        .multiplayer-score-bar .mp-dead { text-decoration: line-through; opacity: 0.5; }
+        .multiplayer-score-bar .mp-alive-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .multiplayer-score-bar .mp-alive-dot.live { background: #2ecc71; animation: pulse-dot 1s infinite; }
+        .multiplayer-score-bar .mp-alive-dot.dead { background: #e74c3c; }
+        @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        .mp-overlay { display: none; position: absolute; top:0;left:0;right:0;bottom:0; z-index: 20; justify-content: center; align-items: center; }
+        .mp-overlay.show { display: flex; }
+        .mp-overlay .overlay-bg { position: absolute; top:0;left:0;right:0;bottom:0; background: rgba(0,0,0,0.85); }
+        .mp-panel { position: relative; background: rgba(20,20,50,0.97); border: 2px solid rgba(255,215,0,0.4); border-radius: 16px; padding: 30px 24px; text-align: center; min-width: 280px; max-width: 360px; }
+        .mp-panel h3 { font-size: 20px; color: #f39c12; margin-bottom: 18px; }
+        .mp-panel .mp-subtitle { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 16px; }
+        .mp-btn { display: block; width: 100%; padding: 12px 0; margin: 8px 0; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+        .mp-btn-create { background: linear-gradient(135deg, #f39c12, #e67e22); color: #fff; }
+        .mp-btn-create:hover { transform: scale(1.03); }
+        .mp-btn-join { background: linear-gradient(135deg, #3498db, #2980b9); color: #fff; }
+        .mp-btn-join:hover { transform: scale(1.03); }
+        .mp-btn-back { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.2); margin-top: 4px; }
+        .mp-btn-back:hover { background: rgba(255,255,255,0.2); }
+        .mp-btn-single { background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; }
+        .mp-btn-single:hover { transform: scale(1.03); }
+        .mp-btn-multi { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: #fff; }
+        .mp-btn-multi:hover { transform: scale(1.03); }
+        .mp-btn-copy { background: rgba(255,255,255,0.15); color: #fff; border: 1px dashed rgba(255,255,255,0.4); font-size: 14px; }
+        .mp-btn-copy:hover { background: rgba(255,255,255,0.25); }
+        .mp-btn-start { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; font-size: 18px; margin-top: 12px; }
+        .mp-btn-start:hover { transform: scale(1.05); }
+        .mp-btn-start:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .mp-room-code { font-size: 36px; font-weight: bold; color: #f1c40f; letter-spacing: 4px; margin: 12px 0; font-family: monospace; user-select: all; }
+        .mp-input { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); color: #fff; font-size: 18px; text-align: center; letter-spacing: 4px; font-family: monospace; margin: 8px 0; outline: none; }
+        .mp-input:focus { border-color: #3498db; }
+        .mp-status { font-size: 14px; color: rgba(255,255,255,0.6); margin: 10px 0; }
+        .mp-status .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #f39c12; border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 6px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .mp-countdown { font-size: 60px; font-weight: bold; color: #f39c12; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 25; pointer-events: none; display: none; }
+        .mp-countdown.show { display: block; }
+        .mp-result { position: relative; background: rgba(20,20,50,0.97); border: 2px solid rgba(255,215,0,0.5); border-radius: 16px; padding: 24px; text-align: center; min-width: 260px; }
+        .mp-result h2 { margin-bottom: 16px; }
+        .mp-result .win-text { color: #f1c40f; }
+        .mp-result .lose-text { color: #95a5a6; }
+        .mp-result .mp-result-scores { display: flex; justify-content: space-around; gap: 20px; margin: 16px 0; }
+        .mp-result .mp-result-player { text-align: center; }
+        .mp-result .mp-result-player .name { font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 4px; }
+        .mp-result .mp-result-player .score { font-size: 32px; font-weight: bold; }
+        .mp-result .mp-result-player.you .score { color: #4dc9f6; }
+        .mp-result .mp-result-player.opponent .score { color: #e74c3c; }
+        .mp-result .mp-result-player.winner .score { color: #f1c40f; animation: winner-glow 1s infinite; }
+        @keyframes winner-glow { 0%,100% { text-shadow: 0 0 10px rgba(241,196,15,0.5); } 50% { text-shadow: 0 0 30px rgba(241,196,15,1); } }
+        .mp-error { color: #e74c3c; font-size: 13px; margin-top: 8px; display: none; }
+        .mp-error.show { display: block; }
     </style>
 </head>
 <body>
@@ -1774,6 +1839,66 @@
                 <button class="btn-mode btn-mode-normal" id="btnModeNormal" data-i18n="正常模式">🎯 正常模式</button>
                 <button class="btn-mode btn-mode-endless" id="btnModeEndless" data-i18n="无尽模式">♾️ 无尽模式</button>
                 <button class="btn-mode-back" id="btnModeBack" data-i18n="返回">返回</button>
+            </div>
+        </div>
+
+        <!-- 游戏类型选择界面 -->
+        <div class="mp-overlay" id="mpGameTypeOverlay">
+            <div class="overlay-bg"></div>
+            <div class="mp-panel">
+                <h3 data-i18n="选择游戏类型">选择游戏类型</h3>
+                <button class="mp-btn mp-btn-single" id="btnMpSingle" data-i18n="单人游戏">🎮 单人游戏</button>
+                <button class="mp-btn mp-btn-multi" id="btnMpMulti" data-i18n="联机对战">🌐 联机对战</button>
+                <button class="mp-btn mp-btn-back" id="btnMpBack" data-i18n="返回">返回</button>
+            </div>
+        </div>
+
+        <!-- 联机房间界面 -->
+        <div class="mp-overlay" id="mpRoomOverlay">
+            <div class="overlay-bg"></div>
+            <div class="mp-panel">
+                <h3 data-i18n="联机对战">🌐 联机对战</h3>
+                <button class="mp-btn mp-btn-create" id="btnMpCreate" data-i18n="创建房间">🏠 创建房间</button>
+                <div class="mp-subtitle" data-i18n="或">或</div>
+                <input class="mp-input" id="mpRoomInput" data-i18n-placeholder="输入房间号" placeholder="输入房间号" maxlength="8" autocomplete="off">
+                <div class="mp-error" id="mpRoomError" data-i18n="请输入房间号">请输入房间号</div>
+                <button class="mp-btn mp-btn-join" id="btnMpJoin" data-i18n="加入房间">🚪 加入房间</button>
+                <button class="mp-btn mp-btn-back" id="btnMpRoomBack" data-i18n="返回">返回</button>
+            </div>
+        </div>
+
+        <!-- 等待对手界面（房主） -->
+        <div class="mp-overlay" id="mpWaitOverlay">
+            <div class="overlay-bg"></div>
+            <div class="mp-panel">
+                <h3 data-i18n="等待对手加入...">⏳ 等待对手加入...</h3>
+                <div class="mp-room-code" id="mpRoomCodeDisplay">------</div>
+                <button class="mp-btn mp-btn-copy" id="btnMpCopy" data-i18n="📋 复制房间号">📋 复制房间号</button>
+                <div class="mp-status"><span class="spinner"></span><span data-i18n="等待中...">等待中...</span></div>
+                <button class="mp-btn mp-btn-back" id="btnMpWaitBack" data-i18n="取消等待">取消等待</button>
+            </div>
+        </div>
+
+        <!-- 联机倒计时 -->
+        <div class="mp-countdown" id="mpCountdown"></div>
+
+        <!-- 联机记分板 -->
+        <div class="multiplayer-score-bar" id="mpScoreBar">
+            <div class="mp-player mp-you"><span class="mp-alive-dot live" id="mpDotYou"></span><span data-i18n="你">你</span>: <span id="mpScoreYou">0</span></div>
+            <span class="vs-text">VS</span>
+            <div class="mp-player mp-opponent"><span class="mp-alive-dot live" id="mpDotOpp"></span><span id="mpNameOpp" data-i18n="对手">对手</span>: <span id="mpScoreOpp">0</span></div>
+        </div>
+
+        <!-- 联机结果界面 -->
+        <div class="mp-overlay" id="mpResultOverlay">
+            <div class="overlay-bg"></div>
+            <div class="mp-result" id="mpResultPanel">
+                <h2 id="mpResultTitle"></h2>
+                <div class="mp-result-scores">
+                    <div class="mp-result-player you" id="mpResultYou"><div class="name" data-i18n="你">你</div><div class="score" id="mpResultScoreYou">0</div></div>
+                    <div class="mp-result-player opponent" id="mpResultOpp"><div class="name" data-i18n="对手">对手</div><div class="score" id="mpResultScoreOpp">0</div></div>
+                </div>
+                <button class="mp-btn mp-btn-back" id="btnMpResultBack" data-i18n="返回主菜单">返回主菜单</button>
             </div>
         </div>
 
@@ -2834,6 +2959,7 @@
         </div>
     </div>
 
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script>
         (function () {
             // ========== 多语言 ==========
@@ -3554,6 +3680,36 @@
             const btnRules = document.getElementById('btnRules');
             const btnShop = document.getElementById('btnShop');
             const btnSettings = document.getElementById('btnSettings');
+
+            // 联机对战 DOM
+            const mpGameTypeOverlay = document.getElementById('mpGameTypeOverlay');
+            const mpRoomOverlay = document.getElementById('mpRoomOverlay');
+            const mpWaitOverlay = document.getElementById('mpWaitOverlay');
+            const mpResultOverlay = document.getElementById('mpResultOverlay');
+            const mpScoreBar = document.getElementById('mpScoreBar');
+            const mpCountdown = document.getElementById('mpCountdown');
+            const mpRoomCodeDisplay = document.getElementById('mpRoomCodeDisplay');
+            const mpRoomInput = document.getElementById('mpRoomInput');
+            const mpRoomError = document.getElementById('mpRoomError');
+            const mpScoreYou = document.getElementById('mpScoreYou');
+            const mpScoreOpp = document.getElementById('mpScoreOpp');
+            const mpDotYou = document.getElementById('mpDotYou');
+            const mpDotOpp = document.getElementById('mpDotOpp');
+            const mpNameOpp = document.getElementById('mpNameOpp');
+            const mpResultTitle = document.getElementById('mpResultTitle');
+            const mpResultScoreYou = document.getElementById('mpResultScoreYou');
+            const mpResultScoreOpp = document.getElementById('mpResultScoreOpp');
+            const mpResultYou = document.getElementById('mpResultYou');
+            const mpResultOpp = document.getElementById('mpResultOpp');
+            const btnMpSingle = document.getElementById('btnMpSingle');
+            const btnMpMulti = document.getElementById('btnMpMulti');
+            const btnMpBack = document.getElementById('btnMpBack');
+            const btnMpCreate = document.getElementById('btnMpCreate');
+            const btnMpJoin = document.getElementById('btnMpJoin');
+            const btnMpRoomBack = document.getElementById('btnMpRoomBack');
+            const btnMpCopy = document.getElementById('btnMpCopy');
+            const btnMpWaitBack = document.getElementById('btnMpWaitBack');
+            const btnMpResultBack = document.getElementById('btnMpResultBack');
             const btnCloseRules = document.getElementById('btnCloseRules');
             const btnCloseShop = document.getElementById('btnCloseShop');
             const btnCloseSettings = document.getElementById('btnCloseSettings');
@@ -3976,8 +4132,21 @@
             let currentHaggleBuyer = null; // 当前砍价中的买家
             const SELL_BUYER_NAMES = ['Alice','Bob','Charlie','David','Eva','Frank','Grace','Henry','Ivy','Jack','Katie','Leo','Mia','Noah','Olivia','Paul','Quinn','Ryan','Sophia','Tom'];
 
+            // ========== 联机对战系统 ==========
+            let mpPeer = null;           // PeerJS 实例
+            let mpConn = null;           // 当前连接
+            let mpIsHost = false;        // 是否是房主
+            let mpRoomCode = '';         // 当前房间号
+            let mpOpponentName = '对手';  // 对手名称
+            let mpOpponentScore = 0;     // 对手分数
+            let mpOpponentAlive = false; // 对手是否存活
+            let mpMyDead = false;        // 我是否已死
+            let mpOppDead = false;       // 对手是否已死
+            let mpGameStarted = false;   // 联机游戏是否已开始
+            let mpCountdownActive = false; // 联机倒计时进行中
+
             // ========== 版本系统 ==========
-            let VERSION = '1.4.6';
+            let VERSION = '1.4.7';
             const VERSION_HISTORY = [
                 { v: '1.4.6', img: '1.4.1.png', text:'💰 商城卖二手：永久皇冠可卖给官方或个人买家，降价版限50次死亡<br>🏆 成就奖励：解锁成就获得金币，挑战200、永不放弃100、我活了一天15、啊1<br>🌙 修复老版本纹理黑夜网亮度：开启亮度增强后老材质网也会变白变亮' },
                 { v: '1.4.5', img: '1.4.1.png', text: '🧊 修复紫色大冰块砸中后游戏卡死：砸中直接扣血，1血即死显示"被紫色大冰块砸死了"' },
@@ -4990,6 +5159,8 @@
             let tutorialJumpCount = 0;   // 教程中跳跃次数计数器
             let tutorialCompleteTimer = 0;
             let gameMode = 'normal'; // normal | endless
+            let multiplayerMode = false;
+            let gameType = 'single'; // single | multiplayer
             let score = 0, frameCount = 0, pipeFrameCounter = 0;
             let countdownValue = 3, countdownTimer = 0, showGo = false, goTimer = 0;
             let lives = 1, shakeTimer = 0;
@@ -8136,10 +8307,17 @@
                 };
             }
 
+            let _mpSyncFrame = 0;
             function gameLoop() {
                 if (btnDailyChallenge) btnDailyChallenge.classList.toggle('hidden', gameState !== 'start');
                 if (dailyCombinedBtn) dailyCombinedBtn.style.display = (gameState === 'start') ? '' : 'none';
-                updateCrownFly(); update(); draw(); requestAnimationFrame(gameLoop);
+                updateCrownFly(); update(); draw();
+                // 联机模式：每15帧同步一次分数
+                if (multiplayerMode && mpGameStarted && gameState === 'playing') {
+                    _mpSyncFrame++;
+                    if (_mpSyncFrame >= 15) { _mpSyncFrame = 0; syncMpScore(); }
+                }
+                requestAnimationFrame(gameLoop);
             }
 
             // ========== 开始/结束 ==========
@@ -8412,6 +8590,15 @@
             }
 
             function backToMenu() {
+                // 退出联机模式
+                if (multiplayerMode) {
+                    disconnectMp();
+                    mpResultOverlay.classList.remove('show');
+                    mpScoreBar.classList.remove('show');
+                    btnRestart.style.display = '';
+                    btnBackToMenu.style.display = '';
+                    btnBackToMenu.textContent = '🏠 ' + t('返回标题界面');
+                }
                 questNoDamageActive = false;
                 questCompleteModal.classList.remove('show');
                 gameState = 'start';
@@ -8904,7 +9091,7 @@
                 if (acc && acc.data && !acc.data.tutorialCompleted) {
                     startTutorial();
                 } else {
-                    showModeSelect();
+                    showGameTypeSelect();
                 }
             });
             btnContinue.addEventListener('click', e => {
@@ -8927,6 +9114,88 @@
             btnRestart.addEventListener('click', e => { e.stopPropagation(); if (tutorialActive) startTutorial(); else if (gameMode === 'endless') startEndlessGame(); else if (gameMode === 'daily') backToMenu(); else startNormalGame(); });
             btnBackToMenu.addEventListener('click', e => { e.stopPropagation(); backToMenu(); });
 
+            // ========== 联机对战按钮事件 ==========
+            function showGameTypeSelect() {
+                startOverlay.classList.remove('active');
+                mpGameTypeOverlay.classList.add('show');
+                gameType = 'single';
+            }
+            function hideGameTypeSelect() {
+                mpGameTypeOverlay.classList.remove('show');
+                startOverlay.classList.add('active');
+            }
+            btnMpSingle.addEventListener('click', e => {
+                e.stopPropagation();
+                mpGameTypeOverlay.classList.remove('show');
+                showModeSelect();
+            });
+            btnMpMulti.addEventListener('click', e => {
+                e.stopPropagation();
+                mpGameTypeOverlay.classList.remove('show');
+                mpRoomOverlay.classList.add('show');
+            });
+            btnMpBack.addEventListener('click', e => {
+                e.stopPropagation();
+                hideGameTypeSelect();
+            });
+
+            btnMpCreate.addEventListener('click', e => {
+                e.stopPropagation();
+                startMpHost();
+            });
+            btnMpJoin.addEventListener('click', e => {
+                e.stopPropagation();
+                const code = (mpRoomInput.value || '').trim().toUpperCase();
+                if (!code) { mpRoomError.classList.add('show'); return; }
+                mpRoomError.classList.remove('show');
+                startMpJoin(code);
+            });
+            btnMpRoomBack.addEventListener('click', e => {
+                e.stopPropagation();
+                disconnectMp();
+                mpRoomOverlay.classList.remove('show');
+                mpGameTypeOverlay.classList.add('show');
+            });
+            btnMpCopy.addEventListener('click', e => {
+                e.stopPropagation();
+                if (mpRoomCode) {
+                    navigator.clipboard.writeText(mpRoomCode).then(() => {
+                        btnMpCopy.textContent = '✅ ' + t('已复制！');
+                        setTimeout(() => { btnMpCopy.textContent = '📋 ' + t('复制房间号'); }, 2000);
+                    }).catch(() => {
+                        btnMpCopy.textContent = '❌ ' + t('复制失败');
+                        setTimeout(() => { btnMpCopy.textContent = '📋 ' + t('复制房间号'); }, 2000);
+                    });
+                }
+            });
+            btnMpWaitBack.addEventListener('click', e => {
+                e.stopPropagation();
+                disconnectMp();
+                mpWaitOverlay.classList.remove('show');
+                mpGameTypeOverlay.classList.add('show');
+            });
+            btnMpResultBack.addEventListener('click', e => {
+                e.stopPropagation();
+                disconnectMp();
+                mpResultOverlay.classList.remove('show');
+                mpScoreBar.classList.remove('show');
+                backToMenu();
+            });
+
+            // 联机房间号输入实时大写
+            if (mpRoomInput) {
+                mpRoomInput.addEventListener('input', () => {
+                    mpRoomInput.value = mpRoomInput.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+                    mpRoomError.classList.remove('show');
+                });
+                mpRoomInput.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        btnMpJoin.click();
+                    }
+                });
+            }
+
             // ========== 每日挑战按钮 ==========
             btnDailyChallenge.addEventListener('click', e => {
                 e.stopPropagation();
@@ -8937,6 +9206,7 @@
             // ========== 暂停按钮 ==========
             pauseBtn.addEventListener('click', e => {
                 e.stopPropagation();
+                if (multiplayerMode) return; // 联机模式不允许暂停
                 if (isDebugZone(e) && countDebugTap()) return;
                 togglePause();
             });
@@ -12290,6 +12560,271 @@
             updateMenuDailyBestScore(); updateMenuTotalScore();
             bestScoreEl.textContent = bestScore;
             keyDisplay.textContent = keyCodeToDisplay(jumpKeyCode);
+
+            // ========== 联机对战核心函数 ==========
+            function generateRoomCode() {
+                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                let code = '';
+                for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+                return code;
+            }
+
+            function disconnectMp() {
+                if (mpConn) { mpConn.close(); mpConn = null; }
+                if (mpPeer) { mpPeer.destroy(); mpPeer = null; }
+                mpIsHost = false; mpRoomCode = ''; mpOpponentName = '对手';
+                mpOpponentScore = 0; mpOpponentAlive = false; mpMyDead = false;
+                mpOppDead = false; mpGameStarted = false; mpCountdownActive = false;
+                multiplayerMode = false;
+                mpScoreBar.classList.remove('show');
+                mpCountdown.classList.remove('show');
+                mpCountdown.textContent = '';
+            }
+
+            function setupMpConnection(conn) {
+                mpConn = conn;
+                conn.on('data', data => {
+                    if (data.type === 'ready') {
+                        // 双方都收到 ready，开始倒计时
+                        startMpCountdown();
+                    } else if (data.type === 'score') {
+                        mpOpponentScore = data.score;
+                        mpScoreOpp.textContent = data.score;
+                    } else if (data.type === 'dead') {
+                        mpOppDead = true;
+                        mpOpponentAlive = false;
+                        mpDotOpp.className = 'mp-alive-dot dead';
+                        mpScoreOpp.textContent = data.score;
+                        mpOpponentScore = data.score;
+                        checkMpGameEnd();
+                    } else if (data.type === 'name') {
+                        mpOpponentName = data.name;
+                        mpNameOpp.textContent = data.name;
+                    }
+                });
+                conn.on('close', () => {
+                    if (mpGameStarted) {
+                        // 对手断开
+                        mpOppDead = true; mpOpponentAlive = false;
+                        mpDotOpp.className = 'mp-alive-dot dead';
+                        checkMpGameEnd();
+                    }
+                    mpConn = null;
+                });
+                conn.on('error', () => {
+                    if (mpConn) { mpConn.close(); mpConn = null; }
+                });
+            }
+
+            function startMpHost() {
+                disconnectMp();
+                mpRoomCode = generateRoomCode();
+                mpIsHost = true;
+                const peerId = 'mcfinder-' + mpRoomCode + '-host';
+
+                mpPeer = new Peer(peerId, { debug: 0 });
+
+                mpPeer.on('open', id => {
+                    mpRoomCodeDisplay.textContent = mpRoomCode;
+                    mpRoomOverlay.classList.remove('show');
+                    mpWaitOverlay.classList.add('show');
+                    mpNameOpp.textContent = t('对手');
+                });
+
+                mpPeer.on('connection', conn => {
+                    if (mpConn) { conn.close(); return; } // 已有连接
+                    mpWaitOverlay.classList.remove('show');
+                    setupMpConnection(conn);
+
+                    conn.on('open', () => {
+                        const acc = getCurrentAccount();
+                        const myName = acc ? acc.name : ('Player');
+                        conn.send({ type: 'name', name: myName });
+                        conn.send({ type: 'ready' });
+                        // 不立即倒计时，等收到对方的ready后再倒计时
+                    });
+                });
+
+                mpPeer.on('error', err => {
+                    console.error('PeerJS error:', err);
+                    mpWaitOverlay.classList.remove('show');
+                    mpRoomOverlay.classList.add('show');
+                    mpRoomError.textContent = t('连接失败，请重试');
+                    mpRoomError.classList.add('show');
+                });
+            }
+
+            function startMpJoin(code) {
+                disconnectMp();
+                mpRoomCode = code;
+                mpIsHost = false;
+                const peerId = 'mcfinder-' + code + '-client';
+                const hostId = 'mcfinder-' + code + '-host';
+
+                mpPeer = new Peer(peerId, { debug: 0 });
+
+                mpPeer.on('open', id => {
+                    mpRoomOverlay.classList.remove('show');
+                    mpWaitOverlay.classList.add('show');
+                    mpRoomCodeDisplay.textContent = code;
+                    mpNameOpp.textContent = t('对手');
+                    const statusEl = mpWaitOverlay.querySelector('.mp-status');
+                    if (statusEl) statusEl.innerHTML = '<span class="spinner"></span>' + t('正在连接...');
+
+                    const conn = mpPeer.connect(hostId, { reliable: true });
+                    conn.on('open', () => {
+                        mpWaitOverlay.classList.remove('show');
+                        setupMpConnection(conn);
+                        const acc = getCurrentAccount();
+                        const myName = acc ? acc.name : ('Player');
+                        conn.send({ type: 'name', name: myName });
+                        conn.send({ type: 'ready' });
+                        // 收到对方的ready后会在setupMpConnection中触发倒计时
+                    });
+                    conn.on('error', () => {
+                        mpWaitOverlay.classList.remove('show');
+                        mpRoomOverlay.classList.add('show');
+                        mpRoomError.textContent = t('无法连接到房间，请检查房间号');
+                        mpRoomError.classList.add('show');
+                    });
+                });
+
+                mpPeer.on('error', err => {
+                    console.error('PeerJS error:', err);
+                    mpWaitOverlay.classList.remove('show');
+                    mpRoomOverlay.classList.add('show');
+                    mpRoomError.textContent = t('无法连接到房间，请检查房间号');
+                    mpRoomError.classList.add('show');
+                });
+            }
+
+            function startMpCountdown() {
+                if (mpCountdownActive) return;
+                mpCountdownActive = true;
+                multiplayerMode = true;
+                gameType = 'multiplayer';
+
+                // 隐藏所有覆盖层
+                startOverlay.classList.remove('active');
+                modeOverlay.classList.remove('active');
+                mpWaitOverlay.classList.remove('show');
+                mpRoomOverlay.classList.remove('show');
+                mpGameTypeOverlay.classList.remove('show');
+
+                // 显示记分板
+                mpScoreBar.classList.add('show');
+                mpScoreYou.textContent = '0';
+                mpScoreOpp.textContent = '0';
+                mpDotYou.className = 'mp-alive-dot live';
+                mpDotOpp.className = 'mp-alive-dot live';
+
+                mpOpponentScore = 0; mpOpponentAlive = true;
+                mpMyDead = false; mpOppDead = false; mpGameStarted = false;
+
+                // 4-3-2-1-GO 倒计时
+                let count = 4;
+                mpCountdown.classList.add('show');
+                mpCountdown.textContent = count;
+                const savedStartLives = startLives;
+                startLives = 1; // 联机模式强制1条命
+                const countInterval = setInterval(() => {
+                    count--;
+                    if (count > 0) {
+                        mpCountdown.textContent = count;
+                    } else if (count === 0) {
+                        mpCountdown.textContent = 'GO!';
+                    } else {
+                        mpCountdown.classList.remove('show');
+                        mpCountdown.textContent = '';
+                        clearInterval(countInterval);
+                        // 开始游戏
+                        mpGameStarted = true;
+                        startNormalGame();
+                        startLives = savedStartLives;
+                        // 强制显示计分板
+                        mpScoreBar.classList.add('show');
+                    }
+                }, 800);
+            }
+
+            function syncMpScore() {
+                if (!mpConn || !mpGameStarted || mpMyDead) return;
+                try {
+                    mpConn.send({ type: 'score', score: score });
+                } catch(e) {}
+            }
+
+            function notifyMpDeath() {
+                if (!mpConn || mpMyDead) return;
+                mpMyDead = true;
+                mpDotYou.className = 'mp-alive-dot dead';
+                try {
+                    mpConn.send({ type: 'dead', score: score });
+                } catch(e) {}
+                checkMpGameEnd();
+            }
+
+            function checkMpGameEnd() {
+                if (!mpGameStarted) return;
+                if (mpMyDead && mpOppDead) {
+                    showMpResult();
+                }
+            }
+
+            function showMpResult() {
+                mpGameStarted = false;
+                gameOverOverlay.classList.remove('active');
+                mpResultOverlay.classList.add('show');
+                mpCountdown.classList.remove('show');
+
+                mpResultScoreYou.textContent = score;
+                mpResultScoreOpp.textContent = mpOpponentScore;
+
+                // 移除旧class
+                mpResultYou.classList.remove('winner');
+                mpResultOpp.classList.remove('winner');
+
+                if (score > mpOpponentScore) {
+                    mpResultTitle.innerHTML = '🏆 ' + t('你赢了！');
+                    mpResultTitle.className = 'win-text';
+                    mpResultYou.classList.add('winner');
+                } else if (score < mpOpponentScore) {
+                    mpResultTitle.innerHTML = '😞 ' + t('你输了！');
+                    mpResultTitle.className = 'lose-text';
+                    mpResultOpp.classList.add('winner');
+                } else {
+                    mpResultTitle.innerHTML = '🤝 ' + t('平局！');
+                    mpResultTitle.className = 'lose-text';
+                }
+            }
+
+            // ========== 联机游戏循环 - 每15帧同步一次分数 ==========
+
+            // 同步最佳分数之前，注入联机检测到游戏循环
+            const origEndGame = endGame;
+            endGame = function(isTimeUp) {
+                if (multiplayerMode && !mpMyDead) {
+                    notifyMpDeath();
+                }
+                origEndGame(isTimeUp);
+                if (multiplayerMode) {
+                    // 隐藏重启按钮，显示等待对手
+                    btnRestart.style.display = 'none';
+                    mpScoreBar.classList.add('show');
+                    const finalScoreEl = document.getElementById('finalScore');
+                    if (finalScoreEl && !mpOppDead) {
+                        finalScoreEl.innerHTML = finalScoreEl.innerHTML + '<br><span style="font-size:14px;color:#f39c12;">' + t('等待对手完成...') + '</span>';
+                        // 显示退出按钮
+                        btnBackToMenu.style.display = '';
+                        btnBackToMenu.textContent = '🚪 ' + t('退出等待');
+                    }
+                    if (mpOppDead) {
+                        // 如果对手已经死了，直接显示结果
+                        gameOverOverlay.classList.remove('active');
+                        showMpResult();
+                    }
+                }
+            };
 
             // 同步最佳分数
             syncBestScores();
