@@ -1881,7 +1881,7 @@
             </div>
 
             <button class="btn-close btn-save-green" id="btnCloseSettings" data-i18n="保存">保存</button>
-            <div class="settings-version" id="settingsVersion" style="cursor:pointer;" title="点击查看更新日志">版本号 v1.3.2</div>
+            <div class="settings-version" id="settingsVersion" style="cursor:pointer;" title="点击查看更新日志">版本号 v1.3.5</div>
         </div>
 
         <!-- 关闭事件提醒警告弹窗 -->
@@ -3658,8 +3658,9 @@
             // currentLang 在顶部 I18N 块已声明
 
             // ========== 版本系统 ==========
-            let VERSION = '1.3.4';
+            let VERSION = '1.3.5';
             const VERSION_HISTORY = [
+                { v: '1.3.5', img: '更新版本主题.png', text: '🐛 修复紫色大冰块砸中后游戏卡死：添加冰块死亡原因映射，砸中扣血，1血即死显示"被紫色大冰块砸死了"提示' },
                 { v: '1.3.4', img: '更新版本主题.png', text: '🖼️ 更新日志新增版本主题图：1.2.0~1.2.21使用1.2.0主题图，1.2.22~1.2.38使用1.2.22主题图' },
                 { v: '1.3.3', img: '更新版本主题.png', text: '🐛 修复死亡后存档残留：继续游戏时死亡，存档自动清除，不再显示继续游戏按钮' },
                 { v: '1.3.2', img: '更新版本主题.png', text: '🐛 修复继续游戏BUG：死亡后正确显示继续游戏按钮\n⚙️ 修复存档恢复：正确恢复游戏难度和怪物生成设置\n🖼️ 版本主题图：V1.3.x 系列版本弹窗显示主题图片' },
@@ -7717,7 +7718,7 @@
                 gameOverTitle.classList.toggle('time-up', !!isTimeUp);
                 // 显示死亡原因
                 if (deathReason) {
-                    const reasons = { ground: '💥 撞到地面！', pipe: '🔧 撞到管道！', net: '🕸️ 被网粘住！', zombie: '🧟 被僵尸鸟撞了！', chick: '🐤 被小野鸡撞了！', bullet: '💣 被子弹打中了！' };
+                    const reasons = { ground: '💥 撞到地面！', pipe: '🔧 撞到管道！', net: '🕸️ 被网粘住！', zombie: '🧟 被僵尸鸟撞了！', chick: '🐤 被小野鸡撞了！', bullet: '💣 被子弹打中了！', ice: '🧊 被紫色大冰块砸死了！', vacuum: '🧹 被吸尘器吸死了！' };
                     deathReasonEl.textContent = reasons[deathReason] || '';
                     deathReasonEl.style.display = 'inline-block';
                 } else {
