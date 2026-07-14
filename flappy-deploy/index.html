@@ -440,6 +440,46 @@
         }
         .btn-reset-all:hover { transform: scale(1.02); box-shadow: 0 4px 20px rgba(231,76,60,0.4); }
 
+        /* ========== 设置搜索 ========== */
+        .settings-search-wrap {
+            position: relative; margin-bottom: 14px;
+        }
+        .settings-search {
+            width: 100%; padding: 10px 38px 10px 14px;
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 25px; color: #fff; font-size: 14px;
+            outline: none; transition: all 0.25s;
+        }
+        .settings-search::placeholder { color: rgba(255,255,255,0.35); }
+        .settings-search:focus { border-color: #f1c40f; background: rgba(255,255,255,0.12); box-shadow: 0 0 12px rgba(241,196,15,0.15); }
+        .settings-search-icon {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            font-size: 16px; pointer-events: none; color: rgba(255,255,255,0.4);
+        }
+        .settings-search-clear {
+            position: absolute; right: 34px; top: 50%; transform: translateY(-50%);
+            font-size: 16px; cursor: pointer; color: rgba(255,255,255,0.5);
+            display: none; width: 20px; height: 20px; line-height: 20px;
+            text-align: center; border-radius: 50%; background: rgba(255,255,255,0.12);
+        }
+        .settings-search-no-result {
+            text-align: center; font-size: 13px; color: rgba(255,255,255,0.4);
+            padding: 20px 0; display: none;
+        }
+        /* 设置项高亮 */
+        .setting-group.search-highlight, .setting-switch-row.search-highlight,
+        .warning-position-row.search-highlight, .setting-group.debug-entry.search-highlight {
+            animation: searchPulse 0.8s ease-in-out;
+            background: rgba(241,196,15,0.12) !important;
+            border-radius: 12px;
+        }
+        @keyframes searchPulse {
+            0% { background: rgba(241,196,15,0.25) !important; }
+            100% { background: rgba(241,196,15,0.12) !important; }
+        }
+        .settings-section.search-hidden { display: none; }
+        .setting-search-hidden { display: none !important; }
+
         /* 设置分区 */
         .settings-section {
             margin-bottom: 16px; padding: 14px;
@@ -1683,6 +1723,14 @@
         <!-- 设置弹窗 -->
         <div class="modal" id="settingsModal">
             <h3 data-i18n="游戏设置">⚙️ 游戏设置</h3>
+
+            <!-- 设置搜索 -->
+            <div class="settings-search-wrap">
+                <input type="text" class="settings-search" id="settingsSearch" placeholder="🔍 搜索设置项（如：成就弹窗、皇冠、音效...）" autocomplete="off">
+                <span class="settings-search-clear" id="settingsSearchClear">✕</span>
+                <span class="settings-search-icon">🔍</span>
+            </div>
+            <div class="settings-search-no-result" id="settingsSearchNoResult" data-i18n="设置中未找到此选项">设置中未找到此选项</div>
 
             <!-- 按钮区 -->
             <div class="settings-section">
@@ -3263,7 +3311,8 @@
                     '已拥有': 'Owned',
                     '装备皇冠': 'Equip Crown',
                     '🎉 永久皇冠购买成功！': '🎉 Permanent Crown purchased!',
-                    '可在「游戏设置 → 开关区」中开启或关闭「装备皇冠」。': 'You can toggle "Equip Crown" in Settings.'
+                    '可在「游戏设置 → 开关区」中开启或关闭「装备皇冠」。': 'You can toggle "Equip Crown" in Settings.',
+                    '设置中未找到此选项': 'Setting not found'
                 }
             };
             let currentLang = 'zh';
@@ -3525,6 +3574,9 @@
             const switchBirdChirp = document.getElementById('switchBirdChirp');
             const crownEquipRow = document.getElementById('crownEquipRow');
             const switchCrownEquip = document.getElementById('switchCrownEquip');
+            const settingsSearch = document.getElementById('settingsSearch');
+            const settingsSearchClear = document.getElementById('settingsSearchClear');
+            const settingsSearchNoResult = document.getElementById('settingsSearchNoResult');
             const warningPositionOptions = document.getElementById('warningPositionOptions');
             const warningHiddenConfirmModal = document.getElementById('warningHiddenConfirmModal');
             const btnWarningHiddenCancel = document.getElementById('btnWarningHiddenCancel');
@@ -9005,9 +9057,224 @@
             }
 
             // ========== 设置弹窗 ==========
-            btnSettings.addEventListener('click', e => { e.stopPropagation(); refreshSettingsUI(); settingsModal.classList.add('show'); });
-            btnCloseSettings.addEventListener('click', e => { e.stopPropagation(); settingsModal.classList.remove('show'); });
+            btnSettings.addEventListener('click', e => { e.stopPropagation(); refreshSettingsUI(); settingsModal.classList.add('show'); clearSettingsSearch(); });
+            btnCloseSettings.addEventListener('click', e => { e.stopPropagation(); settingsModal.classList.remove('show'); clearSettingsSearch(); });
             settingsModal.addEventListener('click', e => e.stopPropagation());
+
+            // ========== 设置搜索 ==========
+            // 关键词别名映射：用户可能说的各种说法 → 实际设置项关键字
+            const SETTING_ALIASES = {
+                // 难度选择
+                '难度': 'difficulty', '简单': 'difficulty', '困难': 'difficulty', '正常': 'difficulty', '稍简单': 'difficulty',
+                // 管道位置
+                '管道位置': 'pipePosition', '偏上': 'pipePosition', '偏下': 'pipePosition', '随机位置': 'pipePosition',
+                // 管道皮肤
+                '管道皮肤': 'pipeSkin', '原版管道': 'pipeSkin', '网': 'pipeSkin', '皮肤': 'pipeSkin',
+                // 老版本材质包
+                '材质包': 'legacyTex', '老版本': 'legacyTex', '网纹': 'legacyTex', '老版本网纹': 'legacyTex',
+                // 怪物
+                '怪物': 'monster', '僵尸': 'monster', '僵尸鸟': 'monster', '小野鸡': 'chick', '野鸡': 'chick', '怪物生成': 'monster',
+                // 破纪录
+                '破纪录': 'record', '火焰': 'record', '火焰边框': 'record', '指示器': 'record', '+N': 'record', '纪录': 'record', '特效': 'record',
+                // 随机事件
+                '随机事件': 'event', '事件': 'event', '地震': 'event', '打仗': 'event', '异世界': 'event', '吸尘器': 'event', '子弹': 'bullet', '子弹密度': 'bullet',
+                '事件触发间隔': 'eventInterval', '触发间隔': 'eventInterval', '间隔': 'eventInterval',
+                // 生命
+                '生命': 'lives', '生命值': 'lives', '起始生命': 'lives', '起始生命值': 'lives', '命': 'lives', '条命': 'lives',
+                '爱心': 'lives', '血量': 'lives',
+                // 字体
+                '字体': 'fontSize', '字体大小': 'fontSize', '大小': 'fontSize',
+                // 小鸟叫声概率
+                '叫声概率': 'birdChirpProb', '小鸟叫声概率': 'birdChirpProb',
+                // 无尽模式
+                '无尽模式': 'endlessTime', '无尽': 'endlessTime', '无尽时间': 'endlessTime', '无尽模式时间': 'endlessTime',
+                // 开关区
+                '每日最高分': 'includeDaily', '每日最高分计入': 'includeDaily', '计入': 'includeDaily',
+                '简洁': 'simpleMode', '简洁模式': 'simpleMode',
+                '成就': 'achievementPopup', '成就提示': 'achievementPopup', '成就弹窗': 'achievementPopup', '成就弹出': 'achievementPopup',
+                '成就提醒': 'achievementPopup', '弹出成就': 'achievementPopup', '弹出成就框': 'achievementPopup', '成就框': 'achievementPopup',
+                '游戏弹出成就框': 'achievementPopup', '游戏中弹出成就': 'achievementPopup', '游戏中弹出成就框': 'achievementPopup',
+                '跳跃音效': 'jumpSound', '跳跃声音': 'jumpSound', '嘟嘟': 'jumpSound', '嘟': 'jumpSound', '音效': 'jumpSound',
+                '穿过管道': 'passPipeSound', '管道音效': 'passPipeSound', '叮': 'passPipeSound', '通过管道': 'passPipeSound',
+                '小鸟阴影': 'birdShadow', '阴影': 'birdShadow', '阴影模式': 'birdShadow', '影子': 'birdShadow',
+                '小鸟叫声': 'birdChirp', '叫声': 'birdChirp', '鸟叫': 'birdChirp', '鸟叫声': 'birdChirp', '叫': 'birdChirp',
+                '皇冠': 'crown', '装备皇冠': 'crown', '永久皇冠': 'crown',
+                '事件提醒': 'warningPos', '提醒位置': 'warningPos', '提醒': 'warningPos', '事件提醒位置': 'warningPos', '事件位置': 'warningPos',
+                '语言': 'language', 'English': 'language', '英文': 'language', '中文': 'language', 'lang': 'language',
+                '按键': 'jumpKey', '跳跃按键': 'jumpKey', '键位': 'jumpKey', '空格': 'jumpKey', '键盘': 'jumpKey',
+                '重置': 'resetall', '全部重置': 'resetall', '重启': 'resetall', '清空': 'resetall', '清除数据': 'resetall',
+                '调试': 'debug', '管理员': 'admin', '管理': 'admin', '密码': 'password', '忘记密码': 'password',
+                // 按钮区其他
+                '小野鸡从上方掉落': 'chickTop', '上方掉落': 'chickTop', '野鸡掉落': 'chickTop',
+            };
+
+            function getSettingTargetId(aliasKey) {
+                // 返回设置项的 CSS 选择器或 ID
+                const map = {
+                    'difficulty': '#diffGroup',
+                    'pipePosition': '#posGroup',
+                    'pipeSkin': '#skinGroup',
+                    'monster': '#monsterGroup',
+                    'chick': '#monsterGroup',
+                    'chickTop': '#chickTopGroup',
+                    'record': '#recordGroup',
+                    'event': '#eventGroup',
+                    'bullet': '#bulletDensitySlider',
+                    'eventInterval': '#eventIntervalSlider',
+                    'lives': '#livesSlider',
+                    'fontSize': '#fontSizeSlider',
+                    'birdChirpProb': '#birdChirpProbabilitySlider',
+                    'endlessTime': '#endlessTimeSlider',
+                    'includeDaily': '#switchIncludeDaily',
+                    'simpleMode': '#switchSimpleMode',
+                    'achievementPopup': '#switchAchievementPopup',
+                    'jumpSound': '#switchJumpSound',
+                    'passPipeSound': '#switchPassPipeSound',
+                    'birdShadow': '#switchBirdShadow',
+                    'birdChirp': '#switchBirdChirp',
+                    'crown': '#crownEquipRow',
+                    'warningPos': '#warningPositionOptions',
+                    'language': '#languageOptions',
+                    'jumpKey': '#keyDisplay',
+                    'legacyTex': '#legacyTexGroup',
+                    'resetall': '#btnResetAll',
+                    'debug': '#debugGroup',
+                    'admin': '#adminManageGroup',
+                    'password': '#btnForgotPwd',
+                };
+                return map[aliasKey] || null;
+            }
+
+            function matchSettingsSearch(query) {
+                const q = query.toLowerCase().trim();
+                if (!q) return [];
+                const results = [];
+                // 遍历别名映射
+                for (const [keyword, aliasKey] of Object.entries(SETTING_ALIASES)) {
+                    if (keyword.toLowerCase().includes(q) || q.includes(keyword.toLowerCase())) {
+                        const targetId = getSettingTargetId(aliasKey);
+                        if (targetId && !results.find(r => r.targetId === targetId)) {
+                            results.push({ keyword, aliasKey, targetId });
+                        }
+                    }
+                }
+                return results;
+            }
+
+            function highlightSettingItem(targetId) {
+                if (!targetId) return;
+                const el = document.querySelector(targetId);
+                if (!el) return;
+                // 向上找到 group 或 row 容器
+                const container = el.closest('.setting-group') || el.closest('.setting-switch-row') ||
+                    el.closest('.warning-position-row') || el.closest('.setting-group.debug-entry') || el;
+                container.classList.add('search-highlight');
+                // 滚动到底部+搜索区域可见的前提下
+                setTimeout(() => {
+                    container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 50);
+                // 0.8s 后去掉高亮
+                setTimeout(() => { container.classList.remove('search-highlight'); }, 1200);
+            }
+
+            function clearSettingsSearch() {
+                if (settingsSearch) settingsSearch.value = '';
+                if (settingsSearchClear) settingsSearchClear.style.display = 'none';
+                if (settingsSearchNoResult) settingsSearchNoResult.style.display = 'none';
+                // 清除所有隐藏
+                settingsModal.querySelectorAll('.settings-section').forEach(s => s.classList.remove('search-hidden'));
+                settingsModal.querySelectorAll('.setting-group, .setting-switch-row, .warning-position-row')
+                    .forEach(el => el.classList.remove('setting-search-hidden'));
+                settingsModal.querySelectorAll('.search-highlight').forEach(el => el.classList.remove('search-highlight'));
+                // 恢复被搜索临时显示的行
+                settingsModal.querySelectorAll('.search-force-show').forEach(el => {
+                    el.classList.remove('search-force-show');
+                    el.style.display = el.dataset.searchOrigDisplay || '';
+                    delete el.dataset.searchOrigDisplay;
+                });
+            }
+
+            function performSettingsSearch() {
+                const q = (settingsSearch && settingsSearch.value || '').trim();
+                // 显示/隐藏清除按钮
+                if (settingsSearchClear) settingsSearchClear.style.display = q ? 'block' : 'none';
+                // 先清除所有状态
+                settingsModal.querySelectorAll('.settings-section').forEach(s => s.classList.remove('search-hidden'));
+                settingsModal.querySelectorAll('.setting-group, .setting-switch-row, .warning-position-row')
+                    .forEach(el => el.classList.remove('setting-search-hidden'));
+                settingsModal.querySelectorAll('.search-highlight').forEach(el => el.classList.remove('search-highlight'));
+                // 恢复被搜索临时显示的行
+                settingsModal.querySelectorAll('.search-force-show').forEach(el => {
+                    el.classList.remove('search-force-show');
+                    el.style.display = el.dataset.searchOrigDisplay || '';
+                    delete el.dataset.searchOrigDisplay;
+                });
+                if (settingsSearchNoResult) settingsSearchNoResult.style.display = 'none';
+
+                if (!q) return;
+
+                const results = matchSettingsSearch(q);
+                if (results.length === 0) {
+                    if (settingsSearchNoResult) settingsSearchNoResult.style.display = 'block';
+                    return;
+                }
+                // 显示匹配项，隐藏其他
+                const targetIds = [...new Set(results.map(r => r.targetId))];
+                // 收集所有"叶子"设置项容器
+                const allItems = settingsModal.querySelectorAll('.setting-group, .setting-switch-row, .warning-position-row');
+                const allSections = settingsModal.querySelectorAll('.settings-section');
+                let anyMatched = false;
+                allItems.forEach(item => {
+                    let matched = false;
+                    for (const targetId of targetIds) {
+                        const targetEl = document.querySelector(targetId);
+                        if (targetEl && (item.contains(targetEl) || item === targetEl || item.id === targetId.replace('#', ''))) {
+                            matched = true;
+                            break;
+                        }
+                    }
+                    if (!matched) {
+                        item.classList.add('setting-search-hidden');
+                    } else {
+                        anyMatched = true;
+                        // 如果原本是 display:none（如皇冠行），临时显示
+                        if (item.style.display === 'none' || item.style.display === '') {
+                            const currentDisplay = window.getComputedStyle(item).display;
+                            if (currentDisplay === 'none') {
+                                item.dataset.searchOrigDisplay = item.style.display;
+                                item.style.display = 'flex';
+                                item.classList.add('search-force-show');
+                            }
+                        }
+                    }
+                });
+                // 隐藏空的分区标题
+                allSections.forEach(section => {
+                    const visibleItems = section.querySelectorAll('.setting-group:not(.setting-search-hidden), .setting-switch-row:not(.setting-search-hidden), .warning-position-row:not(.setting-search-hidden)');
+                    if (visibleItems.length === 0) {
+                        section.classList.add('search-hidden');
+                    }
+                });
+                // 高亮第一个匹配项
+                if (results.length > 0) {
+                    highlightSettingItem(results[0].targetId);
+                }
+                if (settingsSearchNoResult) settingsSearchNoResult.style.display = anyMatched ? 'none' : 'block';
+            }
+
+            if (settingsSearch) {
+                settingsSearch.addEventListener('input', () => { performSettingsSearch(); });
+                settingsSearch.addEventListener('keydown', e => {
+                    if (e.key === 'Escape') { clearSettingsSearch(); settingsSearch.blur(); }
+                });
+            }
+            if (settingsSearchClear) {
+                settingsSearchClear.addEventListener('click', e => {
+                    e.stopPropagation();
+                    clearSettingsSearch();
+                    if (settingsSearch) settingsSearch.focus();
+                });
+            }
 
             // ========== 全部重置 ==========
             let resetStep = 0;           // 0=未开始, 1/2/3=第几次确认
@@ -9959,6 +10226,7 @@
                 if (shopModal.classList.contains('show') && !shopModal.contains(e.target) && e.target !== btnShop) shopModal.classList.remove('show');
                 if (settingsModal.classList.contains('show') && !settingsModal.contains(e.target) && e.target !== btnSettings) {
                     settingsModal.classList.remove('show');
+                    clearSettingsSearch();
                     isListeningForKey = false;
                 }
                 if (!debugJustOpened && debugModal.classList.contains('show') && !debugModal.contains(e.target) && e.target.id !== 'btnOpenDebug') {
