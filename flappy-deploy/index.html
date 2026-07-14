@@ -2380,7 +2380,7 @@
                 <span class="item-icon">👑</span>
                 <div class="item-info">
                     <div class="item-name" data-i18n="永久皇冠">永久皇冠</div>
-                    <div class="item-desc" id="crownShopDesc" data-i18n="死亡时皇冠会飞走，但重新开始后仍会留在小鸟头上">死亡时皇冠会飞走，但重新开始后仍会留在小鸟头上</div>
+                    <div class="item-desc" id="crownShopDesc" data-i18n="死亡时皇冠会飞走并落在草坪上，重新开始后回到小鸟头上">死亡时皇冠会飞走并落在草坪上，重新开始后回到小鸟头上</div>
                     <div class="item-owned" id="crownOwnedLabel" style="display:none;"><span data-i18n="已拥有">已拥有</span></div>
                 </div>
                 <button class="btn-buy" id="btnBuyCrown">🪙9800</button>
@@ -3305,7 +3305,7 @@
                     '连按屏幕逃脱！': 'Tap screen rapidly to escape!',
                     '版本号': 'Version',
                     '永久皇冠': 'Permanent Crown',
-                    '死亡时皇冠会飞走，但重新开始后仍会留在小鸟头上': 'The crown flies off on death, but stays on the bird after restart',
+                    '死亡时皇冠会飞走并落在草坪上，重新开始后回到小鸟头上': 'The crown flies off & lands on the grass; returns to the bird after restart',
                     '已拥有永久皇冠，可在设置中选择是否装备': 'Crown owned. Equip it in Settings.',
                     '最高分达到1500，永久皇冠特价2500金币': 'Best score ≥1500, crown now 2500 coins',
                     '已拥有': 'Owned',
@@ -3745,10 +3745,12 @@
             let runCrownActive = false; // 本局是否已获得250分临时皇冠
             let runCrownEverActive = false; // 本局是否曾达到250分（用于死亡飞走动画判断）
             let crownFlyAnim = null;    // 皇冠飞走动画状态
+            let crownLanded = null;     // 皇冠落地状态 { x, y }
 
             // ========== 版本系统 ==========
-            let VERSION = '1.4.1';
+            let VERSION = '1.4.3';
             const VERSION_HISTORY = [
+                { v: '1.4.3', img: '1.4.1.png', text: '👑 皇冠落地优化：皇冠掉落后会落在草坪上，永久留在原地，返回标题或重新开始后重置<br>🔍 设置搜索：支持模糊搜索设置项，智能匹配别名' },
                 { v: '1.4.1', img: '1.4.1.png', text: '👑 皇冠系统：达到250分获得本局皇冠；永久皇冠可在商店购买，死亡时皇冠飞走但装备后永久保留<br>✨ 更新大版本 V1.4 系列' },
                 { v: '1.3.5', img: '更新版本主题.png', text: '🐛 修复紫色大冰块砸中后游戏卡死：添加冰块死亡原因映射，砸中扣血，1血即死显示"被紫色大冰块砸死了"提示' },
                 { v: '1.3.4', img: '更新版本主题.png', text: '🖼️ 更新日志新增版本主题图：1.2.0~1.2.21使用1.2.0主题图，1.2.22~1.2.38使用1.2.22主题图' },
@@ -4853,8 +4855,8 @@
                         ctx.fillStyle = '#e74c3c'; ctx.beginPath(); ctx.moveTo(16,-1); ctx.lineTo(24,1); ctx.lineTo(16,4); ctx.closePath(); ctx.fill();
                         ctx.fillStyle = '#e67e22'; ctx.beginPath(); ctx.moveTo(-16,0); ctx.lineTo(-24,-6); ctx.lineTo(-22,2); ctx.lineTo(-28,8); ctx.lineTo(-20,6); ctx.closePath(); ctx.fill();
                     }
-                    // 绘制皇冠（250分临时皇冠或已装备的永久皇冠）
-                    if ((runCrownActive || crownEquipped) && !crownFlyAnim?.active) {
+                    // 绘制皇冠（250分临时皇冠或已装备的永久皇冠，落地后不再显示）
+                    if ((runCrownActive || crownEquipped) && !crownFlyAnim?.active && !crownLanded) {
                         drawCrownOnBird(ctx);
                     }
                     ctx.restore();
@@ -5484,7 +5486,7 @@
                 roundGold = 0; roundSilver = 0;
                 lives = 999; // 教程中无限生命
                 recordBroken = false; recordDiff = 0; recordMusicTriggered = false;
-                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null;
+                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null; crownLanded = null;
                 initFlameParticles();
                 resetRunStats();
                 dayLength = 30 + dayLengthCards * 10;
@@ -7480,6 +7482,8 @@
                 for (const p of pipes) p.draw(ctx);
                 for (const m of monsters) m.draw(ctx);
                 drawGround();
+                // 绘制落地皇冠（在草坪上）
+                drawCrownLanded();
                 // 绘制吸尘器
                 drawVacuum();
                 if (stuckToNet) {
@@ -7638,7 +7642,14 @@
                 crownFlyAnim.y += crownFlyAnim.vy;
                 crownFlyAnim.vy += 0.25; // 重力
                 crownFlyAnim.rotation += crownFlyAnim.vr;
-                if (crownFlyAnim.life <= 0 || crownFlyAnim.y > HEIGHT + 30) {
+                const grassY = HEIGHT - GROUND_HEIGHT + 3; // 草坪中央
+                if (crownFlyAnim.life <= 0 || crownFlyAnim.y >= grassY) {
+                    // 皇冠落在草坪上，永久保留
+                    crownLanded = {
+                        x: crownFlyAnim.x,
+                        y: grassY - 5, // 皇冠底部贴在草坪上
+                        rotation: crownFlyAnim.rotation
+                    };
                     crownFlyAnim.active = false;
                 }
             }
@@ -7650,6 +7661,36 @@
                 ctx.translate(c.x, c.y);
                 ctx.rotate(c.rotation);
                 ctx.globalAlpha = Math.min(1, c.life / 20);
+                // 皇冠底座
+                ctx.fillStyle = '#f1c40f';
+                ctx.beginPath();
+                ctx.moveTo(-12, 5);
+                ctx.lineTo(12, 5);
+                ctx.lineTo(10, -3);
+                ctx.lineTo(6, 3);
+                ctx.lineTo(0, -8);
+                ctx.lineTo(-6, 3);
+                ctx.lineTo(-10, -3);
+                ctx.closePath();
+                ctx.fill();
+                ctx.strokeStyle = '#b7950b';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                // 宝石
+                ctx.fillStyle = '#e74c3c';
+                ctx.beginPath(); ctx.arc(0, -3, 2.5, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#3498db';
+                ctx.beginPath(); ctx.arc(-7, 1, 1.8, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(7, 1, 1.8, 0, Math.PI * 2); ctx.fill();
+                ctx.restore();
+            }
+
+            function drawCrownLanded() {
+                if (!crownLanded) return;
+                const c = crownLanded;
+                ctx.save();
+                ctx.translate(c.x, c.y);
+                ctx.rotate(c.rotation || 0);
                 // 皇冠底座
                 ctx.fillStyle = '#f1c40f';
                 ctx.beginPath();
@@ -7744,7 +7785,7 @@
                 endlessTimeLeft = dailyChallengeSettings.timeMinutes * 60;
                 endlessTimeAccum = 0;
                 recordBroken = false; recordDiff = 0; recordMusicTriggered = false;
-                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null;
+                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null; crownLanded = null;
                 initFlameParticles();
                 dayLength = 30 + dayLengthCards * 10;
                 gameTimeAccum = 0; nightAlpha = 0; isNight = false; dayCycleCount = 0;
@@ -7785,7 +7826,7 @@
                 endlessTimeLeft = dailyChallengeSettings.timeMinutes * 60;
                 endlessTimeAccum = 0;
                 recordBroken = false; recordDiff = 0; recordMusicTriggered = false;
-                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null;
+                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null; crownLanded = null;
                 initFlameParticles();
                 dayLength = 30 + dayLengthCards * 10;
                 gameTimeAccum = 0; nightAlpha = 0; isNight = false; dayCycleCount = 0;
@@ -7812,7 +7853,7 @@
                 roundGold = 0; roundSilver = 0;
                 lives = startLives;
                 recordBroken = false; recordDiff = 0; recordMusicTriggered = false;
-                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null;
+                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null; crownLanded = null;
                 initFlameParticles();
                 resetRunStats();
                 if (startLives > 1) unlockAchievement('secondLife');
@@ -7851,7 +7892,7 @@
                 endlessTimeAccum = 0;
                 lives = 999; // 无限命
                 recordBroken = false; recordDiff = 0; recordMusicTriggered = false;
-                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null;
+                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null; crownLanded = null;
                 // 事件重置（无尽模式也支持事件）
                 resetAllEvents();
                 // 昼夜初始化
@@ -7980,7 +8021,7 @@
                 recordBroken = false;
                 recordDiff = 0;
                 recordMusicTriggered = false;
-                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null;
+                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null; crownLanded = null;
                 flameParticles = [];
                 // 退出教程时清理教程状态
                 tutorialActive = false;
@@ -8166,7 +8207,7 @@
                 // 恢复存档时根据分数恢复本局皇冠状态
                 runCrownActive = score >= 250;
                 runCrownEverActive = score >= 250;
-                crownFlyAnim = null;
+                crownFlyAnim = null; crownLanded = null;
                 initFlameParticles();
                 resetRunStats();
                 resetAllEvents();
@@ -11566,6 +11607,7 @@
                 questNoDamageActive = false;
                 questCompleteModal.classList.remove('show');
                 accountSetupPanel.classList.remove('show');
+                crownLanded = null; // 返回标题清除落地皇冠
                 mainMenu.classList.remove('hidden');
                 rollSlogan();
                 updateTitleAndSlogan();
