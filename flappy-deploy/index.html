@@ -430,6 +430,20 @@
         .guest-login-modal .btn-confirm {
             background: linear-gradient(135deg, #f39c12, #e67e22); color: #fff;
         }
+        .tutorial-skip-modal .btn-row { display: flex; gap: 10px; margin-top: 14px; }
+        .tutorial-skip-modal .btn-action {
+            flex: 1; padding: 10px 0; font-size: 14px; font-weight: 700;
+            border: none; border-radius: 50px; cursor: pointer;
+            letter-spacing: 1px; transition: all 0.2s;
+        }
+        .tutorial-skip-modal .btn-action:hover { transform: scale(1.03); }
+        .tutorial-skip-modal .btn-cancel {
+            background: rgba(255,255,255,0.1); color: #fff;
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+        .tutorial-skip-modal .btn-confirm {
+            background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff;
+        }
 
         /* ========== 全部重置按钮 ========== */
         .btn-reset-all {
@@ -1765,7 +1779,7 @@
         .mp-panel-scan { min-width: 300px; max-width: 380px; padding: 24px 20px; }
         .mp-panel-scan p { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 12px; }
         .mp-scan-video-wrapper { position: relative; width: 240px; height: 240px; margin: 0 auto 12px; border-radius: 12px; overflow: hidden; background: #000; border: 2px solid rgba(255,255,255,0.2); }
-        .mp-scan-video-wrapper video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        .mp-scan-video-wrapper video { width: 100%; height: 100%; object-fit: cover; }
         .mp-scan-status { font-size: 13px; color: rgba(255,255,255,0.7); min-height: 20px; margin-bottom: 8px; }
         @media (max-width: 480px) {
             .mp-scan-video-wrapper { width: 200px; height: 200px; }
@@ -2307,7 +2321,7 @@
             </div>
 
             <button class="btn-close btn-save-green" id="btnCloseSettings" data-i18n="保存">保存</button>
-            <div class="settings-version" id="settingsVersion" style="cursor:pointer;" title="点击查看更新日志">版本号 v1.4.18</div>
+            <div class="settings-version" id="settingsVersion" style="cursor:pointer;" title="点击查看更新日志">版本号 v1.4.19</div>
         </div>
 
         <!-- 关闭事件提醒警告弹窗 -->
@@ -2673,6 +2687,18 @@
                 请点击开始游戏，为您指导游戏该怎么玩
             </p>
             <button class="btn-close" id="btnCloseFirstGuide" style="width:100%;padding:10px 0;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:20px;color:#fff;font-size:14px;cursor:pointer;" data-i18n="知道了">知道了</button>
+        </div>
+
+        <!-- 跳过新手教程提示 -->
+        <div class="modal tutorial-skip-modal" id="tutorialSkipModal">
+            <h3>📖 <span>新手教程</span></h3>
+            <p style="text-align:center;font-size:14px;color:rgba(255,255,255,0.85);margin:14px 0;line-height:1.6;">
+                检测到你是第一次进入游戏。<br>是否跳过新手教程直接开始？
+            </p>
+            <div class="btn-row" style="margin-top:14px;gap:10px;">
+                <button class="btn-action btn-confirm" id="btnStartTutorial" style="flex:1;">开始教程</button>
+                <button class="btn-action btn-cancel" id="btnSkipTutorial" style="flex:1;">跳过教程</button>
+            </div>
         </div>
 
         <!-- 游客登录提示 -->
@@ -3851,6 +3877,9 @@
             const tutorialSpaceHint = document.getElementById('tutorialSpaceHint');
             const tutorialSpaceKey = document.getElementById('tutorialSpaceKey');
             const tutorialConfirm = document.getElementById('tutorialConfirm');
+            const tutorialSkipModal = document.getElementById('tutorialSkipModal');
+            const btnStartTutorial = document.getElementById('btnStartTutorial');
+            const btnSkipTutorial = document.getElementById('btnSkipTutorial');
             const btnModeNormal = document.getElementById('btnModeNormal');
             const btnModeEndless = document.getElementById('btnModeEndless');
             const btnModeBack = document.getElementById('btnModeBack');
@@ -4365,8 +4394,9 @@
             let mpInProgress = false;    // 是否正在联机流程中（创建/加入房间、等待、配置）
 
             // ========== 版本系统 ==========
-            let VERSION = '1.4.18';
+            let VERSION = '1.4.19';
             const VERSION_HISTORY = [
+                { v: '1.4.19', img: 'lianji.png', text:'📱 修复手机版速度过快：高刷新率屏幕游戏速度2倍BUG，固定60fps逻辑帧率<br>🐛 修复联机倒计时期间小鸟掉落：update() 增加联机模式判断<br>📷 扫码摄像头取消镜像翻转，解决左右反向问题' },
                 { v: '1.4.18', img: 'lianji.png', text:'🐛 修复联机双倒计时重叠：只保留联机专用 4-3-2-1-GO 倒计时<br>🐛 修复联机重新开始继承死亡位置：倒计时前立即重置小鸟与场景<br>🔌 对方掉线时显示提示并自动退出回主菜单<br>📷 新增摄像头扫描房间号二维码快速加入房间' },
                 { v: '1.4.17', img: 'lianji.png', text:'🔧 联机流程优化：创建房间→显示房间号→等待对手加入→再弹出游戏配置<br>🎮 选择权交给持有者：谁持有选择权谁就能调整配置并发给对手<br>🚀 开始游戏按钮也归选择权持有者控制' },
                 { v: '1.4.11', img: 'lianji.png', text:'🐛 修复联机流程严重BUG：倒计时期间点击屏幕不再跳到模式选择界面<br>🐛 修复联机退出后状态残留问题：彻底清理覆盖层与状态<br>🐛 修复联机未开始时键盘/触摸误触发问题<br>🚫 强化联机倒计时不可跳过，防止误操作' },
@@ -5376,6 +5406,7 @@
 
             // 新手教程状态
             let tutorialActive = false;
+            let tutorialSkipAction = ''; // 'start' 或 'continue'，记录用户是从哪个按钮触发教程跳过弹窗
             // 步骤：0=欢迎，1=跳跃练习，2=管道提示，3=管道练习，4=野鸡提示，5=野鸡练习，6=僵尸提示，7=僵尸练习，8=结束
             let tutorialStep = 0;
             let tutorialPipe = null;
@@ -7697,7 +7728,7 @@
 
             // ========== 游戏循环 ==========
             function update() {
-                if (gameState === 'countdown') {
+                if (gameState === 'countdown' && !mpCountdownActive) {
                     frameCount++; countdownTimer++;
                     if (countdownTimer >= 60) {
                         countdownTimer = 0; countdownValue--;
@@ -8535,42 +8566,50 @@
             }
 
             let _mpSyncFrame = 0;
+            let _lastGameTime = 0, _gameAccTime = 0;
+            const _FIXED_FRAME = 1000 / 60; // 固定60fps步长
             function gameLoop() {
                 if (btnDailyChallenge) btnDailyChallenge.classList.toggle('hidden', gameState !== 'start');
                 if (dailyCombinedBtn) dailyCombinedBtn.style.display = (gameState === 'start') ? '' : 'none';
-                updateCrownFly(); update(); draw();
-                // 联机模式：每15帧同步一次分数
-                if (multiplayerMode && mpGameStarted && gameState === 'playing') {
-                    _mpSyncFrame++;
-                    if (_mpSyncFrame >= 15) { _mpSyncFrame = 0; syncMpScore(); }
-                    // 限时模式倒计时
-                    if (mpTimeActive && (mpGameMode === 'score' || mpGameMode === 'death')) {
-                        mpTimeLeft--;
-                        if (mpTimeLeft <= 0) {
-                            mpTimeLeft = 0;
-                            mpTimeActive = false;
-                            mpMyDead = true;
-                            mpDotYou.className = 'mp-alive-dot dead';
-                            mpTimer.textContent = '0';
-                            mpTimer.classList.add('urgent');
-                            // 发送时间到消息
-                            if (mpConn) {
-                                try { mpConn.send({ type: 'timeUp', score: score, deathCount: mpMyDeathCount }); } catch(e) {}
-                            }
-                            // 结束游戏
-                            endGame(true);
-                            // 检查是否双方都结束了
-                            checkMpGameEnd();
-                        } else {
-                            // 更新计时器显示（每60帧更新一次）
-                            if (mpTimeLeft % 60 === 0) {
-                                const secs = Math.ceil(mpTimeLeft / 60);
-                                mpTimer.textContent = secs;
-                                if (secs <= 10) mpTimer.classList.add('urgent');
+                // 固定时间步长：防止高刷新率屏幕加速
+                const now = performance.now();
+                if (!_lastGameTime) _lastGameTime = now;
+                const rawElapsed = now - _lastGameTime;
+                _lastGameTime = now;
+                _gameAccTime += Math.min(rawElapsed, 120); // 单帧最长120ms防止卡顿堆积
+                while (_gameAccTime >= _FIXED_FRAME) {
+                    _gameAccTime -= _FIXED_FRAME;
+                    updateCrownFly(); update();
+                    // 联机模式：每15帧同步一次分数
+                    if (multiplayerMode && mpGameStarted && gameState === 'playing') {
+                        _mpSyncFrame++;
+                        if (_mpSyncFrame >= 15) { _mpSyncFrame = 0; syncMpScore(); }
+                        // 限时模式倒计时
+                        if (mpTimeActive && (mpGameMode === 'score' || mpGameMode === 'death')) {
+                            mpTimeLeft--;
+                            if (mpTimeLeft <= 0) {
+                                mpTimeLeft = 0;
+                                mpTimeActive = false;
+                                mpMyDead = true;
+                                mpDotYou.className = 'mp-alive-dot dead';
+                                mpTimer.textContent = '0';
+                                mpTimer.classList.add('urgent');
+                                if (mpConn) {
+                                    try { mpConn.send({ type: 'timeUp', score: score, deathCount: mpMyDeathCount }); } catch(e) {}
+                                }
+                                endGame(true);
+                                checkMpGameEnd();
+                            } else {
+                                if (mpTimeLeft % 60 === 0) {
+                                    const secs = Math.ceil(mpTimeLeft / 60);
+                                    mpTimer.textContent = secs;
+                                    if (secs <= 10) mpTimer.classList.add('urgent');
+                                }
                             }
                         }
                     }
                 }
+                draw();
                 requestAnimationFrame(gameLoop);
             }
 
@@ -9364,7 +9403,8 @@
                 e.stopPropagation();
                 const acc = getCurrentAccount();
                 if (acc && acc.data && !acc.data.tutorialCompleted) {
-                    startTutorial();
+                    tutorialSkipAction = 'start';
+                    tutorialSkipModal.classList.add('show');
                 } else {
                     showGameTypeSelect();
                 }
@@ -9374,7 +9414,8 @@
                 if (!hasSavedGame()) return;
                 const acc = getCurrentAccount();
                 if (acc && acc.data && !acc.data.tutorialCompleted) {
-                    clearSavedGame(); updateContinueButton(); startTutorial();
+                    tutorialSkipAction = 'continue';
+                    tutorialSkipModal.classList.add('show');
                 } else {
                     resumeSavedGame();
                 }
@@ -9382,6 +9423,31 @@
             tutorialConfirm.addEventListener('click', e => {
                 e.stopPropagation();
                 onTutorialConfirm();
+            });
+            btnStartTutorial.addEventListener('click', e => {
+                e.stopPropagation();
+                tutorialSkipModal.classList.remove('show');
+                if (tutorialSkipAction === 'continue') {
+                    clearSavedGame(); updateContinueButton();
+                }
+                startTutorial();
+            });
+            btnSkipTutorial.addEventListener('click', e => {
+                e.stopPropagation();
+                tutorialSkipModal.classList.remove('show');
+                const acc = getCurrentAccount();
+                if (acc && acc.data) {
+                    acc.data.tutorialCompleted = true;
+                    acc.data.firstGuideShown = true;
+                    tutorialCompleted = true;
+                    firstGuideShown = true;
+                    saveData();
+                }
+                if (tutorialSkipAction === 'continue') {
+                    resumeSavedGame();
+                } else {
+                    showGameTypeSelect();
+                }
             });
             btnModeNormal.addEventListener('click', e => { e.stopPropagation(); startNormalGame(); });
             btnModeEndless.addEventListener('click', e => { e.stopPropagation(); startEndlessGame(); });
@@ -10712,7 +10778,7 @@
                  achDeleteConfirm1Modal, achDeleteConfirm2Modal,
                  deleteOptionsModal, adminAuthModal, noAdminModal, permManageModal,
                  adminManageAuthModal, adminManageModal, forgotPwdModal,
-                 dailyQuestModal, achievementsModal, totalScoreModal, firstGuideModal, guestLoginModal].forEach(m => {
+                 dailyQuestModal, achievementsModal, totalScoreModal, firstGuideModal, tutorialSkipModal, guestLoginModal].forEach(m => {
                     if (m) m.classList.remove('show');
                 });
                 if (typeof debugModal !== 'undefined') debugModal.classList.remove('show');
@@ -11577,6 +11643,9 @@
                 if (guestLoginModal.classList.contains('show') && !guestLoginModal.contains(e.target)) {
                     guestLoginModal.classList.remove('show');
                     guestLoginCallback = null;
+                }
+                if (tutorialSkipModal.classList.contains('show') && !tutorialSkipModal.contains(e.target)) {
+                    tutorialSkipModal.classList.remove('show');
                 }
                 if (resetConfirmModal.classList.contains('show') && !resetConfirmModal.contains(e.target)) {
                     resetConfirmModal.classList.remove('show');
@@ -13385,6 +13454,7 @@
                         mpCountdown.classList.remove('show');
                         mpCountdown.textContent = '';
                         clearInterval(countInterval);
+                        mpCountdownActive = false; // 倒计时结束，解除输入拦截
                         // 开始游戏
                         mpGameStarted = true;
                         startNormalGame();
@@ -13610,16 +13680,38 @@
             }
             safeOnClick(btnStart, () => {
                 const acc = getCurrentAccount();
-                if (acc && acc.data && !acc.data.tutorialCompleted) startTutorial();
-                else showGameTypeSelect();
+                if (acc && acc.data && !acc.data.tutorialCompleted) {
+                    tutorialSkipAction = 'start';
+                    tutorialSkipModal.classList.add('show');
+                } else showGameTypeSelect();
             });
             safeOnClick(btnContinue, () => {
                 if (!hasSavedGame()) return;
                 const acc = getCurrentAccount();
-                if (acc && acc.data && !acc.data.tutorialCompleted) { clearSavedGame(); updateContinueButton(); startTutorial(); }
-                else resumeSavedGame();
+                if (acc && acc.data && !acc.data.tutorialCompleted) {
+                    tutorialSkipAction = 'continue';
+                    tutorialSkipModal.classList.add('show');
+                } else resumeSavedGame();
             });
             safeOnClick(tutorialConfirm, onTutorialConfirm);
+            safeOnClick(btnStartTutorial, () => {
+                tutorialSkipModal.classList.remove('show');
+                if (tutorialSkipAction === 'continue') { clearSavedGame(); updateContinueButton(); }
+                startTutorial();
+            });
+            safeOnClick(btnSkipTutorial, () => {
+                tutorialSkipModal.classList.remove('show');
+                const acc = getCurrentAccount();
+                if (acc && acc.data) {
+                    acc.data.tutorialCompleted = true;
+                    acc.data.firstGuideShown = true;
+                    tutorialCompleted = true;
+                    firstGuideShown = true;
+                    saveData();
+                }
+                if (tutorialSkipAction === 'continue') { resumeSavedGame(); }
+                else { showGameTypeSelect(); }
+            });
             safeOnClick(btnModeNormal, startNormalGame);
             safeOnClick(btnModeEndless, startEndlessGame);
             safeOnClick(btnModeBack, hideModeSelect);
