@@ -1889,6 +1889,12 @@
                         <div class="setting-switch-thumb"></div>
                     </div>
                 </div>
+                <div class="setting-switch-row">
+                    <span class="setting-switch-label" data-i18n="黑夜网亮度增强">🌙 黑夜网亮度增强</span>
+                    <div class="setting-switch-track on" id="switchNetBrightNight">
+                        <div class="setting-switch-thumb"></div>
+                    </div>
+                </div>
                 <div class="setting-switch-row" id="crownEquipRow" style="display:none;">
                     <span class="setting-switch-label" data-i18n="装备皇冠">👑 装备皇冠</span>
                     <div class="setting-switch-track" id="switchCrownEquip">
@@ -2758,6 +2764,7 @@
                     '小鸟阴影': '🐦 Bird Shadow',
                     '小鸟叫声': '🐤 Bird Chirp',
                     '小鸟叫声概率': '🐤 Bird Chirp Rate',
+                    '黑夜网亮度增强': '🌙 Night Net Brightness',
                     '游戏中每3秒有概率触发小鸟叫声，越大越容易触发': 'Bird chirps every 3 seconds at this probability. Higher = more frequent.',
                     '按下空格即可跳过此倒计时': 'Press Space to skip countdown',
                     '事件提醒位置': '⚠️ Event Warning Position',
@@ -3572,6 +3579,7 @@
             const switchPassPipeSound = document.getElementById('switchPassPipeSound');
             const switchBirdShadow = document.getElementById('switchBirdShadow');
             const switchBirdChirp = document.getElementById('switchBirdChirp');
+            const switchNetBrightNight = document.getElementById('switchNetBrightNight');
             const crownEquipRow = document.getElementById('crownEquipRow');
             const switchCrownEquip = document.getElementById('switchCrownEquip');
             const settingsSearch = document.getElementById('settingsSearch');
@@ -3729,6 +3737,7 @@
             let birdShadowEnabled = false;   // 小鸟阴影模式，默认关闭
             let birdChirpEnabled = true;     // 小鸟叫声开关，默认开启
             let birdChirpProbability = 50;  // 小鸟叫声概率（10-90），默认50%
+            let netBrightNight = true;       // 黑夜网亮度增强，默认开启
             let tutorialCompleted = false; // 当前账户是否已完成新手教程
             let firstGuideShown = false; // 是否已显示首次进入引导
             let nightFlightPlayTime = 0; // 深夜飞行成就累计秒数（凌晨6点前游玩时间）
@@ -3748,8 +3757,9 @@
             let crownLanded = null;     // 皇冠落地状态 { x, y }
 
             // ========== 版本系统 ==========
-            let VERSION = '1.4.3';
+            let VERSION = '1.4.4';
             const VERSION_HISTORY = [
+                { v: '1.4.4', img: '1.4.1.png', text: '🌙 黑夜网亮度增强：黑夜时网会变白变亮，轻松看清位置，设置中默认开启可随时关闭<br>👑 皇冠落地优化：皇冠掉落后会落在草坪上，永久留在原地，返回标题或重新开始后重置' },
                 { v: '1.4.3', img: '1.4.1.png', text: '👑 皇冠落地优化：皇冠掉落后会落在草坪上，永久留在原地，返回标题或重新开始后重置<br>🔍 设置搜索：支持模糊搜索设置项，智能匹配别名' },
                 { v: '1.4.1', img: '1.4.1.png', text: '👑 皇冠系统：达到250分获得本局皇冠；永久皇冠可在商店购买，死亡时皇冠飞走但装备后永久保留<br>✨ 更新大版本 V1.4 系列' },
                 { v: '1.3.5', img: '更新版本主题.png', text: '🐛 修复紫色大冰块砸中后游戏卡死：添加冰块死亡原因映射，砸中扣血，1血即死显示"被紫色大冰块砸死了"提示' },
@@ -4505,7 +4515,7 @@
                     bestScore, difficulty, pipePosition, pipeSkin, jumpKeyCode,
                     spawnZombie, spawnChick, endlessTimeSetting, fontSizeLevel,
                     showFlameBorder, showRecordIndicator, startLives, simpleMode, showAchievementPopup,
-                    jumpSoundEnabled, passPipeSoundEnabled, birdShadowEnabled, birdChirpEnabled, birdChirpProbability, eventEnabled,
+                    jumpSoundEnabled, passPipeSoundEnabled, birdShadowEnabled, birdChirpEnabled, birdChirpProbability, netBrightNight, eventEnabled,
                     bulletDensity, eventCheckInterval, EVENT_CHANCE,
                     monsterChance, cloneAttackChance, vacuumChance, CLONE_LIFE_DURATION,
                     chickDropFromTop, debugChickDropFromTop, debugForceEvent, debugForceWeather,
@@ -4553,6 +4563,7 @@
                 birdShadowEnabled = d.birdShadowEnabled !== undefined ? d.birdShadowEnabled : false;
                 birdChirpEnabled = d.birdChirpEnabled !== undefined ? d.birdChirpEnabled : true;
                 birdChirpProbability = d.birdChirpProbability !== undefined ? d.birdChirpProbability : 50;
+                netBrightNight = d.netBrightNight !== undefined ? d.netBrightNight : true;
                 if (d.eventEnabled) { eventEnabled = Object.assign({ earthquake: true, battle: true, otherWorld: true, vacuum: true }, d.eventEnabled); }
                 bulletDensity = d.bulletDensity !== undefined ? d.bulletDensity : 0.03;
                 // 事件参数迁移：旧存档（v1.2.4之前）的 eventCheckInterval=1800 会导致事件几乎不触发
@@ -4936,21 +4947,27 @@
                     this._netBody(ctx, this.x, this.bottomY, this.width, HEIGHT - this.bottomY);
                 }
                 _netBody(ctx, x, y, w, h) {
+                    const brightNight = netBrightNight && nightAlpha > 0;
                     if (legacyTexturePack) {
                         // 老版本材质包：大楼窗户格子风格
                         if (legacyBuildingPattern) {
                             ctx.save();
                             ctx.translate(x, y);
+                            if (brightNight) {
+                                // 黑夜亮度增强：底层提亮
+                                ctx.fillStyle = '#7a7a90';
+                                ctx.fillRect(0, 0, w, h);
+                            }
                             ctx.fillStyle = legacyBuildingPattern;
                             ctx.fillRect(0, 0, w, h);
                             ctx.restore();
                         } else {
-                            ctx.fillStyle = '#3a3a4a';
+                            ctx.fillStyle = brightNight ? '#7a7a90' : '#3a3a4a';
                             ctx.fillRect(x, y, w, h);
                         }
                     } else {
                         // 新版网纹理
-                        ctx.fillStyle = '#3a3a4a';
+                        ctx.fillStyle = brightNight ? '#7a7a90' : '#3a3a4a';
                         ctx.fillRect(x, y, w, h);
                         if (netPattern) {
                             ctx.save();
@@ -8878,6 +8895,20 @@
                 saveData();
             });
 
+            // ========== 设置开关：黑夜网亮度增强 ==========
+            if (switchNetBrightNight) {
+                switchNetBrightNight.addEventListener('click', e => {
+                    e.stopPropagation();
+                    netBrightNight = !netBrightNight;
+                    if (netBrightNight) {
+                        switchNetBrightNight.classList.add('on');
+                    } else {
+                        switchNetBrightNight.classList.remove('on');
+                    }
+                    saveData();
+                });
+            }
+
             // ========== 设置开关：装备皇冠 ==========
             if (switchCrownEquip) {
                 switchCrownEquip.addEventListener('click', e => {
@@ -9127,6 +9158,8 @@
                 '字体': 'fontSize', '字体大小': 'fontSize', '大小': 'fontSize',
                 // 小鸟叫声概率
                 '叫声概率': 'birdChirpProb', '小鸟叫声概率': 'birdChirpProb',
+                // 黑夜网亮度
+                '黑夜网亮度': 'netBrightNight', '网亮度': 'netBrightNight', '黑天网': 'netBrightNight', '网太黑': 'netBrightNight', '看不清网': 'netBrightNight', '网暗': 'netBrightNight',
                 // 无尽模式
                 '无尽模式': 'endlessTime', '无尽': 'endlessTime', '无尽时间': 'endlessTime', '无尽模式时间': 'endlessTime',
                 // 开关区
@@ -9165,6 +9198,7 @@
                     'lives': '#livesSlider',
                     'fontSize': '#fontSizeSlider',
                     'birdChirpProb': '#birdChirpProbabilitySlider',
+                    'netBrightNight': '#switchNetBrightNight',
                     'endlessTime': '#endlessTimeSlider',
                     'includeDaily': '#switchIncludeDaily',
                     'simpleMode': '#switchSimpleMode',
@@ -9499,6 +9533,7 @@
                 birdShadowEnabled = false;
                 birdChirpEnabled = true;
                 birdChirpProbability = 50;
+                netBrightNight = true;
                 eventEnabled = { earthquake: true, battle: true, otherWorld: true, vacuum: true };
                 includeDailyInBestScore = true;
                 firstTimeSetupDone = false;
@@ -9851,6 +9886,11 @@
                     switchBirdChirp.classList.add('on');
                 } else {
                     switchBirdChirp.classList.remove('on');
+                }
+                if (netBrightNight) {
+                    switchNetBrightNight.classList.add('on');
+                } else {
+                    switchNetBrightNight.classList.remove('on');
                 }
                 // 皇冠装备开关：仅拥有永久皇冠时显示
                 if (crownEquipRow) {
