@@ -1841,6 +1841,12 @@
                         <div class="setting-switch-thumb"></div>
                     </div>
                 </div>
+                <div class="setting-switch-row" id="crownEquipRow" style="display:none;">
+                    <span class="setting-switch-label" data-i18n="装备皇冠">👑 装备皇冠</span>
+                    <div class="setting-switch-track" id="switchCrownEquip">
+                        <div class="setting-switch-thumb"></div>
+                    </div>
+                </div>
                 <div class="warning-position-row">
                     <span class="warning-position-label" data-i18n="事件提醒位置">⚠️ 事件提醒位置</span>
                     <div class="warning-position-options" id="warningPositionOptions">
@@ -1881,7 +1887,7 @@
             </div>
 
             <button class="btn-close btn-save-green" id="btnCloseSettings" data-i18n="保存">保存</button>
-            <div class="settings-version" id="settingsVersion" style="cursor:pointer;" title="点击查看更新日志">版本号 v1.3.5</div>
+            <div class="settings-version" id="settingsVersion" style="cursor:pointer;" title="点击查看更新日志">版本号 v1.4.1</div>
         </div>
 
         <!-- 关闭事件提醒警告弹窗 -->
@@ -2321,6 +2327,15 @@
                     <div class="item-owned"><span data-i18n="已拥有">已拥有</span>: <span id="dayLengthCardCount">0</span> <span data-i18n="张">张</span></div>
                 </div>
                 <button class="btn-buy" id="btnBuyDayLengthCard">🪙15</button>
+            </div>
+            <div class="shop-item" id="crownShopItem">
+                <span class="item-icon">👑</span>
+                <div class="item-info">
+                    <div class="item-name" data-i18n="永久皇冠">永久皇冠</div>
+                    <div class="item-desc" id="crownShopDesc" data-i18n="死亡时皇冠会飞走，但重新开始后仍会留在小鸟头上">死亡时皇冠会飞走，但重新开始后仍会留在小鸟头上</div>
+                    <div class="item-owned" id="crownOwnedLabel" style="display:none;"><span data-i18n="已拥有">已拥有</span></div>
+                </div>
+                <button class="btn-buy" id="btnBuyCrown">🪙9800</button>
             </div>
             <button class="btn-close" id="btnCloseShop" data-i18n="关闭">关闭</button>
         </div>
@@ -3240,7 +3255,15 @@
                     '（管理员）': ' (Admin)',
                     '连按空格逃脱！': 'Tap Space rapidly to escape!',
                     '连按屏幕逃脱！': 'Tap screen rapidly to escape!',
-                    '版本号': 'Version'
+                    '版本号': 'Version',
+                    '永久皇冠': 'Permanent Crown',
+                    '死亡时皇冠会飞走，但重新开始后仍会留在小鸟头上': 'The crown flies off on death, but stays on the bird after restart',
+                    '已拥有永久皇冠，可在设置中选择是否装备': 'Crown owned. Equip it in Settings.',
+                    '最高分达到1500，永久皇冠特价2500金币': 'Best score ≥1500, crown now 2500 coins',
+                    '已拥有': 'Owned',
+                    '装备皇冠': 'Equip Crown',
+                    '🎉 永久皇冠购买成功！': '🎉 Permanent Crown purchased!',
+                    '可在「游戏设置 → 开关区」中开启或关闭「装备皇冠」。': 'You can toggle "Equip Crown" in Settings.'
                 }
             };
             let currentLang = 'zh';
@@ -3326,6 +3349,10 @@
             const btnBuyLifeCard = document.getElementById('btnBuyLifeCard');
             const btnBuyTimeCard = document.getElementById('btnBuyTimeCard');
             const btnBuyDayLengthCard = document.getElementById('btnBuyDayLengthCard');
+            const crownShopItem = document.getElementById('crownShopItem');
+            const crownShopDesc = document.getElementById('crownShopDesc');
+            const crownOwnedLabel = document.getElementById('crownOwnedLabel');
+            const btnBuyCrown = document.getElementById('btnBuyCrown');
             const keyDisplay = document.getElementById('keyDisplay');
             const endlessTimeSlider = document.getElementById('endlessTimeSlider');
             const endlessTimeLabel = document.getElementById('endlessTimeLabel');
@@ -3496,6 +3523,8 @@
             const switchPassPipeSound = document.getElementById('switchPassPipeSound');
             const switchBirdShadow = document.getElementById('switchBirdShadow');
             const switchBirdChirp = document.getElementById('switchBirdChirp');
+            const crownEquipRow = document.getElementById('crownEquipRow');
+            const switchCrownEquip = document.getElementById('switchCrownEquip');
             const warningPositionOptions = document.getElementById('warningPositionOptions');
             const warningHiddenConfirmModal = document.getElementById('warningHiddenConfirmModal');
             const btnWarningHiddenCancel = document.getElementById('btnWarningHiddenCancel');
@@ -3657,9 +3686,18 @@
             let languageSelected = false; // 是否已选择过语言
             // currentLang 在顶部 I18N 块已声明
 
+            // ========== 皇冠系统 ==========
+            let crownUnlocked = false;  // 是否已解锁永久皇冠折扣（最高分≥1500，无尽/每日挑战不计入）
+            let crownOwned = false;     // 是否已购买永久皇冠
+            let crownEquipped = false;  // 是否在设置中装备皇冠
+            let runCrownActive = false; // 本局是否已获得250分临时皇冠
+            let runCrownEverActive = false; // 本局是否曾达到250分（用于死亡飞走动画判断）
+            let crownFlyAnim = null;    // 皇冠飞走动画状态
+
             // ========== 版本系统 ==========
-            let VERSION = '1.3.5';
+            let VERSION = '1.4.1';
             const VERSION_HISTORY = [
+                { v: '1.4.1', img: '1.4.1.png', text: '👑 皇冠系统：达到250分获得本局皇冠；永久皇冠可在商店购买，死亡时皇冠飞走但装备后永久保留<br>✨ 更新大版本 V1.4 系列' },
                 { v: '1.3.5', img: '更新版本主题.png', text: '🐛 修复紫色大冰块砸中后游戏卡死：添加冰块死亡原因映射，砸中扣血，1血即死显示"被紫色大冰块砸死了"提示' },
                 { v: '1.3.4', img: '更新版本主题.png', text: '🖼️ 更新日志新增版本主题图：1.2.0~1.2.21使用1.2.0主题图，1.2.22~1.2.38使用1.2.22主题图' },
                 { v: '1.3.3', img: '更新版本主题.png', text: '🐛 修复死亡后存档残留：继续游戏时死亡，存档自动清除，不再显示继续游戏按钮' },
@@ -4409,6 +4447,7 @@
                 if (!acc) return;
                 Object.assign(acc.data, {
                     totalGold, totalSilver, lifeCards, timeCards, dayLengthCards,
+                    crownUnlocked, crownOwned, crownEquipped,
                     bestScore, difficulty, pipePosition, pipeSkin, jumpKeyCode,
                     spawnZombie, spawnChick, endlessTimeSetting, fontSizeLevel,
                     showFlameBorder, showRecordIndicator, startLives, simpleMode, showAchievementPopup,
@@ -4437,6 +4476,9 @@
                 lifeCards = d.lifeCards || 0;
                 timeCards = d.timeCards || 0;
                 dayLengthCards = d.dayLengthCards || 0;
+                crownUnlocked = d.crownUnlocked !== undefined ? d.crownUnlocked : ((d.bestScore || 0) >= 1500);
+                crownOwned = d.crownOwned !== undefined ? d.crownOwned : false;
+                crownEquipped = d.crownEquipped !== undefined ? d.crownEquipped : false;
                 bestScore = d.bestScore || 0;
                 difficulty = d.difficulty || 'normal';
                 pipePosition = d.pipePosition || 'random';
@@ -4519,6 +4561,7 @@
                     isAdmin: isFirst,
                     data: {
                         totalGold: 0, totalSilver: 0, lifeCards: 0, timeCards: 0, dayLengthCards: 0,
+                        crownUnlocked: false, crownOwned: false, crownEquipped: false,
                         bestScore: 0, difficulty: 'normal', pipePosition: 'random', pipeSkin: 'pipe', legacyTexturePack: false, jumpKeyCode: 'Space',
                         spawnZombie: true, spawnChick: true, endlessTimeSetting: -1, fontSizeLevel: 2,
                         showFlameBorder: true, showRecordIndicator: true, startLives: 1, simpleMode: false,
@@ -4758,10 +4801,46 @@
                         ctx.fillStyle = '#e74c3c'; ctx.beginPath(); ctx.moveTo(16,-1); ctx.lineTo(24,1); ctx.lineTo(16,4); ctx.closePath(); ctx.fill();
                         ctx.fillStyle = '#e67e22'; ctx.beginPath(); ctx.moveTo(-16,0); ctx.lineTo(-24,-6); ctx.lineTo(-22,2); ctx.lineTo(-28,8); ctx.lineTo(-20,6); ctx.closePath(); ctx.fill();
                     }
+                    // 绘制皇冠（250分临时皇冠或已装备的永久皇冠）
+                    if ((runCrownActive || crownEquipped) && !crownFlyAnim?.active) {
+                        drawCrownOnBird(ctx);
+                    }
                     ctx.restore();
                 },
                 getBounds() { return { x:this.x-this.width/2+5, y:this.y-this.height/2+2, w:this.width-10, h:this.height-4 }; }
             };
+
+            function drawCrownOnBird(ctx) {
+                // 小鸟本地坐标系中绘制皇冠，位于头顶
+                ctx.save();
+                ctx.translate(0, -12);
+                // 皇冠底座
+                ctx.fillStyle = '#f1c40f';
+                ctx.beginPath();
+                ctx.moveTo(-10, 4);
+                ctx.lineTo(10, 4);
+                ctx.lineTo(9, -2);
+                ctx.lineTo(5, 2);
+                ctx.lineTo(0, -6);
+                ctx.lineTo(-5, 2);
+                ctx.lineTo(-9, -2);
+                ctx.closePath();
+                ctx.fill();
+                // 皇冠描边
+                ctx.strokeStyle = '#b7950b';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                // 宝石
+                ctx.fillStyle = '#e74c3c';
+                ctx.beginPath(); ctx.arc(0, -2, 2, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#3498db';
+                ctx.beginPath(); ctx.arc(-6, 1, 1.5, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(6, 1, 1.5, 0, Math.PI * 2); ctx.fill();
+                // 闪光
+                ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                ctx.beginPath(); ctx.arc(-3, -3, 1, 0, Math.PI * 2); ctx.fill();
+                ctx.restore();
+            }
 
             // ========== 管道 ==========
             const PIPE_WIDTH = 68;
@@ -5279,6 +5358,25 @@
                 btnBuyLifeCard.disabled = totalGold < 25;
                 btnBuyTimeCard.disabled = totalGold < 7;
                 btnBuyDayLengthCard.disabled = totalGold < 15;
+                updateCrownShopUI();
+            }
+
+            function updateCrownShopUI() {
+                if (!crownShopItem || !btnBuyCrown || !crownShopDesc || !crownOwnedLabel) return;
+                if (crownOwned) {
+                    crownShopDesc.textContent = t('已拥有永久皇冠，可在设置中选择是否装备');
+                    crownOwnedLabel.style.display = 'block';
+                    btnBuyCrown.textContent = t('已拥有');
+                    btnBuyCrown.disabled = true;
+                } else {
+                    crownOwnedLabel.style.display = 'none';
+                    const price = crownUnlocked ? 2500 : 9800;
+                    btnBuyCrown.textContent = '🪙' + price;
+                    btnBuyCrown.disabled = totalGold < price;
+                    crownShopDesc.textContent = crownUnlocked
+                        ? t('最高分达到1500，永久皇冠特价2500金币')
+                        : t('死亡时皇冠会飞走，但重新开始后仍会留在小鸟头上');
+                }
             }
 
             // ========== 暂停 ==========
@@ -5334,6 +5432,7 @@
                 roundGold = 0; roundSilver = 0;
                 lives = 999; // 教程中无限生命
                 recordBroken = false; recordDiff = 0; recordMusicTriggered = false;
+                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null;
                 initFlameParticles();
                 resetRunStats();
                 dayLength = 30 + dayLengthCards * 10;
@@ -6897,7 +6996,15 @@
                 for (let i = pipes.length - 1; i >= 0; i--) {
                     const p = pipes[i];
                     p.update();
-                    if (!p.passed && pipes[i].x + pipes[i].width < bird.x) { pipes[i].passed = true; score++; playPassPipeSound(); if (score >= 60 && !runStats.scoreMilestoneHeart) { runStats.scoreMilestoneHeart = true; lives++; unlockAchievement('gameGiftedHeart'); } }
+                    if (!p.passed && pipes[i].x + pipes[i].width < bird.x) {
+                        pipes[i].passed = true; score++; playPassPipeSound();
+                        if (score >= 60 && !runStats.scoreMilestoneHeart) { runStats.scoreMilestoneHeart = true; lives++; unlockAchievement('gameGiftedHeart'); }
+                        // 250分获得本局临时皇冠
+                        if (score >= 250 && !runCrownEverActive) {
+                            runCrownActive = true;
+                            runCrownEverActive = true;
+                        }
+                    }
                     if (pipes[i].isOffScreen()) pipes.splice(i, 1);
                 }
                 // 检测破纪录（仅正常模式）
@@ -7197,7 +7304,13 @@
                     }
                     restoreOtherWorld();
                     saveData(); updateAllCoinUI();
-                } else { unlockAchievement('ahhhh'); endGame(); }
+                } else {
+                    // 死亡时皇冠飞走动画
+                    if ((runCrownActive || crownEquipped) && !crownFlyAnim?.active) {
+                        triggerCrownFly();
+                    }
+                    unlockAchievement('ahhhh'); endGame();
+                }
 
                 // 恢复异世界状态（保持僵尸鸟身份，克隆鸟从前面重新出现）
                 function restoreOtherWorld() {
@@ -7342,6 +7455,8 @@
                 } else {
                     bird.draw(ctx);
                 }
+                // 皇冠飞走动画
+                drawCrownFly();
                 // 吸尘器吸住小鸟提示
                 if (gameState === 'playing' && vacuumCleaner && vacuumCleaner.birdCaught && !vacuumCleaner.escaped) {
                     const vc = vacuumCleaner;
@@ -7464,10 +7579,66 @@
                 }
             }
 
+            function updateCrownFly() {
+                if (!crownFlyAnim || !crownFlyAnim.active) return;
+                crownFlyAnim.life--;
+                crownFlyAnim.x += crownFlyAnim.vx;
+                crownFlyAnim.y += crownFlyAnim.vy;
+                crownFlyAnim.vy += 0.25; // 重力
+                crownFlyAnim.rotation += crownFlyAnim.vr;
+                if (crownFlyAnim.life <= 0 || crownFlyAnim.y > HEIGHT + 30) {
+                    crownFlyAnim.active = false;
+                }
+            }
+
+            function drawCrownFly() {
+                if (!crownFlyAnim || !crownFlyAnim.active) return;
+                const c = crownFlyAnim;
+                ctx.save();
+                ctx.translate(c.x, c.y);
+                ctx.rotate(c.rotation);
+                ctx.globalAlpha = Math.min(1, c.life / 20);
+                // 皇冠底座
+                ctx.fillStyle = '#f1c40f';
+                ctx.beginPath();
+                ctx.moveTo(-12, 5);
+                ctx.lineTo(12, 5);
+                ctx.lineTo(10, -3);
+                ctx.lineTo(6, 3);
+                ctx.lineTo(0, -8);
+                ctx.lineTo(-6, 3);
+                ctx.lineTo(-10, -3);
+                ctx.closePath();
+                ctx.fill();
+                ctx.strokeStyle = '#b7950b';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                // 宝石
+                ctx.fillStyle = '#e74c3c';
+                ctx.beginPath(); ctx.arc(0, -3, 2.5, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#3498db';
+                ctx.beginPath(); ctx.arc(-7, 1, 1.8, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(7, 1, 1.8, 0, Math.PI * 2); ctx.fill();
+                ctx.restore();
+            }
+
+            function triggerCrownFly() {
+                crownFlyAnim = {
+                    active: true,
+                    x: bird.x,
+                    y: bird.y - 12,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: -6 - Math.random() * 4,
+                    vr: (Math.random() - 0.5) * 0.4,
+                    rotation: 0,
+                    life: 90
+                };
+            }
+
             function gameLoop() {
                 if (btnDailyChallenge) btnDailyChallenge.classList.toggle('hidden', gameState !== 'start');
                 if (dailyCombinedBtn) dailyCombinedBtn.style.display = (gameState === 'start') ? '' : 'none';
-                update(); draw(); requestAnimationFrame(gameLoop);
+                updateCrownFly(); update(); draw(); requestAnimationFrame(gameLoop);
             }
 
             // ========== 开始/结束 ==========
@@ -7521,6 +7692,7 @@
                 endlessTimeLeft = dailyChallengeSettings.timeMinutes * 60;
                 endlessTimeAccum = 0;
                 recordBroken = false; recordDiff = 0; recordMusicTriggered = false;
+                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null;
                 initFlameParticles();
                 dayLength = 30 + dayLengthCards * 10;
                 gameTimeAccum = 0; nightAlpha = 0; isNight = false; dayCycleCount = 0;
@@ -7561,6 +7733,7 @@
                 endlessTimeLeft = dailyChallengeSettings.timeMinutes * 60;
                 endlessTimeAccum = 0;
                 recordBroken = false; recordDiff = 0; recordMusicTriggered = false;
+                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null;
                 initFlameParticles();
                 dayLength = 30 + dayLengthCards * 10;
                 gameTimeAccum = 0; nightAlpha = 0; isNight = false; dayCycleCount = 0;
@@ -7587,6 +7760,7 @@
                 roundGold = 0; roundSilver = 0;
                 lives = startLives;
                 recordBroken = false; recordDiff = 0; recordMusicTriggered = false;
+                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null;
                 initFlameParticles();
                 resetRunStats();
                 if (startLives > 1) unlockAchievement('secondLife');
@@ -7625,6 +7799,7 @@
                 endlessTimeAccum = 0;
                 lives = 999; // 无限命
                 recordBroken = false; recordDiff = 0; recordMusicTriggered = false;
+                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null;
                 // 事件重置（无尽模式也支持事件）
                 resetAllEvents();
                 // 昼夜初始化
@@ -7708,6 +7883,14 @@
                     saveData();
                     updateAllCoinUI();
                 }
+                // 无尽模式不计入皇冠解锁，正常/每日挑战达到1500分解锁折扣价
+                if (gameMode !== 'endless' && score >= 1500) {
+                    crownUnlocked = true;
+                    saveData();
+                }
+                // 本局临时皇冠结束即消失
+                runCrownActive = false;
+                runCrownEverActive = false;
                 recordBroken = false; recordDiff = 0; recordMusicTriggered = false;
                 finalScoreEl.textContent = score;
                 bestScoreEl.textContent = bestScore;
@@ -7745,6 +7928,7 @@
                 recordBroken = false;
                 recordDiff = 0;
                 recordMusicTriggered = false;
+                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null;
                 flameParticles = [];
                 // 退出教程时清理教程状态
                 tutorialActive = false;
@@ -7927,6 +8111,10 @@
                 showGo = false; goTimer = 0; shakeTimer = 0;
                 stuckToNet = false; stuckTimer = 0;
                 recordBroken = false; recordDiff = 0; recordMusicTriggered = false;
+                // 恢复存档时根据分数恢复本局皇冠状态
+                runCrownActive = score >= 250;
+                runCrownEverActive = score >= 250;
+                crownFlyAnim = null;
                 initFlameParticles();
                 resetRunStats();
                 resetAllEvents();
@@ -8597,6 +8785,21 @@
                 saveData();
             });
 
+            // ========== 设置开关：装备皇冠 ==========
+            if (switchCrownEquip) {
+                switchCrownEquip.addEventListener('click', e => {
+                    e.stopPropagation();
+                    if (!crownOwned) return;
+                    crownEquipped = !crownEquipped;
+                    if (crownEquipped) {
+                        switchCrownEquip.classList.add('on');
+                    } else {
+                        switchCrownEquip.classList.remove('on');
+                    }
+                    saveData();
+                });
+            }
+
             // ========== 设置开关：游戏中弹出成就提示 ==========
             switchAchievementPopup.addEventListener('click', e => {
                 e.stopPropagation();
@@ -8774,6 +8977,32 @@
                 e.stopPropagation();
                 if (totalGold >= 15) { totalGold -= 15; dayLengthCards++; saveData(); updateAllCoinUI(); }
             });
+            btnBuyCrown.addEventListener('click', e => {
+                e.stopPropagation();
+                if (crownOwned) return;
+                const price = crownUnlocked ? 2500 : 9800;
+                if (totalGold >= price) {
+                    totalGold -= price;
+                    crownOwned = true;
+                    crownEquipped = true;
+                    saveData();
+                    updateAllCoinUI();
+                    showCrownPurchasePrompt();
+                }
+            });
+
+            function showCrownPurchasePrompt() {
+                const title = t('🎉 永久皇冠购买成功！');
+                const desc = t('可在「游戏设置 → 开关区」中开启或关闭「装备皇冠」。');
+                toastIcon.textContent = '👑';
+                toastTitle.textContent = title;
+                toastDesc.textContent = desc;
+                achievementToast.classList.remove('challenge');
+                achievementToast.classList.add('show');
+                setTimeout(() => {
+                    achievementToast.classList.remove('show');
+                }, 4000);
+            }
 
             // ========== 设置弹窗 ==========
             btnSettings.addEventListener('click', e => { e.stopPropagation(); refreshSettingsUI(); settingsModal.classList.add('show'); });
@@ -8969,6 +9198,7 @@
                 totalGold = 0; totalSilver = 0;
                 bestScore = 0; dailyBestScore = 0;
                 lifeCards = 0; timeCards = 0; dayLengthCards = 0;
+                crownUnlocked = false; crownOwned = false; crownEquipped = false;
                 dailyChallengeHistory = [];
                 dailyChallengeDoneToday = null;
                 dailyChallengeDate = null;
@@ -9313,6 +9543,15 @@
                     switchBirdChirp.classList.add('on');
                 } else {
                     switchBirdChirp.classList.remove('on');
+                }
+                // 皇冠装备开关：仅拥有永久皇冠时显示
+                if (crownEquipRow) {
+                    crownEquipRow.style.display = crownOwned ? 'flex' : 'none';
+                }
+                if (crownEquipped) {
+                    switchCrownEquip.classList.add('on');
+                } else {
+                    switchCrownEquip.classList.remove('on');
                 }
                 // 调试模式入口
                 const debugGroup = document.getElementById('debugGroup');
@@ -10941,7 +11180,16 @@
                         changelogHTML += '<p style="margin-top:6px;color:rgba(255,255,255,0.4);font-size:11px;">从 v' + storedVersion + ' 升级</p>';
                     }
                     document.getElementById('versionContent').innerHTML = changelogHTML;
-                    document.getElementById('versionTitle').textContent = '🎉 游戏版本已更新！';
+                    // 根据版本号变化判断标题：第二位数变化为“大版本更新”，否则为普通更新
+                    let updateTitle = '🎉 游戏版本已更新！';
+                    if (isUpdate && storedVersion !== VERSION) {
+                        const oldParts = storedVersion.split('.');
+                        const newParts = VERSION.split('.');
+                        if (oldParts.length >= 2 && newParts.length >= 2 && oldParts[1] !== newParts[1]) {
+                            updateTitle = '🎉 更新大版本！';
+                        }
+                    }
+                    document.getElementById('versionTitle').textContent = updateTitle;
                     document.getElementById('btnRollbackVersion').style.display = 'none';
                     document.getElementById('btnNextVersion').style.display = 'none';
                     viewingVersionIdx = -1;
