@@ -572,6 +572,91 @@
             text-align: center; font-size: 16px; color: #f1c40f; margin-bottom: 14px; font-weight: 700;
         }
 
+        /* ========== 商城标签页 ========== */
+        .shop-tabs {
+            display: flex; gap: 8px; margin-bottom: 14px;
+        }
+        .shop-tab {
+            flex: 1; padding: 10px 0; text-align: center; font-size: 14px; font-weight: 700;
+            border-radius: 20px; cursor: pointer; background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7);
+            border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s;
+        }
+        .shop-tab.active { background: rgba(243,156,18,0.2); color: #f1c40f; border-color: rgba(243,156,18,0.4); }
+
+        /* ========== 卖东西 ========== */
+        .sell-section { display: none; flex-direction: column; gap: 10px; }
+        .sell-section.active { display: flex; }
+        .sell-empty {
+            text-align: center; padding: 30px 10px; color: rgba(255,255,255,0.5); font-size: 14px;
+        }
+        .sell-official-card {
+            background: rgba(255,255,255,0.08); border-radius: 12px; padding: 14px 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .sell-official-title { font-size: 15px; font-weight: 700; color: #f1c40f; margin-bottom: 6px; }
+        .sell-official-desc { font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 10px; line-height: 1.4; }
+        .sell-official-price { font-size: 18px; font-weight: 700; color: #2ecc71; margin-bottom: 10px; }
+        .sell-official-btn {
+            width: 100%; padding: 10px 0; border: none; border-radius: 20px; font-size: 14px; font-weight: 700;
+            background: linear-gradient(135deg, #f1c40f, #f39c12); color: #2c3e50; cursor: pointer;
+        }
+        .sell-official-btn:disabled { background: #555; color: #999; cursor: not-allowed; }
+        .sell-buyers-title { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 6px; }
+        .sell-buyer-card {
+            background: rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 14px;
+            border: 1px solid rgba(255,255,255,0.08); cursor: pointer; transition: all 0.2s;
+        }
+        .sell-buyer-card:hover { background: rgba(255,255,255,0.1); transform: scale(1.01); }
+        .sell-buyer-card.sold { opacity: 0.45; pointer-events: none; }
+        .sell-buyer-name { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+        .sell-buyer-price { font-size: 13px; color: #f1c40f; margin-bottom: 2px; }
+        .sell-buyer-hint { font-size: 11px; color: rgba(255,255,255,0.5); }
+
+        /* ========== 砍价弹窗 ========== */
+        .haggle-modal .haggle-seller-say {
+            text-align: center; font-size: 15px; color: #f1c40f; font-weight: 700; margin-bottom: 12px;
+        }
+        .haggle-modal .haggle-price {
+            text-align: center; font-size: 26px; font-weight: 700; color: #2ecc71; margin-bottom: 6px;
+        }
+        .haggle-modal .haggle-prob {
+            text-align: center; font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 16px;
+        }
+        .haggle-modal .haggle-actions {
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .haggle-modal .haggle-actions .btn-row {
+            display: flex; gap: 8px;
+        }
+        .haggle-modal .haggle-actions button {
+            flex: 1; padding: 10px 0; border: none; border-radius: 20px; font-size: 14px; font-weight: 700; cursor: pointer;
+        }
+        .haggle-modal .btn-haggle-up {
+            background: rgba(52,152,219,0.2); color: #3498db; border: 1px solid rgba(52,152,219,0.4);
+        }
+        .haggle-modal .btn-haggle-sell {
+            background: linear-gradient(135deg, #f1c40f, #f39c12); color: #2c3e50;
+        }
+        .haggle-modal .btn-haggle-cancel {
+            background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.2);
+        }
+        .haggle-modal .haggle-result {
+            text-align: center; font-size: 14px; color: #fff; margin-top: 12px; min-height: 20px;
+        }
+
+        /* ========== 皇冠选择弹窗 ========== */
+        .crown-choice-modal .crown-choice-list {
+            display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px;
+        }
+        .crown-choice-modal .crown-choice-card {
+            background: rgba(255,255,255,0.08); border-radius: 12px; padding: 14px 16px;
+            border: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s;
+        }
+        .crown-choice-modal .crown-choice-card:hover { background: rgba(255,255,255,0.12); transform: scale(1.01); }
+        .crown-choice-modal .crown-choice-name { font-size: 15px; font-weight: 700; color: #f1c40f; margin-bottom: 4px; }
+        .crown-choice-modal .crown-choice-price { font-size: 18px; font-weight: 700; color: #2ecc71; margin-bottom: 4px; }
+        .crown-choice-modal .crown-choice-desc { font-size: 12px; color: rgba(255,255,255,0.6); }
+
         /* ========== 暂停按钮 ========== */
         .pause-btn {
             position: absolute; top: 8px; right: 8px; z-index: 15;
@@ -2355,43 +2440,97 @@
                 <span data-i18n="金币：">🪙 金币:</span> <span id="shopGold">0</span> &nbsp;|&nbsp;
                 <span data-i18n="银币：">🥈 银币:</span> <span id="shopSilver">0</span>
             </div>
-            <div class="shop-item">
-                <span class="item-icon">❤️</span>
-                <div class="item-info">
-                    <div class="item-name" data-i18n="生命机会卡">生命机会卡</div>
-                    <div class="item-desc" data-i18n="每局增加 1 次死亡机会（永久有效）">每局增加 1 次死亡机会（永久有效）</div>
-                    <div class="item-owned"><span data-i18n="已拥有">已拥有</span>: <span id="lifeCardCount">0</span> <span data-i18n="张">张</span></div>
-                </div>
-                <button class="btn-buy" id="btnBuyLifeCard">🪙25</button>
+            <div class="shop-tabs">
+                <div class="shop-tab active" id="shopTabBuy" data-i18n="买东西">🛒 买东西</div>
+                <div class="shop-tab" id="shopTabSell" data-i18n="卖东西">💰 卖东西</div>
             </div>
-            <div class="shop-item">
-                <span class="item-icon">⏱️</span>
-                <div class="item-info">
-                    <div class="item-name" data-i18n="无尽模式加时卡">无尽模式加时卡</div>
-                    <div class="item-desc" data-i18n="无尽模式时间 +15 秒（永久有效）">无尽模式时间 +15 秒（永久有效）</div>
-                    <div class="item-owned"><span data-i18n="已拥有">已拥有</span>: <span id="timeCardCount">0</span> <span data-i18n="张">张</span></div>
+            <div class="buy-section" id="buySection">
+                <div class="shop-item">
+                    <span class="item-icon">❤️</span>
+                    <div class="item-info">
+                        <div class="item-name" data-i18n="生命机会卡">生命机会卡</div>
+                        <div class="item-desc" data-i18n="每局增加 1 次死亡机会（永久有效）">每局增加 1 次死亡机会（永久有效）</div>
+                        <div class="item-owned"><span data-i18n="已拥有">已拥有</span>: <span id="lifeCardCount">0</span> <span data-i18n="张">张</span></div>
+                    </div>
+                    <button class="btn-buy" id="btnBuyLifeCard">🪙25</button>
                 </div>
-                <button class="btn-buy" id="btnBuyTimeCard">🪙7</button>
+                <div class="shop-item">
+                    <span class="item-icon">⏱️</span>
+                    <div class="item-info">
+                        <div class="item-name" data-i18n="无尽模式加时卡">无尽模式加时卡</div>
+                        <div class="item-desc" data-i18n="无尽模式时间 +15 秒（永久有效）">无尽模式时间 +15 秒（永久有效）</div>
+                        <div class="item-owned"><span data-i18n="已拥有">已拥有</span>: <span id="timeCardCount">0</span> <span data-i18n="张">张</span></div>
+                    </div>
+                    <button class="btn-buy" id="btnBuyTimeCard">🪙7</button>
+                </div>
+                <div class="shop-item">
+                    <span class="item-icon">☀️</span>
+                    <div class="item-info">
+                        <div class="item-name" data-i18n="白天加长卡">白天加长卡</div>
+                        <div class="item-desc" data-i18n="每局白天时长 +10 秒（永久有效）">每局白天时长 +10 秒（永久有效）</div>
+                        <div class="item-owned"><span data-i18n="已拥有">已拥有</span>: <span id="dayLengthCardCount">0</span> <span data-i18n="张">张</span></div>
+                    </div>
+                    <button class="btn-buy" id="btnBuyDayLengthCard">🪙15</button>
+                </div>
+                <div class="shop-item" id="crownShopItem">
+                    <span class="item-icon">👑</span>
+                    <div class="item-info">
+                        <div class="item-name" data-i18n="永久皇冠">永久皇冠</div>
+                        <div class="item-desc" id="crownShopDesc" data-i18n="死亡时皇冠会飞走并落在草坪上，重新开始后回到小鸟头上">死亡时皇冠会飞走并落在草坪上，重新开始后回到小鸟头上</div>
+                        <div class="item-owned" id="crownOwnedLabel" style="display:none;"><span data-i18n="已拥有">已拥有</span></div>
+                    </div>
+                    <button class="btn-buy" id="btnBuyCrown">🪙9800</button>
+                </div>
             </div>
-            <div class="shop-item">
-                <span class="item-icon">☀️</span>
-                <div class="item-info">
-                    <div class="item-name" data-i18n="白天加长卡">白天加长卡</div>
-                    <div class="item-desc" data-i18n="每局白天时长 +10 秒（永久有效）">每局白天时长 +10 秒（永久有效）</div>
-                    <div class="item-owned"><span data-i18n="已拥有">已拥有</span>: <span id="dayLengthCardCount">0</span> <span data-i18n="张">张</span></div>
+            <div class="sell-section" id="sellSection">
+                <div class="sell-empty" id="sellEmpty" data-i18n="你还没有可以出售的皇冠">你还没有可以出售的皇冠</div>
+                <div class="sell-official-card" id="sellOfficialCard" style="display:none;">
+                    <div class="sell-official-title" data-i18n="🏢 官方二手回收">🏢 官方二手回收</div>
+                    <div class="sell-official-desc" data-i18n="按持有天数自动计算价格，第20天回本，之后每天多赚50金币">按持有天数自动计算价格，第20天回本，之后每天多赚50金币</div>
+                    <div class="sell-official-price" id="sellOfficialPrice">🪙0</div>
+                    <button class="sell-official-btn" id="btnSellOfficial" data-i18n="卖给官方">卖给官方</button>
                 </div>
-                <button class="btn-buy" id="btnBuyDayLengthCard">🪙15</button>
-            </div>
-            <div class="shop-item" id="crownShopItem">
-                <span class="item-icon">👑</span>
-                <div class="item-info">
-                    <div class="item-name" data-i18n="永久皇冠">永久皇冠</div>
-                    <div class="item-desc" id="crownShopDesc" data-i18n="死亡时皇冠会飞走并落在草坪上，重新开始后回到小鸟头上">死亡时皇冠会飞走并落在草坪上，重新开始后回到小鸟头上</div>
-                    <div class="item-owned" id="crownOwnedLabel" style="display:none;"><span data-i18n="已拥有">已拥有</span></div>
-                </div>
-                <button class="btn-buy" id="btnBuyCrown">🪙9800</button>
+                <div class="sell-buyers-title" id="sellBuyersTitle" style="display:none;" data-i18n="🧑‍💼 个人买家（每天刷新）">🧑‍💼 个人买家（每天刷新）</div>
+                <div id="sellBuyersList"></div>
             </div>
             <button class="btn-close" id="btnCloseShop" data-i18n="关闭">关闭</button>
+        </div>
+
+        <!-- 皇冠购买选择弹窗 -->
+        <div class="modal crown-choice-modal" id="crownChoiceModal">
+            <h3 data-i18n="选择皇冠版本">👑 选择皇冠版本</h3>
+            <p style="text-align:center;font-size:13px;color:rgba(255,255,255,0.7);margin:10px 0 16px;" data-i18n="请选择你要购买的皇冠版本：">请选择你要购买的皇冠版本：</p>
+            <div class="crown-choice-list">
+                <div class="crown-choice-card" id="crownChoiceDiscounted">
+                    <div class="crown-choice-name">🏷️ <span data-i18n="降价版">降价版</span></div>
+                    <div class="crown-choice-price">🪙3000</div>
+                    <div class="crown-choice-desc" data-i18n="可使用 50 次死亡，之后皇冠消失">可使用 50 次死亡，之后皇冠消失</div>
+                </div>
+                <div class="crown-choice-card" id="crownChoiceNormal">
+                    <div class="crown-choice-name">👑 <span data-i18n="正常版">正常版</span></div>
+                    <div class="crown-choice-price" id="crownChoiceNormalPrice">🪙9800</div>
+                    <div class="crown-choice-desc" data-i18n="无死亡次数限制，永久保留">无死亡次数限制，永久保留</div>
+                </div>
+            </div>
+            <button class="btn-close" id="btnCloseCrownChoice" data-i18n="取消">取消</button>
+        </div>
+
+        <!-- 砍价弹窗 -->
+        <div class="modal haggle-modal" id="haggleModal">
+            <h3 data-i18n="💬 砍价模式">💬 砍价模式</h3>
+            <div class="haggle-seller-say" id="haggleSellerSay">别砍太多哦！</div>
+            <div class="haggle-price" id="hagglePrice">🪙3000</div>
+            <div class="haggle-prob" id="haggleProb">成交概率：80%</div>
+            <div class="haggle-actions">
+                <div class="btn-row">
+                    <button class="btn-haggle-up" id="btnHaggleUp">📈 要求升价 (+50)</button>
+                </div>
+                <div class="btn-row">
+                    <button class="btn-haggle-sell" id="btnHaggleSell">💰 以此价格成交</button>
+                    <button class="btn-haggle-cancel" id="btnHaggleCancel">取消</button>
+                </div>
+            </div>
+            <div class="haggle-result" id="haggleResult"></div>
         </div>
 
         <!-- 每日挑战设置弹窗 -->
@@ -3051,6 +3190,38 @@
                     '购买成功': 'Purchase successful',
                     '金币不足': 'Not enough gold',
                     '关闭': 'Close',
+                    '🎉 永久皇冠购买成功！': '🎉 Permanent Crown Purchased!',
+                    '💰 皇冠出售成功！': '💰 Crown Sold!',
+                    '获得 🪙{0} 金币': 'Received 🪙{0} gold',
+                    // 商城买卖
+                    '买东西': '🛒 Buy',
+                    '卖东西': '💰 Sell',
+                    '你还没有可以出售的皇冠': 'You have no crown to sell',
+                    '🏢 官方二手回收': '🏢 Official Resale',
+                    '按持有天数自动计算价格，第20天回本，之后每天多赚50金币': 'Price based on days held. Break even on day 20, then +50 gold/day',
+                    '卖给官方': 'Sell to Official',
+                    '🧑‍💼 个人买家（每天刷新）': '🧑‍💼 Personal Buyers (Refresh Daily)',
+                    '点击进入砍价模式': 'Tap to haggle',
+                    '已成交': 'Sold',
+                    '今天先不卖了': 'Not selling today',
+                    '选择皇冠版本': 'Choose Crown Version',
+                    '请选择你要购买的皇冠版本：': 'Please choose which crown version to buy:',
+                    '降价版': 'Discounted',
+                    '可使用 50 次死亡，之后皇冠消失': '50 deaths limit, then the crown disappears',
+                    '正常版': 'Normal',
+                    '无死亡次数限制，永久保留': 'Unlimited deaths, permanent',
+                    '取消': 'Cancel',
+                    '💬 砍价模式': '💬 Haggle Mode',
+                    '别砍太多哦！': 'Don\'t haggle too hard!',
+                    '成交概率：': 'Success chance: ',
+                    '📈 要求升价 (+50)': '📈 Ask +50',
+                    '💰 以此价格成交': '💰 Deal at this price',
+                    '抱歉，我发现我没货了。': 'Sorry, I\'m out of stock.',
+                    '抱歉，您似乎有点便宜了，我今天先不卖了。': 'Sorry, that\'s too cheap. I\'m not selling today.',
+                    '已拥有永久皇冠': 'Permanent crown owned',
+                    '，可在设置中选择是否装备': '. Equip it in Settings.',
+                    '降价版（剩余 {0} 次死亡）': 'Discounted ({0} deaths left)',
+                    '正常版': 'Normal',
                     // 每日挑战
                     '🎯 每日挑战': '🎯 Daily Challenge',
                     '每天只能挑战一次，完成即可获得银币奖励（2分=1银币）。': 'Once daily. Earn silver rewards (2pts = 1 silver).',
@@ -3409,6 +3580,29 @@
             const crownShopDesc = document.getElementById('crownShopDesc');
             const crownOwnedLabel = document.getElementById('crownOwnedLabel');
             const btnBuyCrown = document.getElementById('btnBuyCrown');
+            const crownChoiceModal = document.getElementById('crownChoiceModal');
+            const crownChoiceDiscounted = document.getElementById('crownChoiceDiscounted');
+            const crownChoiceNormal = document.getElementById('crownChoiceNormal');
+            const crownChoiceNormalPrice = document.getElementById('crownChoiceNormalPrice');
+            const btnCloseCrownChoice = document.getElementById('btnCloseCrownChoice');
+            const shopTabBuy = document.getElementById('shopTabBuy');
+            const shopTabSell = document.getElementById('shopTabSell');
+            const buySection = document.getElementById('buySection');
+            const sellSection = document.getElementById('sellSection');
+            const sellEmpty = document.getElementById('sellEmpty');
+            const sellOfficialCard = document.getElementById('sellOfficialCard');
+            const sellOfficialPrice = document.getElementById('sellOfficialPrice');
+            const btnSellOfficial = document.getElementById('btnSellOfficial');
+            const sellBuyersTitle = document.getElementById('sellBuyersTitle');
+            const sellBuyersList = document.getElementById('sellBuyersList');
+            const haggleModal = document.getElementById('haggleModal');
+            const haggleSellerSay = document.getElementById('haggleSellerSay');
+            const hagglePrice = document.getElementById('hagglePrice');
+            const haggleProb = document.getElementById('haggleProb');
+            const btnHaggleUp = document.getElementById('btnHaggleUp');
+            const btnHaggleSell = document.getElementById('btnHaggleSell');
+            const btnHaggleCancel = document.getElementById('btnHaggleCancel');
+            const haggleResult = document.getElementById('haggleResult');
             const keyDisplay = document.getElementById('keyDisplay');
             const endlessTimeSlider = document.getElementById('endlessTimeSlider');
             const endlessTimeLabel = document.getElementById('endlessTimeLabel');
@@ -3686,8 +3880,26 @@
                 pCtx.stroke();
                 return ctx.createPattern(pCanvas, 'repeat');
             }
+            function createLegacyBuildingPatternBright() {
+                const size = 6;
+                const pCanvas = document.createElement('canvas');
+                pCanvas.width = size; pCanvas.height = size;
+                const pCtx = pCanvas.getContext('2d');
+                // 黑夜高亮背景
+                pCtx.fillStyle = '#7a7a90';
+                pCtx.fillRect(0, 0, size, size);
+                // 更亮的网格线
+                pCtx.strokeStyle = 'rgba(235,235,255,0.65)';
+                pCtx.lineWidth = 0.7;
+                pCtx.beginPath();
+                pCtx.moveTo(0, 0); pCtx.lineTo(size, 0);
+                pCtx.moveTo(0, 0); pCtx.lineTo(0, size);
+                pCtx.stroke();
+                return ctx.createPattern(pCanvas, 'repeat');
+            }
             netPattern = createNetPattern();
             legacyBuildingPattern = createLegacyBuildingPattern();
+            let legacyBuildingPatternBright = createLegacyBuildingPatternBright();
 
             // 响应式缩放画布
             function resizeCanvas() {
@@ -3749,16 +3961,25 @@
 
             // ========== 皇冠系统 ==========
             let crownUnlocked = false;  // 是否已解锁永久皇冠折扣（最高分≥1500，无尽/每日挑战不计入）
-            let crownOwned = false;     // 是否已购买永久皇冠
+            let crownType = null;       // 是否已购买永久皇冠：'normal' 正常版 | 'discounted' 降价版 | null 未拥有
+            let crownPurchasePrice = 0; // 皇冠购买价格
+            let crownPurchaseDate = null; // 皇冠购买日期 'YYYY-M-D'
+            let crownDeathsLeft = 0;    // 降价版剩余死亡次数
+            let crownOwned = false;     // 是否已购买永久皇冠（crownType !== null）
             let crownEquipped = false;  // 是否在设置中装备皇冠
             let runCrownActive = false; // 本局是否已获得250分临时皇冠
             let runCrownEverActive = false; // 本局是否曾达到250分（用于死亡飞走动画判断）
             let crownFlyAnim = null;    // 皇冠飞走动画状态
             let crownLanded = null;     // 皇冠落地状态 { x, y }
+            const CROWN_DISCOUNTED_USES = 50; // 降价版可用死亡次数
+            let crownBuyers = [];       // 今日个人买家列表
+            let currentHaggleBuyer = null; // 当前砍价中的买家
+            const SELL_BUYER_NAMES = ['Alice','Bob','Charlie','David','Eva','Frank','Grace','Henry','Ivy','Jack','Katie','Leo','Mia','Noah','Olivia','Paul','Quinn','Ryan','Sophia','Tom'];
 
             // ========== 版本系统 ==========
-            let VERSION = '1.4.5';
+            let VERSION = '1.4.6';
             const VERSION_HISTORY = [
+                { v: '1.4.6', img: '1.4.1.png', text:'💰 商城卖二手：永久皇冠可卖给官方或个人买家，降价版限50次死亡<br>🏆 成就奖励：解锁成就获得金币，挑战200、永不放弃100、我活了一天15、啊1<br>🌙 修复老版本纹理黑夜网亮度：开启亮度增强后老材质网也会变白变亮' },
                 { v: '1.4.5', img: '1.4.1.png', text: '🧊 修复紫色大冰块砸中后游戏卡死：砸中直接扣血，1血即死显示"被紫色大冰块砸死了"' },
                 { v: '1.4.4', img: '1.4.1.png', text: '🌙 黑夜网亮度增强：黑夜时网会变白变亮，轻松看清位置，设置中默认开启可随时关闭<br>👑 皇冠落地优化：皇冠掉落后会落在草坪上，永久留在原地，返回标题或重新开始后重置' },
                 { v: '1.4.3', img: '1.4.1.png', text: '👑 皇冠落地优化：皇冠掉落后会落在草坪上，永久留在原地，返回标题或重新开始后重置<br>🔍 设置搜索：支持模糊搜索设置项，智能匹配别名' },
@@ -4162,6 +4383,16 @@
                 return !!achievements[id];
             }
 
+            function getAchievementGoldReward(id) {
+                const ach = ACHIEVEMENTS[id];
+                if (!ach) return 0;
+                if (ach.type === 'challenge') return 200;
+                if (id === 'noDeathMinute') return 20;
+                if (id === 'neverGiveUp') return 100;
+                if (id === 'survivedADay') return 15;
+                if (id === 'ahhhh') return 1;
+                return 10;
+            }
             function unlockAchievement(id) {
                 if (tutorialActive) return; // 新手教程中不触发任何成就
                 if (hasAchievement(id)) return;
@@ -4169,12 +4400,17 @@
                 if (!ach) return;
                 achievements[id] = true;
                 newAchievementsCount++;
+                const reward = getAchievementGoldReward(id);
+                if (reward > 0) {
+                    totalGold += reward;
+                    updateAllCoinUI();
+                }
                 saveData();
                 updateAchievementsBadge();
-                showAchievementToast(ach);
+                showAchievementToast(ach, reward);
             }
 
-            function showAchievementToast(ach) {
+            function showAchievementToast(ach, goldReward) {
                 if (!showAchievementPopup) return;
                 toastIcon.textContent = ach.icon;
                 if (ach.type === 'challenge') {
@@ -4184,7 +4420,12 @@
                     toastTitle.textContent = t('成就解锁');
                     achievementToast.classList.remove('challenge');
                 }
-                toastDesc.textContent = currentLang === 'en' && I18N.en[ach.name] ? t(ach.name) : ach.name;
+                const nameText = currentLang === 'en' && I18N.en[ach.name] ? t(ach.name) : ach.name;
+                if (goldReward > 0) {
+                    toastDesc.textContent = nameText + ' · 🪙+' + goldReward;
+                } else {
+                    toastDesc.textContent = nameText;
+                }
                 achievementToast.classList.add('show');
                 setTimeout(() => {
                     achievementToast.classList.remove('show');
@@ -4212,9 +4453,10 @@
                     const el = document.createElement('div');
                     el.className = 'achievement-item' + (unlocked ? '' : ' locked');
                     const tagText = tab === 'basic' ? t('基础') : t('挑战');
+                    const reward = getAchievementGoldReward(id);
                     el.innerHTML = '<div class="achievement-icon">' + ach.icon + '</div>' +
                         '<div class="achievement-info"><div class="achievement-name">' + (currentLang === 'en' && I18N.en[ach.name] ? t(ach.name) : ach.name) + '</div>' +
-                        '<div class="achievement-desc">' + (currentLang === 'en' && I18N.en[ach.desc] ? t(ach.desc) : ach.desc) + '</div></div>' +
+                        '<div class="achievement-desc">' + (currentLang === 'en' && I18N.en[ach.desc] ? t(ach.desc) : ach.desc) + ' · 🪙+' + reward + '</div></div>' +
                         '<div class="achievement-tag ' + (tab === 'basic' ? 'basic' : '') + '">' + tagText + '</div>';
                     achievementsList.appendChild(el);
                 }
@@ -4512,7 +4754,8 @@
                 if (!acc) return;
                 Object.assign(acc.data, {
                     totalGold, totalSilver, lifeCards, timeCards, dayLengthCards,
-                    crownUnlocked, crownOwned, crownEquipped,
+                    crownUnlocked, crownType, crownPurchasePrice, crownPurchaseDate, crownDeathsLeft, crownOwned, crownEquipped,
+                    crownBuyers: JSON.parse(JSON.stringify(crownBuyers)),
                     bestScore, difficulty, pipePosition, pipeSkin, jumpKeyCode,
                     spawnZombie, spawnChick, endlessTimeSetting, fontSizeLevel,
                     showFlameBorder, showRecordIndicator, startLives, simpleMode, showAchievementPopup,
@@ -4542,8 +4785,20 @@
                 timeCards = d.timeCards || 0;
                 dayLengthCards = d.dayLengthCards || 0;
                 crownUnlocked = d.crownUnlocked !== undefined ? d.crownUnlocked : ((d.bestScore || 0) >= 1500);
-                crownOwned = d.crownOwned !== undefined ? d.crownOwned : false;
+                crownType = d.crownType || null;
+                crownPurchasePrice = d.crownPurchasePrice || 0;
+                crownPurchaseDate = d.crownPurchaseDate || null;
+                crownDeathsLeft = d.crownDeathsLeft || 0;
+                crownOwned = d.crownOwned !== undefined ? d.crownOwned : !!crownType;
                 crownEquipped = d.crownEquipped !== undefined ? d.crownEquipped : false;
+                // 兼容旧存档：之前只有 crownOwned 布尔值，视为正常版永久皇冠
+                if (crownOwned && !crownType) {
+                    crownType = 'normal';
+                    crownPurchasePrice = crownUnlocked ? 2500 : 9800;
+                    crownPurchaseDate = getTodayString();
+                    crownDeathsLeft = 0;
+                }
+                crownBuyers = Array.isArray(d.crownBuyers) ? d.crownBuyers : [];
                 bestScore = d.bestScore || 0;
                 difficulty = d.difficulty || 'normal';
                 pipePosition = d.pipePosition || 'random';
@@ -4627,7 +4882,8 @@
                     isAdmin: isFirst,
                     data: {
                         totalGold: 0, totalSilver: 0, lifeCards: 0, timeCards: 0, dayLengthCards: 0,
-                        crownUnlocked: false, crownOwned: false, crownEquipped: false,
+                        crownUnlocked: false, crownType: null, crownPurchasePrice: 0, crownPurchaseDate: null, crownDeathsLeft: 0, crownOwned: false, crownEquipped: false,
+                        crownBuyers: [],
                         bestScore: 0, difficulty: 'normal', pipePosition: 'random', pipeSkin: 'pipe', legacyTexturePack: false, jumpKeyCode: 'Space',
                         spawnZombie: true, spawnChick: true, endlessTimeSetting: -1, fontSizeLevel: 2,
                         showFlameBorder: true, showRecordIndicator: true, startLives: 1, simpleMode: false,
@@ -4954,12 +5210,7 @@
                         if (legacyBuildingPattern) {
                             ctx.save();
                             ctx.translate(x, y);
-                            if (brightNight) {
-                                // 黑夜亮度增强：底层提亮
-                                ctx.fillStyle = '#7a7a90';
-                                ctx.fillRect(0, 0, w, h);
-                            }
-                            ctx.fillStyle = legacyBuildingPattern;
+                            ctx.fillStyle = brightNight && legacyBuildingPatternBright ? legacyBuildingPatternBright : legacyBuildingPattern;
                             ctx.fillRect(0, 0, w, h);
                             ctx.restore();
                         } else {
@@ -5436,7 +5687,10 @@
             function updateCrownShopUI() {
                 if (!crownShopItem || !btnBuyCrown || !crownShopDesc || !crownOwnedLabel) return;
                 if (crownOwned) {
-                    crownShopDesc.textContent = t('已拥有永久皇冠，可在设置中选择是否装备');
+                    const typeLabel = crownType === 'discounted'
+                        ? t('降价版（剩余 {0} 次死亡）').replace('{0}', crownDeathsLeft)
+                        : t('正常版');
+                    crownShopDesc.textContent = t('已拥有永久皇冠') + ' · ' + typeLabel + t('，可在设置中选择是否装备');
                     crownOwnedLabel.style.display = 'block';
                     btnBuyCrown.textContent = t('已拥有');
                     btnBuyCrown.disabled = true;
@@ -5449,6 +5703,125 @@
                         ? t('最高分达到1500，永久皇冠特价2500金币')
                         : t('死亡时皇冠会飞走，但重新开始后仍会留在小鸟头上');
                 }
+            }
+
+            // ========== 二手售卖系统 ==========
+            function parseDateKey(s) {
+                if (!s) return null;
+                const parts = s.split('-').map(Number);
+                if (parts.length !== 3) return null;
+                return new Date(parts[0], parts[1] - 1, parts[2]);
+            }
+            function getDaysSinceCrownPurchase() {
+                const d = parseDateKey(crownPurchaseDate);
+                if (!d) return 0;
+                const today = new Date(getRealDate().getFullYear(), getRealDate().getMonth(), getRealDate().getDate());
+                const ms = today.getTime() - d.getTime();
+                return Math.max(0, Math.floor(ms / (1000 * 60 * 60 * 24)));
+            }
+            function getCrownBaseResell() {
+                return crownType === 'discounted' ? 3000 : 9800;
+            }
+            function getCrownSellRange() {
+                if (crownType === 'discounted') return { min: 2900, max: 3100 };
+                return { min: 9700, max: 9900 };
+            }
+            function getOfficialCrownPrice() {
+                const days = getDaysSinceCrownPurchase();
+                // 第1天亏1000，每天少亏50，第20天回本，之后每天多赚50
+                return Math.max(0, crownPurchasePrice - 1000 + days * 50);
+            }
+            function getCrownBuyerBaseProb(price) {
+                const range = getCrownSellRange();
+                if (range.max === range.min) return 0.8;
+                const ratio = (price - range.min) / (range.max - range.min);
+                return 0.9 - ratio * 0.2; // 最低90%，最高70%
+            }
+            function generateCrownBuyers() {
+                const today = getTodayString();
+                // 如果买家列表已经是今天的，直接复用
+                if (crownBuyers.length > 0 && crownBuyers[0].date === today) return;
+                const count = 3 + Math.floor(Math.random() * 2); // 3~4人
+                const range = getCrownSellRange();
+                const names = [...SELL_BUYER_NAMES].sort(() => Math.random() - 0.5);
+                crownBuyers = [];
+                for (let i = 0; i < count; i++) {
+                    const price = Math.floor(range.min + Math.random() * (range.max - range.min + 1));
+                    crownBuyers.push({
+                        date: today,
+                        name: names[i % names.length],
+                        price: price,
+                        sold: false,
+                        failed: false
+                    });
+                }
+                saveData();
+            }
+            function renderSellUI() {
+                if (!sellSection) return;
+                const canSell = crownOwned;
+                sellEmpty.style.display = canSell ? 'none' : 'block';
+                sellOfficialCard.style.display = canSell ? 'block' : 'none';
+                sellBuyersTitle.style.display = canSell ? 'block' : 'none';
+                if (!canSell) {
+                    sellBuyersList.innerHTML = '';
+                    return;
+                }
+                generateCrownBuyers();
+                if (sellOfficialPrice) sellOfficialPrice.textContent = '🪙' + getOfficialCrownPrice();
+                sellBuyersList.innerHTML = '';
+                crownBuyers.forEach((buyer, idx) => {
+                    const el = document.createElement('div');
+                    el.className = 'sell-buyer-card' + (buyer.sold || buyer.failed ? ' sold' : '');
+                    el.innerHTML = '<div class="sell-buyer-name">🧑‍💼 ' + buyer.name + '</div>' +
+                        '<div class="sell-buyer-price">🪙' + buyer.price + '</div>' +
+                        '<div class="sell-buyer-hint">' + (buyer.sold ? t('已成交') : buyer.failed ? t('今天先不卖了') : t('点击进入砍价模式')) + '</div>';
+                    if (!buyer.sold && !buyer.failed) {
+                        el.addEventListener('click', e => { e.stopPropagation(); openHaggle(idx); });
+                    }
+                    sellBuyersList.appendChild(el);
+                });
+            }
+            function sellCrown(price) {
+                if (!crownOwned) return false;
+                totalGold += price;
+                crownType = null;
+                crownPurchasePrice = 0;
+                crownPurchaseDate = null;
+                crownDeathsLeft = 0;
+                crownOwned = false;
+                crownEquipped = false;
+                crownBuyers = [];
+                saveData();
+                updateAllCoinUI();
+                renderSellUI();
+                refreshSettingsUI();
+                return true;
+            }
+
+            // 砍价弹窗逻辑
+            function openHaggle(buyerIdx) {
+                if (!crownBuyers[buyerIdx] || crownBuyers[buyerIdx].sold || crownBuyers[buyerIdx].failed) return;
+                currentHaggleBuyer = { idx: buyerIdx, price: crownBuyers[buyerIdx].price, markupCount: 0 };
+                haggleResult.textContent = '';
+                updateHaggleUI();
+                haggleModal.classList.add('show');
+            }
+            function updateHaggleUI() {
+                if (!currentHaggleBuyer) return;
+                const buyer = crownBuyers[currentHaggleBuyer.idx];
+                const price = currentHaggleBuyer.price;
+                haggleSellerSay.textContent = t('别砍太多哦！');
+                hagglePrice.textContent = '🪙' + price;
+                const baseProb = getCrownBuyerBaseProb(price);
+                const prob = Math.max(0, baseProb - currentHaggleBuyer.markupCount * 0.05);
+                haggleProb.textContent = t('成交概率：') + Math.round(prob * 100) + '%';
+                btnHaggleUp.disabled = prob <= 0;
+                btnHaggleSell.disabled = prob <= 0;
+            }
+            function closeHaggle() {
+                currentHaggleBuyer = null;
+                haggleModal.classList.remove('show');
             }
 
             // ========== 暂停 ==========
@@ -7385,6 +7758,19 @@
                     if ((runCrownActive || crownEquipped) && !crownFlyAnim?.active) {
                         triggerCrownFly();
                     }
+                    // 降价版皇冠消耗使用次数
+                    if (crownOwned && crownType === 'discounted' && crownDeathsLeft > 0) {
+                        crownDeathsLeft--;
+                        if (crownDeathsLeft <= 0) {
+                            crownType = null;
+                            crownPurchasePrice = 0;
+                            crownPurchaseDate = null;
+                            crownDeathsLeft = 0;
+                            crownOwned = false;
+                            crownEquipped = false;
+                        }
+                        saveData();
+                    }
                     unlockAchievement('ahhhh'); endGame();
                 }
 
@@ -8778,11 +9164,74 @@
                 e.stopPropagation();
                 checkFeatureAccess(() => {
                     updateAllCoinUI();
+                    switchShopTab('buy');
                     shopModal.classList.add('show');
                 });
             });
             btnCloseShop.addEventListener('click', e => { e.stopPropagation(); shopModal.classList.remove('show'); });
             shopModal.addEventListener('click', e => e.stopPropagation());
+
+            // 商城标签切换
+            function switchShopTab(tab) {
+                if (tab === 'buy') {
+                    shopTabBuy.classList.add('active');
+                    shopTabSell.classList.remove('active');
+                    buySection.style.display = 'block';
+                    sellSection.classList.remove('active');
+                } else {
+                    shopTabBuy.classList.remove('active');
+                    shopTabSell.classList.add('active');
+                    buySection.style.display = 'none';
+                    sellSection.classList.add('active');
+                    renderSellUI();
+                }
+            }
+            shopTabBuy.addEventListener('click', e => { e.stopPropagation(); switchShopTab('buy'); });
+            shopTabSell.addEventListener('click', e => { e.stopPropagation(); switchShopTab('sell'); });
+
+            // 卖给官方
+            btnSellOfficial.addEventListener('click', e => {
+                e.stopPropagation();
+                if (!crownOwned) return;
+                const price = getOfficialCrownPrice();
+                if (sellCrown(price)) {
+                    showCrownSoldPrompt(price);
+                }
+            });
+
+            // 砍价按钮
+            btnHaggleUp.addEventListener('click', e => {
+                e.stopPropagation();
+                if (!currentHaggleBuyer) return;
+                currentHaggleBuyer.price += 50;
+                currentHaggleBuyer.markupCount++;
+                updateHaggleUI();
+            });
+            btnHaggleSell.addEventListener('click', e => {
+                e.stopPropagation();
+                if (!currentHaggleBuyer) return;
+                const buyer = crownBuyers[currentHaggleBuyer.idx];
+                const price = currentHaggleBuyer.price;
+                const baseProb = getCrownBuyerBaseProb(price);
+                const prob = Math.max(0, baseProb - currentHaggleBuyer.markupCount * 0.05);
+                if (Math.random() < prob) {
+                    // 成交
+                    if (sellCrown(price)) {
+                        showCrownSoldPrompt(price);
+                    }
+                    closeHaggle();
+                } else {
+                    // 失败
+                    buyer.failed = true;
+                    const msgs = [t('抱歉，我发现我没货了。'), t('抱歉，您似乎有点便宜了，我今天先不卖了。')];
+                    haggleResult.textContent = msgs[Math.floor(Math.random() * msgs.length)];
+                    saveData();
+                    renderSellUI();
+                    setTimeout(() => closeHaggle(), 1200);
+                }
+            });
+            btnHaggleCancel.addEventListener('click', e => { e.stopPropagation(); closeHaggle(); });
+            haggleModal.addEventListener('click', e => e.stopPropagation());
 
             // ========== 每日挑战弹窗 ==========
             btnCloseDailyChallenge.addEventListener('click', e => { e.stopPropagation(); dailyChallengeModal.classList.remove('show'); });
@@ -9109,20 +9558,70 @@
             btnBuyCrown.addEventListener('click', e => {
                 e.stopPropagation();
                 if (crownOwned) return;
-                const price = crownUnlocked ? 2500 : 9800;
-                if (totalGold >= price) {
-                    totalGold -= price;
-                    crownOwned = true;
-                    crownEquipped = true;
-                    saveData();
-                    updateAllCoinUI();
-                    showCrownPurchasePrompt();
-                }
+                // 弹出降价版 / 正常版选择
+                const normalPrice = crownUnlocked ? 2500 : 9800;
+                if (crownChoiceNormalPrice) crownChoiceNormalPrice.textContent = '🪙' + normalPrice;
+                crownChoiceModal.classList.add('show');
             });
+
+            if (crownChoiceDiscounted) {
+                crownChoiceDiscounted.addEventListener('click', e => {
+                    e.stopPropagation();
+                    if (crownOwned) return;
+                    const price = 3000;
+                    if (totalGold >= price) {
+                        totalGold -= price;
+                        crownType = 'discounted';
+                        crownPurchasePrice = price;
+                        crownPurchaseDate = getTodayString();
+                        crownDeathsLeft = CROWN_DISCOUNTED_USES;
+                        crownOwned = true;
+                        crownEquipped = true;
+                        crownChoiceModal.classList.remove('show');
+                        saveData();
+                        updateAllCoinUI();
+                        showCrownPurchasePrompt();
+                    }
+                });
+            }
+            if (crownChoiceNormal) {
+                crownChoiceNormal.addEventListener('click', e => {
+                    e.stopPropagation();
+                    if (crownOwned) return;
+                    const price = crownUnlocked ? 2500 : 9800;
+                    if (totalGold >= price) {
+                        totalGold -= price;
+                        crownType = 'normal';
+                        crownPurchasePrice = price;
+                        crownPurchaseDate = getTodayString();
+                        crownDeathsLeft = 0;
+                        crownOwned = true;
+                        crownEquipped = true;
+                        crownChoiceModal.classList.remove('show');
+                        saveData();
+                        updateAllCoinUI();
+                        showCrownPurchasePrompt();
+                    }
+                });
+            }
+            if (btnCloseCrownChoice) {
+                btnCloseCrownChoice.addEventListener('click', e => {
+                    e.stopPropagation();
+                    crownChoiceModal.classList.remove('show');
+                });
+            }
 
             function showCrownPurchasePrompt() {
                 const title = t('🎉 永久皇冠购买成功！');
                 const desc = t('可在「游戏设置 → 开关区」中开启或关闭「装备皇冠」。');
+                showCrownToast(title, desc);
+            }
+            function showCrownSoldPrompt(price) {
+                const title = t('💰 皇冠出售成功！');
+                const desc = t('获得 🪙{0} 金币').replace('{0}', price);
+                showCrownToast(title, desc);
+            }
+            function showCrownToast(title, desc) {
                 toastIcon.textContent = '👑';
                 toastTitle.textContent = title;
                 toastDesc.textContent = desc;
@@ -9546,7 +10045,7 @@
                 totalGold = 0; totalSilver = 0;
                 bestScore = 0; dailyBestScore = 0;
                 lifeCards = 0; timeCards = 0; dayLengthCards = 0;
-                crownUnlocked = false; crownOwned = false; crownEquipped = false;
+                crownUnlocked = false; crownType = null; crownPurchasePrice = 0; crownPurchaseDate = null; crownDeathsLeft = 0; crownOwned = false; crownEquipped = false;
                 dailyChallengeHistory = [];
                 dailyChallengeDoneToday = null;
                 dailyChallengeDate = null;

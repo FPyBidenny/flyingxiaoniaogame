@@ -8,6 +8,9 @@
     <meta name="apple-mobile-web-app-title" content="飞扬的小鸟">
     <meta name="theme-color" content="#1a1a2e">
     <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>飞扬的小鸟</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -330,6 +333,25 @@
         .btn-start:hover { transform: translateY(-3px); box-shadow: 0 10px 35px rgba(230,126,34,0.6); }
         .btn-start:active { transform: translateY(0); }
 
+        .btn-continue {
+            margin-top: 12px; padding: 13px 50px; font-size: 18px;
+            background: linear-gradient(135deg, #3498db, #2980b9); color: #fff;
+            box-shadow: 0 6px 25px rgba(41,128,185,0.4);
+            border: none; border-radius: 50px; cursor: pointer; font-weight: 700;
+            letter-spacing: 2px; transition: all 0.25s; outline: none;
+        }
+        .btn-continue:hover { transform: translateY(-3px); box-shadow: 0 10px 35px rgba(41,128,185,0.6); }
+        .btn-continue:active { transform: translateY(0); }
+        .btn-continue.hidden { display: none; }
+
+        .btn-pause-save {
+            display: block; width: 100%; margin: 8px 0; padding: 12px 0;
+            font-size: 16px; font-weight: 700; border: none; border-radius: 50px;
+            cursor: pointer; letter-spacing: 1px; transition: all 0.2s;
+            background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff;
+        }
+        .btn-pause-save:hover { transform: scale(1.03); }
+
         .btn-rules, .btn-shop, .btn-settings {
             margin-top: 10px; padding: 10px 30px; font-size: 15px;
             background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.85);
@@ -417,6 +439,46 @@
             transition: all 0.2s;
         }
         .btn-reset-all:hover { transform: scale(1.02); box-shadow: 0 4px 20px rgba(231,76,60,0.4); }
+
+        /* ========== 设置搜索 ========== */
+        .settings-search-wrap {
+            position: relative; margin-bottom: 14px;
+        }
+        .settings-search {
+            width: 100%; padding: 10px 38px 10px 14px;
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 25px; color: #fff; font-size: 14px;
+            outline: none; transition: all 0.25s;
+        }
+        .settings-search::placeholder { color: rgba(255,255,255,0.35); }
+        .settings-search:focus { border-color: #f1c40f; background: rgba(255,255,255,0.12); box-shadow: 0 0 12px rgba(241,196,15,0.15); }
+        .settings-search-icon {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            font-size: 16px; pointer-events: none; color: rgba(255,255,255,0.4);
+        }
+        .settings-search-clear {
+            position: absolute; right: 34px; top: 50%; transform: translateY(-50%);
+            font-size: 16px; cursor: pointer; color: rgba(255,255,255,0.5);
+            display: none; width: 20px; height: 20px; line-height: 20px;
+            text-align: center; border-radius: 50%; background: rgba(255,255,255,0.12);
+        }
+        .settings-search-no-result {
+            text-align: center; font-size: 13px; color: rgba(255,255,255,0.4);
+            padding: 20px 0; display: none;
+        }
+        /* 设置项高亮 */
+        .setting-group.search-highlight, .setting-switch-row.search-highlight,
+        .warning-position-row.search-highlight, .setting-group.debug-entry.search-highlight {
+            animation: searchPulse 0.8s ease-in-out;
+            background: rgba(241,196,15,0.12) !important;
+            border-radius: 12px;
+        }
+        @keyframes searchPulse {
+            0% { background: rgba(241,196,15,0.25) !important; }
+            100% { background: rgba(241,196,15,0.12) !important; }
+        }
+        .settings-section.search-hidden { display: none; }
+        .setting-search-hidden { display: none !important; }
 
         /* 设置分区 */
         .settings-section {
@@ -510,6 +572,91 @@
             text-align: center; font-size: 16px; color: #f1c40f; margin-bottom: 14px; font-weight: 700;
         }
 
+        /* ========== 商城标签页 ========== */
+        .shop-tabs {
+            display: flex; gap: 8px; margin-bottom: 14px;
+        }
+        .shop-tab {
+            flex: 1; padding: 10px 0; text-align: center; font-size: 14px; font-weight: 700;
+            border-radius: 20px; cursor: pointer; background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7);
+            border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s;
+        }
+        .shop-tab.active { background: rgba(243,156,18,0.2); color: #f1c40f; border-color: rgba(243,156,18,0.4); }
+
+        /* ========== 卖东西 ========== */
+        .sell-section { display: none; flex-direction: column; gap: 10px; }
+        .sell-section.active { display: flex; }
+        .sell-empty {
+            text-align: center; padding: 30px 10px; color: rgba(255,255,255,0.5); font-size: 14px;
+        }
+        .sell-official-card {
+            background: rgba(255,255,255,0.08); border-radius: 12px; padding: 14px 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .sell-official-title { font-size: 15px; font-weight: 700; color: #f1c40f; margin-bottom: 6px; }
+        .sell-official-desc { font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 10px; line-height: 1.4; }
+        .sell-official-price { font-size: 18px; font-weight: 700; color: #2ecc71; margin-bottom: 10px; }
+        .sell-official-btn {
+            width: 100%; padding: 10px 0; border: none; border-radius: 20px; font-size: 14px; font-weight: 700;
+            background: linear-gradient(135deg, #f1c40f, #f39c12); color: #2c3e50; cursor: pointer;
+        }
+        .sell-official-btn:disabled { background: #555; color: #999; cursor: not-allowed; }
+        .sell-buyers-title { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 6px; }
+        .sell-buyer-card {
+            background: rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 14px;
+            border: 1px solid rgba(255,255,255,0.08); cursor: pointer; transition: all 0.2s;
+        }
+        .sell-buyer-card:hover { background: rgba(255,255,255,0.1); transform: scale(1.01); }
+        .sell-buyer-card.sold { opacity: 0.45; pointer-events: none; }
+        .sell-buyer-name { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+        .sell-buyer-price { font-size: 13px; color: #f1c40f; margin-bottom: 2px; }
+        .sell-buyer-hint { font-size: 11px; color: rgba(255,255,255,0.5); }
+
+        /* ========== 砍价弹窗 ========== */
+        .haggle-modal .haggle-seller-say {
+            text-align: center; font-size: 15px; color: #f1c40f; font-weight: 700; margin-bottom: 12px;
+        }
+        .haggle-modal .haggle-price {
+            text-align: center; font-size: 26px; font-weight: 700; color: #2ecc71; margin-bottom: 6px;
+        }
+        .haggle-modal .haggle-prob {
+            text-align: center; font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 16px;
+        }
+        .haggle-modal .haggle-actions {
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .haggle-modal .haggle-actions .btn-row {
+            display: flex; gap: 8px;
+        }
+        .haggle-modal .haggle-actions button {
+            flex: 1; padding: 10px 0; border: none; border-radius: 20px; font-size: 14px; font-weight: 700; cursor: pointer;
+        }
+        .haggle-modal .btn-haggle-up {
+            background: rgba(52,152,219,0.2); color: #3498db; border: 1px solid rgba(52,152,219,0.4);
+        }
+        .haggle-modal .btn-haggle-sell {
+            background: linear-gradient(135deg, #f1c40f, #f39c12); color: #2c3e50;
+        }
+        .haggle-modal .btn-haggle-cancel {
+            background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.2);
+        }
+        .haggle-modal .haggle-result {
+            text-align: center; font-size: 14px; color: #fff; margin-top: 12px; min-height: 20px;
+        }
+
+        /* ========== 皇冠选择弹窗 ========== */
+        .crown-choice-modal .crown-choice-list {
+            display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px;
+        }
+        .crown-choice-modal .crown-choice-card {
+            background: rgba(255,255,255,0.08); border-radius: 12px; padding: 14px 16px;
+            border: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s;
+        }
+        .crown-choice-modal .crown-choice-card:hover { background: rgba(255,255,255,0.12); transform: scale(1.01); }
+        .crown-choice-modal .crown-choice-name { font-size: 15px; font-weight: 700; color: #f1c40f; margin-bottom: 4px; }
+        .crown-choice-modal .crown-choice-price { font-size: 18px; font-weight: 700; color: #2ecc71; margin-bottom: 4px; }
+        .crown-choice-modal .crown-choice-desc { font-size: 12px; color: rgba(255,255,255,0.6); }
+
         /* ========== 暂停按钮 ========== */
         .pause-btn {
             position: absolute; top: 8px; right: 8px; z-index: 15;
@@ -536,9 +683,9 @@
         .music-btn.visible { display: flex; }
         .music-btn.muted { opacity: 0.5; }
 
-        /* 标题界面：账户栏不再需要下移（音乐按钮默认隐藏） */
+        /* 标题界面：账户栏下移，避免与左上角音乐按钮重叠 */
         .game-wrapper:has(#startOverlay.active) .account-bar {
-            top: 8px;
+            top: 56px;
         }
 
         /* ========== 每日挑战按钮 ========== */
@@ -1269,7 +1416,7 @@
             .pause-btn { top: 6px; right: 6px; width: 36px; height: 36px; font-size: 18px; }
             .music-btn { top: 6px; left: 6px; right: auto; width: 36px; height: 36px; font-size: 16px; }
             .account-bar { top: 6px; left: 6px; gap: 8px; }
-            .game-wrapper:has(#startOverlay.active) .account-bar { top: 6px; }
+            .game-wrapper:has(#startOverlay.active) .account-bar { top: 50px; }
             .account-avatar-btn { width: 40px; height: 40px; font-size: 20px; }
             .gift-btn { width: 40px; height: 40px; font-size: 16px; }
             .daily-challenge-btn { width: 40px; height: 40px; font-size: 20px; }
@@ -1342,7 +1489,7 @@
             .pause-btn { top: calc(6px + env(safe-area-inset-top)); }
             .music-btn { top: calc(6px + env(safe-area-inset-top)); left: 8px; right: auto; }
             .account-bar { top: calc(6px + env(safe-area-inset-top)); }
-            .game-wrapper:has(#startOverlay.active) .account-bar { top: calc(8px + env(safe-area-inset-top)); }
+            .game-wrapper:has(#startOverlay.active) .account-bar { top: calc(50px + env(safe-area-inset-top)); }
         }
 
         /* ========== 调试模式 ========== */
@@ -1518,6 +1665,7 @@
     <audio id="loseMusic" src="audio/fx/walala.mp3" preload="none"></audio>
     <audio id="recordMusic" src="audio/fx/jlpo.mp3" loop preload="none"></audio>
     <audio id="vacuumMusic" src="audio/fx/吸尘器需要弄上去的 2.mp3" loop preload="none"></audio>
+    <audio id="thunderAudio" src="audio/fx/雷.mp3" preload="none"></audio>
     <audio class="bird-chirp-audio" src="audio/chirp/太阳宫中路19号院 26.mp3" preload="none"></audio>
     <audio class="bird-chirp-audio" src="audio/chirp/太阳宫中路19号院 28.mp3" preload="none"></audio>
     <audio class="bird-chirp-audio" src="audio/chirp/太阳宫中路19号院 32.mp3" preload="none"></audio>
@@ -1605,6 +1753,7 @@
                         </div>
                     </div>
                     <button class="btn btn-start" id="btnStart" data-i18n="开始游戏">开始游戏</button>
+                    <button class="btn btn-continue hidden" id="btnContinue" data-i18n="继续游戏">📂 继续游戏</button>
                     <button class="btn btn-settings" id="btnSettings" data-i18n="游戏设置">⚙️ 游戏设置</button>
                     <button class="btn btn-shop" id="btnShop" data-i18n="商 城">🛒 商 城</button>
                     <button class="btn btn-rules" id="btnRules" data-i18n="游戏规则">📋 游戏规则</button>
@@ -1651,13 +1800,22 @@
         <div class="pause-modal" id="pauseModal">
             <h3 data-i18n="⏸ 游戏暂停">⏸ 游戏暂停</h3>
             <button class="btn-pause-action btn-pause-resume" id="btnPauseResume" data-i18n="▶ 继续游戏">▶ 继续游戏</button>
+            <button class="btn-pause-action btn-pause-save" id="btnPauseSave" data-i18n="💾 保存并退出">💾 保存并退出</button>
             <button class="btn-pause-action btn-pause-restart" id="btnPauseRestart" data-i18n="🔄 重新开始">🔄 重新开始</button>
-            <button class="btn-pause-action btn-pause-quit" id="btnPauseQuit" data-i18n="返回标题界面">🏠 返回标题界面</button>
+            <button class="btn-pause-action btn-pause-quit" id="btnPauseQuit" data-i18n="🏠 不保存，退出">🏠 不保存，退出</button>
         </div>
 
         <!-- 设置弹窗 -->
         <div class="modal" id="settingsModal">
             <h3 data-i18n="游戏设置">⚙️ 游戏设置</h3>
+
+            <!-- 设置搜索 -->
+            <div class="settings-search-wrap">
+                <input type="text" class="settings-search" id="settingsSearch" placeholder="🔍 搜索设置项（如：成就弹窗、皇冠、音效...）" autocomplete="off">
+                <span class="settings-search-clear" id="settingsSearchClear">✕</span>
+                <span class="settings-search-icon">🔍</span>
+            </div>
+            <div class="settings-search-no-result" id="settingsSearchNoResult" data-i18n="设置中未找到此选项">设置中未找到此选项</div>
 
             <!-- 按钮区 -->
             <div class="settings-section">
@@ -1816,6 +1974,18 @@
                         <div class="setting-switch-thumb"></div>
                     </div>
                 </div>
+                <div class="setting-switch-row">
+                    <span class="setting-switch-label" data-i18n="黑夜网亮度增强">🌙 黑夜网亮度增强</span>
+                    <div class="setting-switch-track on" id="switchNetBrightNight">
+                        <div class="setting-switch-thumb"></div>
+                    </div>
+                </div>
+                <div class="setting-switch-row" id="crownEquipRow" style="display:none;">
+                    <span class="setting-switch-label" data-i18n="装备皇冠">👑 装备皇冠</span>
+                    <div class="setting-switch-track" id="switchCrownEquip">
+                        <div class="setting-switch-thumb"></div>
+                    </div>
+                </div>
                 <div class="warning-position-row">
                     <span class="warning-position-label" data-i18n="事件提醒位置">⚠️ 事件提醒位置</span>
                     <div class="warning-position-options" id="warningPositionOptions">
@@ -1856,7 +2026,7 @@
             </div>
 
             <button class="btn-close btn-save-green" id="btnCloseSettings" data-i18n="保存">保存</button>
-            <div class="settings-version" id="settingsVersion" style="cursor:pointer;" title="点击查看更新日志">版本号 v1.2.21</div>
+            <div class="settings-version" id="settingsVersion" style="cursor:pointer;" title="点击查看更新日志">版本号 v1.4.1</div>
         </div>
 
         <!-- 关闭事件提醒警告弹窗 -->
@@ -2206,6 +2376,9 @@
         <!-- 版本更新提示 -->
         <div class="modal version-modal" id="versionModal">
             <h3 id="versionTitle">🎉 版本信息</h3>
+            <div id="versionImageWrap" style="text-align:center;margin:8px 0;display:none;">
+                <img id="versionImage" src="" alt="版本主题图" style="max-width:100%;max-height:200px;border-radius:12px;border:2px solid rgba(255,255,255,0.15);">
+            </div>
             <div id="versionContent" style="text-align:left;font-size:13px;color:rgba(255,255,255,0.85);margin:14px 0;line-height:1.8;max-height:200px;overflow-y:auto;"></div>
             <button class="btn-close" id="btnRollbackVersion" style="width:100%;padding:10px 0;background:rgba(255,107,107,0.15);border:1px solid rgba(255,107,107,0.4);border-radius:20px;color:#e74c3c;font-size:14px;cursor:pointer;margin-bottom:6px;">⬅ 查看上一版本日志</button>
             <button class="btn-close" id="btnNextVersion" style="width:100%;padding:10px 0;background:rgba(100,200,255,0.12);border:1px solid rgba(100,200,255,0.3);border-radius:20px;color:#3498db;font-size:14px;cursor:pointer;margin-bottom:8px;display:none;">查看下一版本日志 ➡</button>
@@ -2267,34 +2440,97 @@
                 <span data-i18n="金币：">🪙 金币:</span> <span id="shopGold">0</span> &nbsp;|&nbsp;
                 <span data-i18n="银币：">🥈 银币:</span> <span id="shopSilver">0</span>
             </div>
-            <div class="shop-item">
-                <span class="item-icon">❤️</span>
-                <div class="item-info">
-                    <div class="item-name" data-i18n="生命机会卡">生命机会卡</div>
-                    <div class="item-desc" data-i18n="每局增加 1 次死亡机会（永久有效）">每局增加 1 次死亡机会（永久有效）</div>
-                    <div class="item-owned"><span data-i18n="已拥有">已拥有</span>: <span id="lifeCardCount">0</span> <span data-i18n="张">张</span></div>
-                </div>
-                <button class="btn-buy" id="btnBuyLifeCard">🪙25</button>
+            <div class="shop-tabs">
+                <div class="shop-tab active" id="shopTabBuy" data-i18n="买东西">🛒 买东西</div>
+                <div class="shop-tab" id="shopTabSell" data-i18n="卖东西">💰 卖东西</div>
             </div>
-            <div class="shop-item">
-                <span class="item-icon">⏱️</span>
-                <div class="item-info">
-                    <div class="item-name" data-i18n="无尽模式加时卡">无尽模式加时卡</div>
-                    <div class="item-desc" data-i18n="无尽模式时间 +15 秒（永久有效）">无尽模式时间 +15 秒（永久有效）</div>
-                    <div class="item-owned"><span data-i18n="已拥有">已拥有</span>: <span id="timeCardCount">0</span> <span data-i18n="张">张</span></div>
+            <div class="buy-section" id="buySection">
+                <div class="shop-item">
+                    <span class="item-icon">❤️</span>
+                    <div class="item-info">
+                        <div class="item-name" data-i18n="生命机会卡">生命机会卡</div>
+                        <div class="item-desc" data-i18n="每局增加 1 次死亡机会（永久有效）">每局增加 1 次死亡机会（永久有效）</div>
+                        <div class="item-owned"><span data-i18n="已拥有">已拥有</span>: <span id="lifeCardCount">0</span> <span data-i18n="张">张</span></div>
+                    </div>
+                    <button class="btn-buy" id="btnBuyLifeCard">🪙25</button>
                 </div>
-                <button class="btn-buy" id="btnBuyTimeCard">🪙7</button>
+                <div class="shop-item">
+                    <span class="item-icon">⏱️</span>
+                    <div class="item-info">
+                        <div class="item-name" data-i18n="无尽模式加时卡">无尽模式加时卡</div>
+                        <div class="item-desc" data-i18n="无尽模式时间 +15 秒（永久有效）">无尽模式时间 +15 秒（永久有效）</div>
+                        <div class="item-owned"><span data-i18n="已拥有">已拥有</span>: <span id="timeCardCount">0</span> <span data-i18n="张">张</span></div>
+                    </div>
+                    <button class="btn-buy" id="btnBuyTimeCard">🪙7</button>
+                </div>
+                <div class="shop-item">
+                    <span class="item-icon">☀️</span>
+                    <div class="item-info">
+                        <div class="item-name" data-i18n="白天加长卡">白天加长卡</div>
+                        <div class="item-desc" data-i18n="每局白天时长 +10 秒（永久有效）">每局白天时长 +10 秒（永久有效）</div>
+                        <div class="item-owned"><span data-i18n="已拥有">已拥有</span>: <span id="dayLengthCardCount">0</span> <span data-i18n="张">张</span></div>
+                    </div>
+                    <button class="btn-buy" id="btnBuyDayLengthCard">🪙15</button>
+                </div>
+                <div class="shop-item" id="crownShopItem">
+                    <span class="item-icon">👑</span>
+                    <div class="item-info">
+                        <div class="item-name" data-i18n="永久皇冠">永久皇冠</div>
+                        <div class="item-desc" id="crownShopDesc" data-i18n="死亡时皇冠会飞走并落在草坪上，重新开始后回到小鸟头上">死亡时皇冠会飞走并落在草坪上，重新开始后回到小鸟头上</div>
+                        <div class="item-owned" id="crownOwnedLabel" style="display:none;"><span data-i18n="已拥有">已拥有</span></div>
+                    </div>
+                    <button class="btn-buy" id="btnBuyCrown">🪙9800</button>
+                </div>
             </div>
-            <div class="shop-item">
-                <span class="item-icon">☀️</span>
-                <div class="item-info">
-                    <div class="item-name" data-i18n="白天加长卡">白天加长卡</div>
-                    <div class="item-desc" data-i18n="每局白天时长 +10 秒（永久有效）">每局白天时长 +10 秒（永久有效）</div>
-                    <div class="item-owned"><span data-i18n="已拥有">已拥有</span>: <span id="dayLengthCardCount">0</span> <span data-i18n="张">张</span></div>
+            <div class="sell-section" id="sellSection">
+                <div class="sell-empty" id="sellEmpty" data-i18n="你还没有可以出售的皇冠">你还没有可以出售的皇冠</div>
+                <div class="sell-official-card" id="sellOfficialCard" style="display:none;">
+                    <div class="sell-official-title" data-i18n="🏢 官方二手回收">🏢 官方二手回收</div>
+                    <div class="sell-official-desc" data-i18n="按持有天数自动计算价格，第20天回本，之后每天多赚50金币">按持有天数自动计算价格，第20天回本，之后每天多赚50金币</div>
+                    <div class="sell-official-price" id="sellOfficialPrice">🪙0</div>
+                    <button class="sell-official-btn" id="btnSellOfficial" data-i18n="卖给官方">卖给官方</button>
                 </div>
-                <button class="btn-buy" id="btnBuyDayLengthCard">🪙15</button>
+                <div class="sell-buyers-title" id="sellBuyersTitle" style="display:none;" data-i18n="🧑‍💼 个人买家（每天刷新）">🧑‍💼 个人买家（每天刷新）</div>
+                <div id="sellBuyersList"></div>
             </div>
             <button class="btn-close" id="btnCloseShop" data-i18n="关闭">关闭</button>
+        </div>
+
+        <!-- 皇冠购买选择弹窗 -->
+        <div class="modal crown-choice-modal" id="crownChoiceModal">
+            <h3 data-i18n="选择皇冠版本">👑 选择皇冠版本</h3>
+            <p style="text-align:center;font-size:13px;color:rgba(255,255,255,0.7);margin:10px 0 16px;" data-i18n="请选择你要购买的皇冠版本：">请选择你要购买的皇冠版本：</p>
+            <div class="crown-choice-list">
+                <div class="crown-choice-card" id="crownChoiceDiscounted">
+                    <div class="crown-choice-name">🏷️ <span data-i18n="降价版">降价版</span></div>
+                    <div class="crown-choice-price">🪙3000</div>
+                    <div class="crown-choice-desc" data-i18n="可使用 50 次死亡，之后皇冠消失">可使用 50 次死亡，之后皇冠消失</div>
+                </div>
+                <div class="crown-choice-card" id="crownChoiceNormal">
+                    <div class="crown-choice-name">👑 <span data-i18n="正常版">正常版</span></div>
+                    <div class="crown-choice-price" id="crownChoiceNormalPrice">🪙9800</div>
+                    <div class="crown-choice-desc" data-i18n="无死亡次数限制，永久保留">无死亡次数限制，永久保留</div>
+                </div>
+            </div>
+            <button class="btn-close" id="btnCloseCrownChoice" data-i18n="取消">取消</button>
+        </div>
+
+        <!-- 砍价弹窗 -->
+        <div class="modal haggle-modal" id="haggleModal">
+            <h3 data-i18n="💬 砍价模式">💬 砍价模式</h3>
+            <div class="haggle-seller-say" id="haggleSellerSay">别砍太多哦！</div>
+            <div class="haggle-price" id="hagglePrice">🪙3000</div>
+            <div class="haggle-prob" id="haggleProb">成交概率：80%</div>
+            <div class="haggle-actions">
+                <div class="btn-row">
+                    <button class="btn-haggle-up" id="btnHaggleUp">📈 要求升价 (+50)</button>
+                </div>
+                <div class="btn-row">
+                    <button class="btn-haggle-sell" id="btnHaggleSell">💰 以此价格成交</button>
+                    <button class="btn-haggle-cancel" id="btnHaggleCancel">取消</button>
+                </div>
+            </div>
+            <div class="haggle-result" id="haggleResult"></div>
         </div>
 
         <!-- 每日挑战设置弹窗 -->
@@ -2667,6 +2903,7 @@
                     '小鸟阴影': '🐦 Bird Shadow',
                     '小鸟叫声': '🐤 Bird Chirp',
                     '小鸟叫声概率': '🐤 Bird Chirp Rate',
+                    '黑夜网亮度增强': '🌙 Night Net Brightness',
                     '游戏中每3秒有概率触发小鸟叫声，越大越容易触发': 'Bird chirps every 3 seconds at this probability. Higher = more frequent.',
                     '按下空格即可跳过此倒计时': 'Press Space to skip countdown',
                     '事件提醒位置': '⚠️ Event Warning Position',
@@ -2953,6 +3190,38 @@
                     '购买成功': 'Purchase successful',
                     '金币不足': 'Not enough gold',
                     '关闭': 'Close',
+                    '🎉 永久皇冠购买成功！': '🎉 Permanent Crown Purchased!',
+                    '💰 皇冠出售成功！': '💰 Crown Sold!',
+                    '获得 🪙{0} 金币': 'Received 🪙{0} gold',
+                    // 商城买卖
+                    '买东西': '🛒 Buy',
+                    '卖东西': '💰 Sell',
+                    '你还没有可以出售的皇冠': 'You have no crown to sell',
+                    '🏢 官方二手回收': '🏢 Official Resale',
+                    '按持有天数自动计算价格，第20天回本，之后每天多赚50金币': 'Price based on days held. Break even on day 20, then +50 gold/day',
+                    '卖给官方': 'Sell to Official',
+                    '🧑‍💼 个人买家（每天刷新）': '🧑‍💼 Personal Buyers (Refresh Daily)',
+                    '点击进入砍价模式': 'Tap to haggle',
+                    '已成交': 'Sold',
+                    '今天先不卖了': 'Not selling today',
+                    '选择皇冠版本': 'Choose Crown Version',
+                    '请选择你要购买的皇冠版本：': 'Please choose which crown version to buy:',
+                    '降价版': 'Discounted',
+                    '可使用 50 次死亡，之后皇冠消失': '50 deaths limit, then the crown disappears',
+                    '正常版': 'Normal',
+                    '无死亡次数限制，永久保留': 'Unlimited deaths, permanent',
+                    '取消': 'Cancel',
+                    '💬 砍价模式': '💬 Haggle Mode',
+                    '别砍太多哦！': 'Don\'t haggle too hard!',
+                    '成交概率：': 'Success chance: ',
+                    '📈 要求升价 (+50)': '📈 Ask +50',
+                    '💰 以此价格成交': '💰 Deal at this price',
+                    '抱歉，我发现我没货了。': 'Sorry, I\'m out of stock.',
+                    '抱歉，您似乎有点便宜了，我今天先不卖了。': 'Sorry, that\'s too cheap. I\'m not selling today.',
+                    '已拥有永久皇冠': 'Permanent crown owned',
+                    '，可在设置中选择是否装备': '. Equip it in Settings.',
+                    '降价版（剩余 {0} 次死亡）': 'Discounted ({0} deaths left)',
+                    '正常版': 'Normal',
                     // 每日挑战
                     '🎯 每日挑战': '🎯 Daily Challenge',
                     '每天只能挑战一次，完成即可获得银币奖励（2分=1银币）。': 'Once daily. Earn silver rewards (2pts = 1 silver).',
@@ -3212,7 +3481,16 @@
                     '（管理员）': ' (Admin)',
                     '连按空格逃脱！': 'Tap Space rapidly to escape!',
                     '连按屏幕逃脱！': 'Tap screen rapidly to escape!',
-                    '版本号': 'Version'
+                    '版本号': 'Version',
+                    '永久皇冠': 'Permanent Crown',
+                    '死亡时皇冠会飞走并落在草坪上，重新开始后回到小鸟头上': 'The crown flies off & lands on the grass; returns to the bird after restart',
+                    '已拥有永久皇冠，可在设置中选择是否装备': 'Crown owned. Equip it in Settings.',
+                    '最高分达到1500，永久皇冠特价2500金币': 'Best score ≥1500, crown now 2500 coins',
+                    '已拥有': 'Owned',
+                    '装备皇冠': 'Equip Crown',
+                    '🎉 永久皇冠购买成功！': '🎉 Permanent Crown purchased!',
+                    '可在「游戏设置 → 开关区」中开启或关闭「装备皇冠」。': 'You can toggle "Equip Crown" in Settings.',
+                    '设置中未找到此选项': 'Setting not found'
                 }
             };
             let currentLang = 'zh';
@@ -3298,6 +3576,33 @@
             const btnBuyLifeCard = document.getElementById('btnBuyLifeCard');
             const btnBuyTimeCard = document.getElementById('btnBuyTimeCard');
             const btnBuyDayLengthCard = document.getElementById('btnBuyDayLengthCard');
+            const crownShopItem = document.getElementById('crownShopItem');
+            const crownShopDesc = document.getElementById('crownShopDesc');
+            const crownOwnedLabel = document.getElementById('crownOwnedLabel');
+            const btnBuyCrown = document.getElementById('btnBuyCrown');
+            const crownChoiceModal = document.getElementById('crownChoiceModal');
+            const crownChoiceDiscounted = document.getElementById('crownChoiceDiscounted');
+            const crownChoiceNormal = document.getElementById('crownChoiceNormal');
+            const crownChoiceNormalPrice = document.getElementById('crownChoiceNormalPrice');
+            const btnCloseCrownChoice = document.getElementById('btnCloseCrownChoice');
+            const shopTabBuy = document.getElementById('shopTabBuy');
+            const shopTabSell = document.getElementById('shopTabSell');
+            const buySection = document.getElementById('buySection');
+            const sellSection = document.getElementById('sellSection');
+            const sellEmpty = document.getElementById('sellEmpty');
+            const sellOfficialCard = document.getElementById('sellOfficialCard');
+            const sellOfficialPrice = document.getElementById('sellOfficialPrice');
+            const btnSellOfficial = document.getElementById('btnSellOfficial');
+            const sellBuyersTitle = document.getElementById('sellBuyersTitle');
+            const sellBuyersList = document.getElementById('sellBuyersList');
+            const haggleModal = document.getElementById('haggleModal');
+            const haggleSellerSay = document.getElementById('haggleSellerSay');
+            const hagglePrice = document.getElementById('hagglePrice');
+            const haggleProb = document.getElementById('haggleProb');
+            const btnHaggleUp = document.getElementById('btnHaggleUp');
+            const btnHaggleSell = document.getElementById('btnHaggleSell');
+            const btnHaggleCancel = document.getElementById('btnHaggleCancel');
+            const haggleResult = document.getElementById('haggleResult');
             const keyDisplay = document.getElementById('keyDisplay');
             const endlessTimeSlider = document.getElementById('endlessTimeSlider');
             const endlessTimeLabel = document.getElementById('endlessTimeLabel');
@@ -3315,6 +3620,8 @@
             const btnPauseResume = document.getElementById('btnPauseResume');
             const btnPauseRestart = document.getElementById('btnPauseRestart');
             const btnPauseQuit = document.getElementById('btnPauseQuit');
+            const btnPauseSave = document.getElementById('btnPauseSave');
+            const btnContinue = document.getElementById('btnContinue');
 
             // 账户系统 DOM
             const accountBar = document.getElementById('accountBar');
@@ -3466,6 +3773,12 @@
             const switchPassPipeSound = document.getElementById('switchPassPipeSound');
             const switchBirdShadow = document.getElementById('switchBirdShadow');
             const switchBirdChirp = document.getElementById('switchBirdChirp');
+            const switchNetBrightNight = document.getElementById('switchNetBrightNight');
+            const crownEquipRow = document.getElementById('crownEquipRow');
+            const switchCrownEquip = document.getElementById('switchCrownEquip');
+            const settingsSearch = document.getElementById('settingsSearch');
+            const settingsSearchClear = document.getElementById('settingsSearchClear');
+            const settingsSearchNoResult = document.getElementById('settingsSearchNoResult');
             const warningPositionOptions = document.getElementById('warningPositionOptions');
             const warningHiddenConfirmModal = document.getElementById('warningHiddenConfirmModal');
             const btnWarningHiddenCancel = document.getElementById('btnWarningHiddenCancel');
@@ -3567,8 +3880,26 @@
                 pCtx.stroke();
                 return ctx.createPattern(pCanvas, 'repeat');
             }
+            function createLegacyBuildingPatternBright() {
+                const size = 6;
+                const pCanvas = document.createElement('canvas');
+                pCanvas.width = size; pCanvas.height = size;
+                const pCtx = pCanvas.getContext('2d');
+                // 黑夜高亮背景
+                pCtx.fillStyle = '#7a7a90';
+                pCtx.fillRect(0, 0, size, size);
+                // 更亮的网格线
+                pCtx.strokeStyle = 'rgba(235,235,255,0.65)';
+                pCtx.lineWidth = 0.7;
+                pCtx.beginPath();
+                pCtx.moveTo(0, 0); pCtx.lineTo(size, 0);
+                pCtx.moveTo(0, 0); pCtx.lineTo(0, size);
+                pCtx.stroke();
+                return ctx.createPattern(pCanvas, 'repeat');
+            }
             netPattern = createNetPattern();
             legacyBuildingPattern = createLegacyBuildingPattern();
+            let legacyBuildingPatternBright = createLegacyBuildingPatternBright();
 
             // 响应式缩放画布
             function resizeCanvas() {
@@ -3618,6 +3949,7 @@
             let birdShadowEnabled = false;   // 小鸟阴影模式，默认关闭
             let birdChirpEnabled = true;     // 小鸟叫声开关，默认开启
             let birdChirpProbability = 50;  // 小鸟叫声概率（10-90），默认50%
+            let netBrightNight = true;       // 黑夜网亮度增强，默认开启
             let tutorialCompleted = false; // 当前账户是否已完成新手教程
             let firstGuideShown = false; // 是否已显示首次进入引导
             let nightFlightPlayTime = 0; // 深夜飞行成就累计秒数（凌晨6点前游玩时间）
@@ -3627,30 +3959,67 @@
             let languageSelected = false; // 是否已选择过语言
             // currentLang 在顶部 I18N 块已声明
 
+            // ========== 皇冠系统 ==========
+            let crownUnlocked = false;  // 是否已解锁永久皇冠折扣（最高分≥1500，无尽/每日挑战不计入）
+            let crownType = null;       // 是否已购买永久皇冠：'normal' 正常版 | 'discounted' 降价版 | null 未拥有
+            let crownPurchasePrice = 0; // 皇冠购买价格
+            let crownPurchaseDate = null; // 皇冠购买日期 'YYYY-M-D'
+            let crownDeathsLeft = 0;    // 降价版剩余死亡次数
+            let crownOwned = false;     // 是否已购买永久皇冠（crownType !== null）
+            let crownEquipped = false;  // 是否在设置中装备皇冠
+            let runCrownActive = false; // 本局是否已获得250分临时皇冠
+            let runCrownEverActive = false; // 本局是否曾达到250分（用于死亡飞走动画判断）
+            let crownFlyAnim = null;    // 皇冠飞走动画状态
+            let crownLanded = null;     // 皇冠落地状态 { x, y }
+            const CROWN_DISCOUNTED_USES = 50; // 降价版可用死亡次数
+            let crownBuyers = [];       // 今日个人买家列表
+            let currentHaggleBuyer = null; // 当前砍价中的买家
+            const SELL_BUYER_NAMES = ['Alice','Bob','Charlie','David','Eva','Frank','Grace','Henry','Ivy','Jack','Katie','Leo','Mia','Noah','Olivia','Paul','Quinn','Ryan','Sophia','Tom'];
+
             // ========== 版本系统 ==========
-            let VERSION = '1.2.21';
+            let VERSION = '1.4.6';
             const VERSION_HISTORY = [
-                { v: '1.2.21', text: '🔇 音乐按钮仅在暂停时显示' },
-                { v: '1.2.20', text: '⚖️ 事件概率调整：地震15%、打仗10%、异世界15%、吸尘器15%\n🐦 小鸟位置左移并限制在左侧竖直区域\n🎵 游戏进行中的音乐按钮移到左上角' },
-                { v: '1.2.19', text: '🔊 吸尘器事件新增专属音效，吸尘时播放，结束或逃脱后停止' },
-                { v: '1.2.17', text: '🔗 被吸住后小鸟与吸尘器严格同步，无延迟跟随出屏\n🚫 被吸入期间完全停止管道生成\n⌨️ 降低逃脱进度衰减，连按更易挣脱' },
-                { v: '1.2.16', text: '⏱️ 吸尘器内每5秒扣一血，不会自动结束\n↩️ 跟随吸尘器出屏幕后仍持续，无管道直到逃脱' },
-                { v: '1.2.15', text: '🪶 吸尘器内不受重力，只缓慢下沉\n↩️ 吸尘器移出屏幕后鸟仍跟随，不中断事件\n💔 下降中撞进吸尘器扣一颗心' },
-                { v: '1.2.14', text: '🧹 碰到吸尘器后随吸尘器一起后退\n⌨️ 连按空格挣扎逃脱，逃脱后继续前进\n🛡️ 被吸入时不会碰到管道，前方路径重新刷新' },
-                { v: '1.2.13', text: '🧹 吸尘器融入背景，随背景一起向左移动\n🎯 碰到吸尘器即被吸入，连按空格可逃脱' },
-                { v: '1.2.12', text: '🧹 吸尘器固定不动，等小鸟飞过去才触发' },
-                { v: '1.2.11', text: '🧹 管道/网吸入直接消失，无残影\n🐛 修复网吸入后变成管道的bug\n⚡ 吸尘器速度与僵尸鸟速度一致' },
-                { v: '1.2.10', text: '🧹 吸尘器移动速度与僵尸鸟速度一致，随难度等比缩放' },
-                { v: '1.2.9', text: '⚡ 吸尘器速度根据难度调整：简单→特别特别慢，稍简单→稍快，正常→再快一点，困难→比正常快一点\n🐦 所有难度下小鸟都能超越吸尘器' },
-                { v: '1.2.8', text: '🐢 降低吸尘器移动速度，方便追上\n⌨️ 逃脱提示改为"连按空格/屏幕"，手机版显示连按屏幕' },
-                { v: '1.2.7', text: '🧹 重做吸尘器：管道被吃掉动画、小鸟挣扎逃脱机制\n🔴 小鸟被吸住时显示\"按住空格逃脱\"提示，空格上升变慢\n🎬 吸尘器缓慢左右移动，上管道快速下坠、下管道慢慢被吸入' },
-                { v: '1.2.6', text: '🧹 重做吸尘器吸入动画：管道会滑动吸入吸尘器\n🎯 缩小吸尘器危险红框，小鸟碰到红框即被弹开\n🔧 调试模式中事件概率参数始终可修改，不受权限限制' },
-                { v: '1.2.5', text: '🔧 彻底修复事件无法触发的问题（旧存档覆盖新默认值bug）\n🔧 加载旧存档时强制迁移事件参数为新默认值' },
-                { v: '1.2.4', text: '🔧 全面重做事件系统：改用计数器触发，每10秒检测一次\n🔧 提高事件概率：吸尘器30%、其他20%、异世界30%\n🧹 重做吸尘器：虚线吸入区域，吸入范围内的所有物体' },
-                { v: '1.2.3', text: '🐛 修复事件无法触发的问题\n📝 修改吸尘器教程文字' },
-                { v: '1.2.2', text: '❌ 移除黑洞事件（无法正常生成）\n🧹 新增躲避吸尘器新手教程' },
-                { v: '1.2.1', text: '🐛 修复吸尘器事件不会自然生成的问题（新增独立20%概率触发）\n🕳️ 黑洞在正常模式下恢复可见，可在设置中开关\n🔧 修复调试模式事件概率调整不生效的问题' },
-                { v: '1.2', text: '🧹 新增吸尘器事件：地下吸尘器将整列东西吸走！\n❌ 正常游戏中移除黑洞事件（仅调试模式可召唤）\n🔧 修复调试面板权限问题' },
+                { v: '1.4.6', img: '1.4.1.png', text:'💰 商城卖二手：永久皇冠可卖给官方或个人买家，降价版限50次死亡<br>🏆 成就奖励：解锁成就获得金币，挑战200、永不放弃100、我活了一天15、啊1<br>🌙 修复老版本纹理黑夜网亮度：开启亮度增强后老材质网也会变白变亮' },
+                { v: '1.4.5', img: '1.4.1.png', text: '🧊 修复紫色大冰块砸中后游戏卡死：砸中直接扣血，1血即死显示"被紫色大冰块砸死了"' },
+                { v: '1.4.4', img: '1.4.1.png', text: '🌙 黑夜网亮度增强：黑夜时网会变白变亮，轻松看清位置，设置中默认开启可随时关闭<br>👑 皇冠落地优化：皇冠掉落后会落在草坪上，永久留在原地，返回标题或重新开始后重置' },
+                { v: '1.4.3', img: '1.4.1.png', text: '👑 皇冠落地优化：皇冠掉落后会落在草坪上，永久留在原地，返回标题或重新开始后重置<br>🔍 设置搜索：支持模糊搜索设置项，智能匹配别名' },
+                { v: '1.4.1', img: '1.4.1.png', text: '👑 皇冠系统：达到250分获得本局皇冠；永久皇冠可在商店购买，死亡时皇冠飞走但装备后永久保留<br>✨ 更新大版本 V1.4 系列' },
+                { v: '1.3.5', img: '更新版本主题.png', text: '🐛 修复紫色大冰块砸中后游戏卡死：添加冰块死亡原因映射，砸中扣血，1血即死显示"被紫色大冰块砸死了"提示' },
+                { v: '1.3.4', img: '更新版本主题.png', text: '🖼️ 更新日志新增版本主题图：1.2.0~1.2.21使用1.2.0主题图，1.2.22~1.2.38使用1.2.22主题图' },
+                { v: '1.3.3', img: '更新版本主题.png', text: '🐛 修复死亡后存档残留：继续游戏时死亡，存档自动清除，不再显示继续游戏按钮' },
+                { v: '1.3.2', img: '更新版本主题.png', text: '🐛 修复继续游戏BUG：死亡后正确显示继续游戏按钮\n⚙️ 修复存档恢复：正确恢复游戏难度和怪物生成设置\n🖼️ 版本主题图：V1.3.x 系列版本弹窗显示主题图片' },
+                { v: '1.3.1', img: '更新版本主题.png', text: '💾 存档系统：返回标题界面可保存当前游戏记录，下次可继续游玩\n🔢 版本号更新至 V1.3.1 新起点' },
+                { v: '1.2.38', img: '1.2.22.png', text: '🐛 修复切后台BUG：失焦/切App自动暂停，回来手动恢复，再也不怕高分白打' },
+                { v: '1.2.36', img: '1.2.22.png', text: '🌙 夜晚天气优化：阴天→随机选 rain/hail/thunderstorm/sunny，不再强制变雨' },
+                { v: '1.2.35', img: '1.2.22.png', text: '🌙 修复月亮变黑洞：阴影变浅半透明、光晕加强、位置上移；夜晚禁止阴天，夜间下雨为清澈无阴雨' },
+                { v: '1.2.33', img: '1.2.22.png', text: '🌙 月亮尺寸放大：半径22→32，直径64px，更醒目' },
+                { v: '1.2.32', img: '1.2.22.png', text: '🌙 月亮贴图去掉环形山，光晕改为圆形，不再出现方形光晕' },
+                { v: '1.2.31', img: '1.2.22.png', text: '🌙 月亮改为独立精灵贴图：4 种相位裁剪成完整圆形后放在背景上，不再用向量图形' },
+                { v: '1.2.26', img: '1.2.22.png', text: '🧊 冰雹天气新增紫色大冰块：每5秒掉落一个，撞到扣1心+1秒无敌\n📊 天气概率调整：阴天40%、下雨30%、冰雹20%、雷雨20%' },
+                { v: '1.2.25', img: '1.2.22.png', text: '🎲 修复事件触发概率过高：改为独立概率触发（吸尘器15%，其他10%）' },
+                { v: '1.2.24', img: '1.2.22.png', text: '🌙 修复月亮方块问题，所有月相都是圆形的' },
+                { v: '1.2.23', img: '1.2.22.png', text: '🌤️ 天气过渡平滑化：阴天慢慢变阴、下雨从小雨渐大\n📊 阴天概率调整：70%→50%' },
+                { v: '1.2.22', img: '1.2.22.png', text: '🌤️ 全新天气系统：晴天→阴天(70%)→下雨(55%)\n⛈️ 下雨可转冰雹(50%)、晴天雨(30%)、雷暴(20%)\n⚡ 雷暴每5秒10%概率闪电，击中扣心并变黑10秒\n🌧️ 雨天屏幕模糊+雨滴坠落效果\n🌙 夜晚月亮6阶段循环：圆月→大半→半月→月牙→无月→返回' },
+                { v: '1.2.20', img: '1.2.0.png', text: '⚖️ 事件概率调整：地震15%、打仗10%、异世界15%、吸尘器15%\n🐦 小鸟位置左移并限制在左侧竖直区域\n🎵 游戏进行中的音乐按钮移到左上角' },
+                { v: '1.2.19', img: '1.2.0.png', text: '🔊 吸尘器事件新增专属音效，吸尘时播放，结束或逃脱后停止' },
+                { v: '1.2.17', img: '1.2.0.png', text: '🔗 被吸住后小鸟与吸尘器严格同步，无延迟跟随出屏\n🚫 被吸入期间完全停止管道生成\n⌨️ 降低逃脱进度衰减，连按更易挣脱' },
+                { v: '1.2.16', img: '1.2.0.png', text: '⏱️ 吸尘器内每5秒扣一血，不会自动结束\n↩️ 跟随吸尘器出屏幕后仍持续，无管道直到逃脱' },
+                { v: '1.2.15', img: '1.2.0.png', text: '🪶 吸尘器内不受重力，只缓慢下沉\n↩️ 吸尘器移出屏幕后鸟仍跟随，不中断事件\n💔 下降中撞进吸尘器扣一颗心' },
+                { v: '1.2.14', img: '1.2.0.png', text: '🧹 碰到吸尘器后随吸尘器一起后退\n⌨️ 连按空格挣扎逃脱，逃脱后继续前进\n🛡️ 被吸入时不会碰到管道，前方路径重新刷新' },
+                { v: '1.2.13', img: '1.2.0.png', text: '🧹 吸尘器融入背景，随背景一起向左移动\n🎯 碰到吸尘器即被吸入，连按空格可逃脱' },
+                { v: '1.2.12', img: '1.2.0.png', text: '🧹 吸尘器固定不动，等小鸟飞过去才触发' },
+                { v: '1.2.11', img: '1.2.0.png', text: '🧹 管道/网吸入直接消失，无残影\n🐛 修复网吸入后变成管道的bug\n⚡ 吸尘器速度与僵尸鸟速度一致' },
+                { v: '1.2.10', img: '1.2.0.png', text: '🧹 吸尘器移动速度与僵尸鸟速度一致，随难度等比缩放' },
+                { v: '1.2.9', img: '1.2.0.png', text: '⚡ 吸尘器速度根据难度调整：简单→特别特别慢，稍简单→稍快，正常→再快一点，困难→比正常快一点\n🐦 所有难度下小鸟都能超越吸尘器' },
+                { v: '1.2.8', img: '1.2.0.png', text: '🐢 降低吸尘器移动速度，方便追上\n⌨️ 逃脱提示改为"连按空格/屏幕"，手机版显示连按屏幕' },
+                { v: '1.2.7', img: '1.2.0.png', text: '🧹 重做吸尘器：管道被吃掉动画、小鸟挣扎逃脱机制\n🔴 小鸟被吸住时显示\"按住空格逃脱\"提示，空格上升变慢\n🎬 吸尘器缓慢左右移动，上管道快速下坠、下管道慢慢被吸入' },
+                { v: '1.2.6', img: '1.2.0.png', text: '🧹 重做吸尘器吸入动画：管道会滑动吸入吸尘器\n🎯 缩小吸尘器危险红框，小鸟碰到红框即被弹开\n🔧 调试模式中事件概率参数始终可修改，不受权限限制' },
+                { v: '1.2.5', img: '1.2.0.png', text: '🔧 彻底修复事件无法触发的问题（旧存档覆盖新默认值bug）\n🔧 加载旧存档时强制迁移事件参数为新默认值' },
+                { v: '1.2.4', img: '1.2.0.png', text: '🔧 全面重做事件系统：改用计数器触发，每10秒检测一次\n🔧 提高事件概率：吸尘器30%、其他20%、异世界30%\n🧹 重做吸尘器：虚线吸入区域，吸入范围内的所有物体' },
+                { v: '1.2.3', img: '1.2.0.png', text: '🐛 修复事件无法触发的问题\n📝 修改吸尘器教程文字' },
+                { v: '1.2.2', img: '1.2.0.png', text: '❌ 移除黑洞事件（无法正常生成）\n🧹 新增躲避吸尘器新手教程' },
+                { v: '1.2.1', img: '1.2.0.png', text: '🐛 修复吸尘器事件不会自然生成的问题（新增独立20%概率触发）\n🕳️ 黑洞在正常模式下恢复可见，可在设置中开关\n🔧 修复调试模式事件概率调整不生效的问题' },
+                { v: '1.2', img: '1.2.0.png', text: '🧹 新增吸尘器事件：地下吸尘器将整列东西吸走！\n❌ 正常游戏中移除黑洞事件（仅调试模式可召唤）\n🔧 修复调试面板权限问题' },
                 { v: '1.0', text: '🎉 游戏首次发布' }
             ];
 
@@ -3689,10 +4058,36 @@
             let vacuumClearedX = 0;         // 吸尘器清除后，该列禁止生成管道
             let vacuumClearTimer = 0;       // 清除区域保护计时器
 
-            // ========== 天气系统 ==========
-            let weatherParticles = [];       // 天气粒子
-            let currentWeather = '';         // 当前天气: '' | 'rain' | 'hail' | 'lightning' | 'sandstorm'
+            // ========== 天气系统（新） ==========
+            // 天气状态: 'sunny' | 'cloudy' | 'rain' | 'hail' | 'sunRain' | 'thunderstorm'
+            let currentWeather = 'sunny';    // 当前实际天气状态
+            let displayWeather = 'sunny';    // 当前显示的天气（平滑过渡用）
+            let prevDisplayWeather = 'sunny'; // 上一个显示的天气（过渡起点）
+            let weatherLerp = 1.0;           // 天气过渡进度 0→1，1表示完全显示当前天气
+            const WEATHER_LERP_SPEED = 0.012; // 天气过渡速度（约3秒完成）
+            let weatherParticles = [];
+            let weatherTimer = 0;           // 天气检测计时器
+            let nextWeatherCheck = 300;     // 每5秒(300帧)检测一次天气变化，初始值
+            let sunRainTimer = 0;           // 晴天雨倒计时 (15秒=900帧后变晴天)
+            let thunderCheckTimer = 0;      // 雷暴检测计时器 (每5秒=300帧检测)
+            let thunderStrikeTriggered = false; // 当前闪电是否击中 (用于渲染)
+            let thunderBoltFrames = 0;      // 闪电光柱剩余帧
+            let thunderBoltX = 0;           // 闪电X坐标
+            let birdStruckTimer = 0;        // 小鸟被劈中黑色状态剩余帧数 (10秒=600帧)
+            let rainBlurAlpha = 0;          // 下雨屏幕模糊度
+            let targetRainBlur = 0;         // 目标模糊度
+            let rainIntensity = 0;          // 下雨强度 0~1（从小雨逐渐变大）
+            let weatherNightAccum = 0;      // 天气系统内部帧计数（用于黑夜交替）
+            // 紫色大冰块（冰雹天气专用）
+            let purpleIceBlocks = [];
+            let purpleIceSpawnTimer = 0;
+            const PURPLE_ICE_SPAWN_INTERVAL = 300; // 每5秒=300帧生成一个
             const MAX_WEATHER_PARTICLES = 80;
+            const THUNDER_STRIKE_INTERVAL = 300; // 雷暴每5秒=300帧检测
+            const THUNDER_STRIKE_CHANCE = 0.10;  // 10%概率打闪电
+            const SUNRAIN_DURATION = 900;   // 晴天雨持续15秒=900帧
+            const BIRD_STRUCK_DURATION = 600; // 被劈黑10秒=600帧
+            const WEATHER_CHECK_INTERVAL = 300; // 天气检测间隔5秒=300帧
 
             // ========== 调试模式 ==========
             let debugMode = false;
@@ -3988,6 +4383,16 @@
                 return !!achievements[id];
             }
 
+            function getAchievementGoldReward(id) {
+                const ach = ACHIEVEMENTS[id];
+                if (!ach) return 0;
+                if (ach.type === 'challenge') return 200;
+                if (id === 'noDeathMinute') return 20;
+                if (id === 'neverGiveUp') return 100;
+                if (id === 'survivedADay') return 15;
+                if (id === 'ahhhh') return 1;
+                return 10;
+            }
             function unlockAchievement(id) {
                 if (tutorialActive) return; // 新手教程中不触发任何成就
                 if (hasAchievement(id)) return;
@@ -3995,12 +4400,17 @@
                 if (!ach) return;
                 achievements[id] = true;
                 newAchievementsCount++;
+                const reward = getAchievementGoldReward(id);
+                if (reward > 0) {
+                    totalGold += reward;
+                    updateAllCoinUI();
+                }
                 saveData();
                 updateAchievementsBadge();
-                showAchievementToast(ach);
+                showAchievementToast(ach, reward);
             }
 
-            function showAchievementToast(ach) {
+            function showAchievementToast(ach, goldReward) {
                 if (!showAchievementPopup) return;
                 toastIcon.textContent = ach.icon;
                 if (ach.type === 'challenge') {
@@ -4010,7 +4420,12 @@
                     toastTitle.textContent = t('成就解锁');
                     achievementToast.classList.remove('challenge');
                 }
-                toastDesc.textContent = currentLang === 'en' && I18N.en[ach.name] ? t(ach.name) : ach.name;
+                const nameText = currentLang === 'en' && I18N.en[ach.name] ? t(ach.name) : ach.name;
+                if (goldReward > 0) {
+                    toastDesc.textContent = nameText + ' · 🪙+' + goldReward;
+                } else {
+                    toastDesc.textContent = nameText;
+                }
                 achievementToast.classList.add('show');
                 setTimeout(() => {
                     achievementToast.classList.remove('show');
@@ -4038,9 +4453,10 @@
                     const el = document.createElement('div');
                     el.className = 'achievement-item' + (unlocked ? '' : ' locked');
                     const tagText = tab === 'basic' ? t('基础') : t('挑战');
+                    const reward = getAchievementGoldReward(id);
                     el.innerHTML = '<div class="achievement-icon">' + ach.icon + '</div>' +
                         '<div class="achievement-info"><div class="achievement-name">' + (currentLang === 'en' && I18N.en[ach.name] ? t(ach.name) : ach.name) + '</div>' +
-                        '<div class="achievement-desc">' + (currentLang === 'en' && I18N.en[ach.desc] ? t(ach.desc) : ach.desc) + '</div></div>' +
+                        '<div class="achievement-desc">' + (currentLang === 'en' && I18N.en[ach.desc] ? t(ach.desc) : ach.desc) + ' · 🪙+' + reward + '</div></div>' +
                         '<div class="achievement-tag ' + (tab === 'basic' ? 'basic' : '') + '">' + tagText + '</div>';
                     achievementsList.appendChild(el);
                 }
@@ -4338,10 +4754,12 @@
                 if (!acc) return;
                 Object.assign(acc.data, {
                     totalGold, totalSilver, lifeCards, timeCards, dayLengthCards,
+                    crownUnlocked, crownType, crownPurchasePrice, crownPurchaseDate, crownDeathsLeft, crownOwned, crownEquipped,
+                    crownBuyers: JSON.parse(JSON.stringify(crownBuyers)),
                     bestScore, difficulty, pipePosition, pipeSkin, jumpKeyCode,
                     spawnZombie, spawnChick, endlessTimeSetting, fontSizeLevel,
                     showFlameBorder, showRecordIndicator, startLives, simpleMode, showAchievementPopup,
-                    jumpSoundEnabled, passPipeSoundEnabled, birdShadowEnabled, birdChirpEnabled, birdChirpProbability, eventEnabled,
+                    jumpSoundEnabled, passPipeSoundEnabled, birdShadowEnabled, birdChirpEnabled, birdChirpProbability, netBrightNight, eventEnabled,
                     bulletDensity, eventCheckInterval, EVENT_CHANCE,
                     monsterChance, cloneAttackChance, vacuumChance, CLONE_LIFE_DURATION,
                     chickDropFromTop, debugChickDropFromTop, debugForceEvent, debugForceWeather,
@@ -4366,6 +4784,21 @@
                 lifeCards = d.lifeCards || 0;
                 timeCards = d.timeCards || 0;
                 dayLengthCards = d.dayLengthCards || 0;
+                crownUnlocked = d.crownUnlocked !== undefined ? d.crownUnlocked : ((d.bestScore || 0) >= 1500);
+                crownType = d.crownType || null;
+                crownPurchasePrice = d.crownPurchasePrice || 0;
+                crownPurchaseDate = d.crownPurchaseDate || null;
+                crownDeathsLeft = d.crownDeathsLeft || 0;
+                crownOwned = d.crownOwned !== undefined ? d.crownOwned : !!crownType;
+                crownEquipped = d.crownEquipped !== undefined ? d.crownEquipped : false;
+                // 兼容旧存档：之前只有 crownOwned 布尔值，视为正常版永久皇冠
+                if (crownOwned && !crownType) {
+                    crownType = 'normal';
+                    crownPurchasePrice = crownUnlocked ? 2500 : 9800;
+                    crownPurchaseDate = getTodayString();
+                    crownDeathsLeft = 0;
+                }
+                crownBuyers = Array.isArray(d.crownBuyers) ? d.crownBuyers : [];
                 bestScore = d.bestScore || 0;
                 difficulty = d.difficulty || 'normal';
                 pipePosition = d.pipePosition || 'random';
@@ -4386,6 +4819,7 @@
                 birdShadowEnabled = d.birdShadowEnabled !== undefined ? d.birdShadowEnabled : false;
                 birdChirpEnabled = d.birdChirpEnabled !== undefined ? d.birdChirpEnabled : true;
                 birdChirpProbability = d.birdChirpProbability !== undefined ? d.birdChirpProbability : 50;
+                netBrightNight = d.netBrightNight !== undefined ? d.netBrightNight : true;
                 if (d.eventEnabled) { eventEnabled = Object.assign({ earthquake: true, battle: true, otherWorld: true, vacuum: true }, d.eventEnabled); }
                 bulletDensity = d.bulletDensity !== undefined ? d.bulletDensity : 0.03;
                 // 事件参数迁移：旧存档（v1.2.4之前）的 eventCheckInterval=1800 会导致事件几乎不触发
@@ -4448,6 +4882,8 @@
                     isAdmin: isFirst,
                     data: {
                         totalGold: 0, totalSilver: 0, lifeCards: 0, timeCards: 0, dayLengthCards: 0,
+                        crownUnlocked: false, crownType: null, crownPurchasePrice: 0, crownPurchaseDate: null, crownDeathsLeft: 0, crownOwned: false, crownEquipped: false,
+                        crownBuyers: [],
                         bestScore: 0, difficulty: 'normal', pipePosition: 'random', pipeSkin: 'pipe', legacyTexturePack: false, jumpKeyCode: 'Space',
                         spawnZombie: true, spawnChick: true, endlessTimeSetting: -1, fontSizeLevel: 2,
                         showFlameBorder: true, showRecordIndicator: true, startLives: 1, simpleMode: false,
@@ -4601,6 +5037,42 @@
                     this.wingPhase += 0.15;
                 },
                 draw(ctx) {
+                    // 被闪电劈中：黑色+轮廓（10秒）
+                    if (birdStruckTimer > 0) {
+                        ctx.save(); ctx.translate(this.x, this.y);
+                        ctx.rotate((this.rotation*Math.PI)/180);
+                        const wf = Math.sin(this.wingPhase)*5;
+                        ctx.shadowColor = 'rgba(255,255,255,0.3)'; ctx.shadowBlur = 8;
+                        const bg = ctx.createRadialGradient(-2,-2,2,0,0,this.width/2);
+                        bg.addColorStop(0, '#333');
+                        bg.addColorStop(0.6, '#111');
+                        bg.addColorStop(1, '#000');
+                        ctx.fillStyle = bg;
+                        ctx.beginPath(); ctx.ellipse(0,0,this.width/2,this.height/2,0,0,Math.PI*2); ctx.fill();
+                        ctx.shadowBlur = 0;
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.beginPath(); ctx.arc(8,-4,5,0,Math.PI*2); ctx.fill();
+                        ctx.fillStyle = '#000';
+                        ctx.beginPath(); ctx.arc(9,-4,2,0,Math.PI*2); ctx.fill();
+                        ctx.fillStyle = '#1a1a1a';
+                        ctx.beginPath(); ctx.ellipse(-2,wf-3,8,5,-0.2,0,Math.PI*2); ctx.fill();
+                        ctx.beginPath(); ctx.ellipse(-1,wf+4,7,4,0.2,0,Math.PI*2); ctx.fill();
+                        ctx.fillStyle = '#222';
+                        ctx.beginPath(); ctx.moveTo(16,-1); ctx.lineTo(22,0); ctx.lineTo(16,3); ctx.closePath(); ctx.fill();
+                        ctx.beginPath(); ctx.moveTo(-16,0); ctx.lineTo(-22,-5); ctx.lineTo(-20,2); ctx.lineTo(-26,7); ctx.lineTo(-18,5); ctx.closePath(); ctx.fill();
+                        for (let s = 0; s < 3; s++) {
+                            const sx = (Math.random() - 0.5) * 20;
+                            const sy = (Math.random() - 0.5) * 20;
+                            ctx.strokeStyle = 'rgba(255,255,100,' + (0.5 + Math.random() * 0.5) + ')';
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(sx, sy);
+                            ctx.lineTo(sx + (Math.random() - 0.5) * 8, sy + (Math.random() - 0.5) * 8);
+                            ctx.stroke();
+                        }
+                        ctx.restore();
+                        return;
+                    }
                     ctx.save(); ctx.translate(this.x, this.y);
                     ctx.rotate((this.rotation*Math.PI)/180);
                     // 无敌闪烁效果
@@ -4651,10 +5123,46 @@
                         ctx.fillStyle = '#e74c3c'; ctx.beginPath(); ctx.moveTo(16,-1); ctx.lineTo(24,1); ctx.lineTo(16,4); ctx.closePath(); ctx.fill();
                         ctx.fillStyle = '#e67e22'; ctx.beginPath(); ctx.moveTo(-16,0); ctx.lineTo(-24,-6); ctx.lineTo(-22,2); ctx.lineTo(-28,8); ctx.lineTo(-20,6); ctx.closePath(); ctx.fill();
                     }
+                    // 绘制皇冠（250分临时皇冠或已装备的永久皇冠，落地后不再显示）
+                    if ((runCrownActive || crownEquipped) && !crownFlyAnim?.active && !crownLanded) {
+                        drawCrownOnBird(ctx);
+                    }
                     ctx.restore();
                 },
                 getBounds() { return { x:this.x-this.width/2+5, y:this.y-this.height/2+2, w:this.width-10, h:this.height-4 }; }
             };
+
+            function drawCrownOnBird(ctx) {
+                // 小鸟本地坐标系中绘制皇冠，位于头顶
+                ctx.save();
+                ctx.translate(0, -12);
+                // 皇冠底座
+                ctx.fillStyle = '#f1c40f';
+                ctx.beginPath();
+                ctx.moveTo(-10, 4);
+                ctx.lineTo(10, 4);
+                ctx.lineTo(9, -2);
+                ctx.lineTo(5, 2);
+                ctx.lineTo(0, -6);
+                ctx.lineTo(-5, 2);
+                ctx.lineTo(-9, -2);
+                ctx.closePath();
+                ctx.fill();
+                // 皇冠描边
+                ctx.strokeStyle = '#b7950b';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                // 宝石
+                ctx.fillStyle = '#e74c3c';
+                ctx.beginPath(); ctx.arc(0, -2, 2, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#3498db';
+                ctx.beginPath(); ctx.arc(-6, 1, 1.5, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(6, 1, 1.5, 0, Math.PI * 2); ctx.fill();
+                // 闪光
+                ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                ctx.beginPath(); ctx.arc(-3, -3, 1, 0, Math.PI * 2); ctx.fill();
+                ctx.restore();
+            }
 
             // ========== 管道 ==========
             const PIPE_WIDTH = 68;
@@ -4696,21 +5204,22 @@
                     this._netBody(ctx, this.x, this.bottomY, this.width, HEIGHT - this.bottomY);
                 }
                 _netBody(ctx, x, y, w, h) {
+                    const brightNight = netBrightNight && nightAlpha > 0;
                     if (legacyTexturePack) {
                         // 老版本材质包：大楼窗户格子风格
                         if (legacyBuildingPattern) {
                             ctx.save();
                             ctx.translate(x, y);
-                            ctx.fillStyle = legacyBuildingPattern;
+                            ctx.fillStyle = brightNight && legacyBuildingPatternBright ? legacyBuildingPatternBright : legacyBuildingPattern;
                             ctx.fillRect(0, 0, w, h);
                             ctx.restore();
                         } else {
-                            ctx.fillStyle = '#3a3a4a';
+                            ctx.fillStyle = brightNight ? '#7a7a90' : '#3a3a4a';
                             ctx.fillRect(x, y, w, h);
                         }
                     } else {
                         // 新版网纹理
-                        ctx.fillStyle = '#3a3a4a';
+                        ctx.fillStyle = brightNight ? '#7a7a90' : '#3a3a4a';
                         ctx.fillRect(x, y, w, h);
                         if (netPattern) {
                             ctx.save();
@@ -4894,10 +5403,23 @@
             }
             function drawClouds() {
                 const frozen = vacuumCleaner && vacuumCleaner.birdCaught && !vacuumCleaner.escaped;
+                const weather = (debugForceWeather && (isAdmin() || hasAnyDebugPerm())) ? debugForceWeather : currentWeather;
+
+                // 云颜色也需要平滑过渡
+                const fromColor = getCloudColor(prevDisplayWeather);
+                const toColor = getCloudColor(weather);
+                // 解析rgba
+                const parseRgba = (s) => { const m = s.match(/[\d.]+/g); return m ? m.map(Number) : [255,255,255,0.65]; };
+                const fc = parseRgba(fromColor), tc = parseRgba(toColor);
+                const t = weatherLerp;
+                const cr = Math.round(fc[0]+(tc[0]-fc[0])*t), cg = Math.round(fc[1]+(tc[1]-fc[1])*t);
+                const cb = Math.round(fc[2]+(tc[2]-fc[2])*t), ca = (fc[3]+(tc[3]-fc[3])*t).toFixed(2);
+                const cloudColor = 'rgba(' + cr + ',' + cg + ',' + cb + ',' + ca + ')';
+
                 clouds.forEach(c => {
                     if (!frozen) c.x -= c.speed;
                     if (c.x+c.w<0) { c.x=WIDTH+50; c.y=Math.random()*HEIGHT*0.35+15; }
-                    ctx.fillStyle = 'rgba(255,255,255,0.65)'; ctx.beginPath();
+                    ctx.fillStyle = cloudColor; ctx.beginPath();
                     const cx=c.x+c.w/2, cy=c.y;
                     ctx.arc(cx,cy,c.w*0.28,0,Math.PI*2);
                     ctx.arc(cx+c.w*0.18,cy-c.w*0.08,c.w*0.23,0,Math.PI*2);
@@ -4907,32 +5429,82 @@
                 });
             }
 
-            function drawBackground() {
-                // 沙尘暴：橙色天空
-                const weather = (debugForceWeather && (isAdmin() || hasAnyDebugPerm())) ? debugForceWeather : currentWeather;
-                if (weather === 'sandstorm') {
-                    const sg = ctx.createLinearGradient(0, 0, 0, HEIGHT);
-                    sg.addColorStop(0, '#e89440');
-                    sg.addColorStop(0.4, '#d47830');
-                    sg.addColorStop(0.7, '#c06828');
-                    sg.addColorStop(1, '#8b5e3c');
-                    ctx.fillStyle = sg;
-                    ctx.fillRect(0, 0, WIDTH, HEIGHT);
-                    // 昼夜遮罩
-                    if (nightAlpha > 0) {
-                        ctx.fillStyle = 'rgba(5,5,30,' + (nightAlpha * 0.55) + ')';
-                        ctx.fillRect(0, 0, WIDTH, HEIGHT);
-                    }
-                    return;
+            // 获取天气对应的天空颜色
+            function getSkyColors(w) {
+                switch (w) {
+                    case 'hail':        return ['#3a3a3a','#4a4a4a','#555555','#404040'];
+                    case 'rain': case 'thunderstorm': return ['#5a6a7a','#6a7a8a','#788878','#607050'];
+                    case 'cloudy':      return ['#7a8a9a','#8a9aaa','#90a080','#708860'];
+                    case 'sunRain':     return ['#6daae6','#8ec8eb','#a0d898','#80c878'];
+                    default:            return ['#4dc9f6','#87ceeb','#b8e994','#78e08f'];
                 }
-                const sg = ctx.createLinearGradient(0,0,0,HEIGHT);
-                sg.addColorStop(0,'#4dc9f6'); sg.addColorStop(0.5,'#87ceeb'); sg.addColorStop(0.8,'#b8e994'); sg.addColorStop(1,'#78e08f');
-                ctx.fillStyle = sg; ctx.fillRect(0,0,WIDTH,HEIGHT);
+            }
+            function hexToRgb(h) { return [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)]; }
+            function lerpColor(c1, c2, t) {
+                const a = hexToRgb(c1), b = hexToRgb(c2);
+                const r = Math.round(a[0]+(b[0]-a[0])*t), g = Math.round(a[1]+(b[1]-a[1])*t), bl = Math.round(a[2]+(b[2]-a[2])*t);
+                return '#' + [r,g,bl].map(v => v.toString(16).padStart(2,'0')).join('');
+            }
+            // 获取天气对应的云颜色
+            function getCloudColor(w) {
+                switch (w) {
+                    case 'hail':                    return 'rgba(40,40,45,0.8)';
+                    case 'rain': case 'thunderstorm': return 'rgba(80,85,95,0.75)';
+                    case 'cloudy':                  return 'rgba(140,145,155,0.7)';
+                    case 'sunRain':                 return 'rgba(180,185,195,0.68)';
+                    default:                        return 'rgba(255,255,255,0.65)';
+                }
+            }
+
+            function drawBackground() {
+                const weather = (debugForceWeather && (isAdmin() || hasAnyDebugPerm())) ? debugForceWeather : currentWeather;
+
+                // 使用lerp过渡天空颜色
+                const tFrom = getSkyColors(prevDisplayWeather);
+                const tTo = getSkyColors(weather);
+                const t = weatherLerp;
+                const skyTop = lerpColor(tFrom[0], tTo[0], t);
+                const skyMid = lerpColor(tFrom[1], tTo[1], t);
+                const skyBot1 = lerpColor(tFrom[2], tTo[2], t);
+                const skyBot2 = lerpColor(tFrom[3], tTo[3], t);
+
+                const sg = ctx.createLinearGradient(0, 0, 0, HEIGHT);
+                sg.addColorStop(0, skyTop); sg.addColorStop(0.5, skyMid);
+                sg.addColorStop(0.8, skyBot1); sg.addColorStop(1, skyBot2);
+                ctx.fillStyle = sg; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
                 // 昼夜遮罩
                 if (nightAlpha > 0) {
-                    ctx.fillStyle = 'rgba(5,5,30,' + (nightAlpha * 0.55) + ')';
+                    const isCloudyTarget = (weather === 'cloudy');
+                    const isCloudyPrev = (prevDisplayWeather === 'cloudy');
+                    const cloudyFactor = isCloudyTarget ? weatherLerp : (isCloudyPrev ? (1 - weatherLerp) : 0);
+                    const maskAlpha = nightAlpha * (0.55 - 0.18 * cloudyFactor);
+                    ctx.fillStyle = 'rgba(5,5,30,' + maskAlpha + ')';
                     ctx.fillRect(0, 0, WIDTH, HEIGHT);
                 }
+
+                // 绘制月亮（仅在夜晚）
+                if (nightAlpha > 0.3) {
+                    drawMoon(nightAlpha);
+                }
+            }
+
+            // 月亮精灵贴图（只用第0格圆月，每格 280x280）
+            const moonImg = new Image();
+            moonImg.src = 'moon.png';
+
+            function drawMoon(alpha) {
+                // 50%概率有月亮：每夜用 dayCycleCount 奇偶判断
+                if (dayCycleCount % 2 === 1) return; // 无月亮
+                if (!moonImg.complete) return;
+
+                // 月亮位置（夜空右上区域）
+                const mx = WIDTH * 0.75, my = HEIGHT * 0.12, mr = 60;
+                const cellW = 280, cellH = 280;
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                ctx.drawImage(moonImg, 0, 0, cellW, cellH, mx - mr, my - mr, mr * 2, mr * 2);
+                ctx.restore();
             }
             function drawGround() {
                 const gy = HEIGHT-GROUND_HEIGHT;
@@ -5109,6 +5681,147 @@
                 btnBuyLifeCard.disabled = totalGold < 25;
                 btnBuyTimeCard.disabled = totalGold < 7;
                 btnBuyDayLengthCard.disabled = totalGold < 15;
+                updateCrownShopUI();
+            }
+
+            function updateCrownShopUI() {
+                if (!crownShopItem || !btnBuyCrown || !crownShopDesc || !crownOwnedLabel) return;
+                if (crownOwned) {
+                    const typeLabel = crownType === 'discounted'
+                        ? t('降价版（剩余 {0} 次死亡）').replace('{0}', crownDeathsLeft)
+                        : t('正常版');
+                    crownShopDesc.textContent = t('已拥有永久皇冠') + ' · ' + typeLabel + t('，可在设置中选择是否装备');
+                    crownOwnedLabel.style.display = 'block';
+                    btnBuyCrown.textContent = t('已拥有');
+                    btnBuyCrown.disabled = true;
+                } else {
+                    crownOwnedLabel.style.display = 'none';
+                    const price = crownUnlocked ? 2500 : 9800;
+                    btnBuyCrown.textContent = '🪙' + price;
+                    btnBuyCrown.disabled = totalGold < price;
+                    crownShopDesc.textContent = crownUnlocked
+                        ? t('最高分达到1500，永久皇冠特价2500金币')
+                        : t('死亡时皇冠会飞走，但重新开始后仍会留在小鸟头上');
+                }
+            }
+
+            // ========== 二手售卖系统 ==========
+            function parseDateKey(s) {
+                if (!s) return null;
+                const parts = s.split('-').map(Number);
+                if (parts.length !== 3) return null;
+                return new Date(parts[0], parts[1] - 1, parts[2]);
+            }
+            function getDaysSinceCrownPurchase() {
+                const d = parseDateKey(crownPurchaseDate);
+                if (!d) return 0;
+                const today = new Date(getRealDate().getFullYear(), getRealDate().getMonth(), getRealDate().getDate());
+                const ms = today.getTime() - d.getTime();
+                return Math.max(0, Math.floor(ms / (1000 * 60 * 60 * 24)));
+            }
+            function getCrownBaseResell() {
+                return crownType === 'discounted' ? 3000 : 9800;
+            }
+            function getCrownSellRange() {
+                if (crownType === 'discounted') return { min: 2900, max: 3100 };
+                return { min: 9700, max: 9900 };
+            }
+            function getOfficialCrownPrice() {
+                const days = getDaysSinceCrownPurchase();
+                // 第1天亏1000，每天少亏50，第20天回本，之后每天多赚50
+                return Math.max(0, crownPurchasePrice - 1000 + days * 50);
+            }
+            function getCrownBuyerBaseProb(price) {
+                const range = getCrownSellRange();
+                if (range.max === range.min) return 0.8;
+                const ratio = (price - range.min) / (range.max - range.min);
+                return 0.9 - ratio * 0.2; // 最低90%，最高70%
+            }
+            function generateCrownBuyers() {
+                const today = getTodayString();
+                // 如果买家列表已经是今天的，直接复用
+                if (crownBuyers.length > 0 && crownBuyers[0].date === today) return;
+                const count = 3 + Math.floor(Math.random() * 2); // 3~4人
+                const range = getCrownSellRange();
+                const names = [...SELL_BUYER_NAMES].sort(() => Math.random() - 0.5);
+                crownBuyers = [];
+                for (let i = 0; i < count; i++) {
+                    const price = Math.floor(range.min + Math.random() * (range.max - range.min + 1));
+                    crownBuyers.push({
+                        date: today,
+                        name: names[i % names.length],
+                        price: price,
+                        sold: false,
+                        failed: false
+                    });
+                }
+                saveData();
+            }
+            function renderSellUI() {
+                if (!sellSection) return;
+                const canSell = crownOwned;
+                sellEmpty.style.display = canSell ? 'none' : 'block';
+                sellOfficialCard.style.display = canSell ? 'block' : 'none';
+                sellBuyersTitle.style.display = canSell ? 'block' : 'none';
+                if (!canSell) {
+                    sellBuyersList.innerHTML = '';
+                    return;
+                }
+                generateCrownBuyers();
+                if (sellOfficialPrice) sellOfficialPrice.textContent = '🪙' + getOfficialCrownPrice();
+                sellBuyersList.innerHTML = '';
+                crownBuyers.forEach((buyer, idx) => {
+                    const el = document.createElement('div');
+                    el.className = 'sell-buyer-card' + (buyer.sold || buyer.failed ? ' sold' : '');
+                    el.innerHTML = '<div class="sell-buyer-name">🧑‍💼 ' + buyer.name + '</div>' +
+                        '<div class="sell-buyer-price">🪙' + buyer.price + '</div>' +
+                        '<div class="sell-buyer-hint">' + (buyer.sold ? t('已成交') : buyer.failed ? t('今天先不卖了') : t('点击进入砍价模式')) + '</div>';
+                    if (!buyer.sold && !buyer.failed) {
+                        el.addEventListener('click', e => { e.stopPropagation(); openHaggle(idx); });
+                    }
+                    sellBuyersList.appendChild(el);
+                });
+            }
+            function sellCrown(price) {
+                if (!crownOwned) return false;
+                totalGold += price;
+                crownType = null;
+                crownPurchasePrice = 0;
+                crownPurchaseDate = null;
+                crownDeathsLeft = 0;
+                crownOwned = false;
+                crownEquipped = false;
+                crownBuyers = [];
+                saveData();
+                updateAllCoinUI();
+                renderSellUI();
+                refreshSettingsUI();
+                return true;
+            }
+
+            // 砍价弹窗逻辑
+            function openHaggle(buyerIdx) {
+                if (!crownBuyers[buyerIdx] || crownBuyers[buyerIdx].sold || crownBuyers[buyerIdx].failed) return;
+                currentHaggleBuyer = { idx: buyerIdx, price: crownBuyers[buyerIdx].price, markupCount: 0 };
+                haggleResult.textContent = '';
+                updateHaggleUI();
+                haggleModal.classList.add('show');
+            }
+            function updateHaggleUI() {
+                if (!currentHaggleBuyer) return;
+                const buyer = crownBuyers[currentHaggleBuyer.idx];
+                const price = currentHaggleBuyer.price;
+                haggleSellerSay.textContent = t('别砍太多哦！');
+                hagglePrice.textContent = '🪙' + price;
+                const baseProb = getCrownBuyerBaseProb(price);
+                const prob = Math.max(0, baseProb - currentHaggleBuyer.markupCount * 0.05);
+                haggleProb.textContent = t('成交概率：') + Math.round(prob * 100) + '%';
+                btnHaggleUp.disabled = prob <= 0;
+                btnHaggleSell.disabled = prob <= 0;
+            }
+            function closeHaggle() {
+                currentHaggleBuyer = null;
+                haggleModal.classList.remove('show');
             }
 
             // ========== 暂停 ==========
@@ -5127,6 +5840,31 @@
                 }
             }
 
+            // 窗口失焦/切后台自动暂停，防止人物死于切屏
+            let autoPausedByBlur = false;
+            function handleVisibilityChange() {
+                if (document.hidden || document.visibilityState === 'hidden') {
+                    // 切到后台，自动暂停
+                    if (gameState === 'playing' || gameState === 'countdown') {
+                        autoPausedByBlur = true;
+                        prevGameState = gameState;
+                        gameState = 'paused';
+                        pauseModal.classList.add('show');
+                    }
+                } else {
+                    // 回到前台，保持暂停状态让玩家手动恢复
+                    // 不做任何操作，玩家点"继续游戏"即可
+                }
+            }
+            function handleWindowBlur() {
+                if (gameState === 'playing' || gameState === 'countdown') {
+                    autoPausedByBlur = true;
+                    prevGameState = gameState;
+                    gameState = 'paused';
+                    pauseModal.classList.add('show');
+                }
+            }
+
 
             // ========== 新手教程 ==========
             function startTutorial() {
@@ -5139,6 +5877,7 @@
                 roundGold = 0; roundSilver = 0;
                 lives = 999; // 教程中无限生命
                 recordBroken = false; recordDiff = 0; recordMusicTriggered = false;
+                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null; crownLanded = null;
                 initFlameParticles();
                 resetRunStats();
                 dayLength = 30 + dayLengthCards * 10;
@@ -5333,6 +6072,8 @@
                 vacuumClearedX = 0;
                 vacuumClearTimer = 0;
                 stopVacuumMusic();
+                purpleIceBlocks = [];
+                purpleIceSpawnTimer = 0;
             }
 
             // 事件预警标题映射
@@ -5369,18 +6110,19 @@
 
                 if (score < 2) return; // 至少2分就开始（降低门槛，普通事件需要）
 
-                // 加权随机事件：每个事件独立概率
+                // 独立概率触发：吸尘器15%，其他事件各10%
                 const weights = {
-                    earthquake: 0.15,
+                    earthquake: 0.10,
                     battle: 0.10,
-                    otherWorld: 0.15,
+                    otherWorld: 0.10,
                     vacuum: 0.15
                 };
                 const enabledKeys = Object.keys(weights).filter(k => eventEnabled[k]);
                 const total = enabledKeys.reduce((sum, k) => sum + weights[k], 0);
                 if (total <= 0) return;
 
-                const r = Math.random() * total;
+                // 使用 [0,1) 全范围随机，剩余概率为不触发事件
+                const r = Math.random();
                 let cum = 0;
                 let selected = null;
                 for (const k of enabledKeys) {
@@ -5828,30 +6570,210 @@
             let lightningNext = 0;         // 下次闪电倒计时
             let lightningFlashAlpha = 0;   // 当前闪电亮度
 
+            // ========== 天气状态机 ==========
+            function weatherTransition() {
+                // 天气转换逻辑（仅在非事件天气下生效）
+                const r = Math.random();
+                switch (currentWeather) {
+                    case 'sunny':
+                        // 40%概率变阴/雨；夜晚不能阴天，直接下雨
+                        if (r < 0.40) {
+                            currentWeather = isNight ? 'rain' : 'cloudy';
+                            if (currentWeather === 'rain') targetRainBlur = 1;
+                        }
+                        break;
+                    case 'cloudy':
+                        // 30%概率下雨；夜晚从 rain/hail/thunderstorm 随机选，都没中则晴天
+                        if (r < 0.30) {
+                            currentWeather = 'rain';
+                            targetRainBlur = 1;
+                        } else if (isNight) {
+                            const nr = Math.random();
+                            if (nr < 0.33) { currentWeather = 'rain'; targetRainBlur = 1; }
+                            else if (nr < 0.66) { currentWeather = 'hail'; }
+                            else { currentWeather = 'thunderstorm'; thunderCheckTimer = THUNDER_STRIKE_INTERVAL; }
+                        }
+                        break;
+                    case 'rain':
+                        // 下雨时：20%冰雹, 60%晴天雨, 20%雷暴
+                        if (r < 0.20) {
+                            currentWeather = 'hail';
+                            targetRainBlur = 0;
+                        } else if (r < 0.80) {
+                            currentWeather = 'sunRain';
+                            sunRainTimer = SUNRAIN_DURATION;
+                        } else {
+                            currentWeather = 'thunderstorm';
+                            thunderCheckTimer = THUNDER_STRIKE_INTERVAL;
+                            thunderBoltFrames = 0;
+                        }
+                        break;
+                    case 'hail':
+                        // 夜晚冰雹结束随机选 rain/thunderstorm/sunny；白天回阴天或继续下雨
+                        if (isNight) {
+                            const nr = Math.random();
+                            if (nr < 0.33) { currentWeather = 'rain'; targetRainBlur = 1; }
+                            else if (nr < 0.66) { currentWeather = 'thunderstorm'; thunderCheckTimer = THUNDER_STRIKE_INTERVAL; }
+                            // 都没中 → 晴天（继续循环）
+                        } else if (r < 0.70) {
+                            currentWeather = 'cloudy';
+                        } else {
+                            currentWeather = 'rain';
+                            targetRainBlur = 1;
+                        }
+                        break;
+                    case 'sunRain':
+                        // 晴天雨倒计时结束变晴天（在update里处理）
+                        break;
+                    case 'thunderstorm':
+                        // 夜晚雷暴结束随机选 rain/hail/sunny；白天回阴天或继续下雨
+                        if (isNight) {
+                            const nr = Math.random();
+                            if (nr < 0.33) { currentWeather = 'rain'; targetRainBlur = 1; }
+                            else if (nr < 0.66) { currentWeather = 'hail'; }
+                            // 都没中 → 晴天
+                        } else if (r < 0.70) {
+                            currentWeather = 'cloudy';
+                            thunderBoltFrames = 0;
+                        } else {
+                            currentWeather = 'rain';
+                            targetRainBlur = 1;
+                            thunderBoltFrames = 0;
+                        }
+                        break;
+                }
+            }
+
             function updateWeather() {
                 // 确定当前天气（调试优先）
                 const weather = (debugForceWeather && (isAdmin() || hasAnyDebugPerm())) ? debugForceWeather : currentWeather;
-                if (!weather) { weatherParticles = []; return; }
+                const activeWeather = (debugForceWeather && (isAdmin() || hasAnyDebugPerm())) ? debugForceWeather : currentWeather;
+                if (!activeWeather) { weatherParticles = []; return; }
 
-                // 闪电不需要粒子，只在 update 里处理
-                if (weather === 'lightning') {
-                    weatherParticles = [];
-                    // 闪电随机闪烁
-                    if (lightningNext > 0) {
-                        lightningNext--;
-                    } else {
-                        // 触发闪电
-                        lightningTimer = 3 + Math.floor(Math.random() * 5);  // 3-7帧
-                        lightningFlashAlpha = 0.3 + Math.random() * 0.5;     // 随机亮度
-                        lightningNext = 40 + Math.floor(Math.random() * 120); // 下次闪电间隔
+                // 天气检测：每隔5秒检测一次天气转换（调试模式不自动转换）
+                if (debugForceWeather && (isAdmin() || hasAnyDebugPerm())) {
+                    // 调试强制天气，跳过自动转换
+                } else {
+                    weatherTimer++;
+                    if (weatherTimer >= nextWeatherCheck && !tutorialActive && gameState === 'playing') {
+                        weatherTimer = 0;
+                        nextWeatherCheck = WEATHER_CHECK_INTERVAL + Math.floor(Math.random() * 180);
+                        const prevWeather = currentWeather;
+                        weatherTransition();
+                        // 天气变化时启动平滑过渡
+                        if (currentWeather !== prevWeather) {
+                            prevDisplayWeather = displayWeather;
+                            weatherLerp = 0;
+                            // 下雨开始时重置雨强
+                            if (currentWeather === 'rain') {
+                                rainIntensity = 0;
+                            }
+                        }
                     }
-                    if (lightningTimer > 0) {
-                        lightningTimer--;
-                        if (lightningTimer <= 0) lightningFlashAlpha = 0;
-                    }
-                    return;
                 }
-                lightningFlashAlpha = 0;
+
+                // ===== 天气平滑过渡（视觉层面的 lerp） =====
+                if (weatherLerp < 1.0) {
+                    weatherLerp += WEATHER_LERP_SPEED;
+                    if (weatherLerp >= 1.0) {
+                        weatherLerp = 1.0;
+                        displayWeather = currentWeather;
+                    }
+                }
+                // 下雨强度平滑增长（从小雨到大雨）
+                if (currentWeather === 'rain') {
+                    rainIntensity += 0.008; // 约2秒从小雨到最大
+                    if (rainIntensity > 1.0) rainIntensity = 1.0;
+                } else if (currentWeather === 'sunRain') {
+                    rainIntensity = 0.7; // 晴天雨固定中等强度
+                } else if (rainIntensity > 0) {
+                    // 雨停时逐渐减小：大雨→中雨→小雨→微雨→停（约1.4秒）
+                    rainIntensity -= 0.012;
+                    if (rainIntensity < 0) rainIntensity = 0;
+                }
+
+                // 晴天雨倒计时
+                if (currentWeather === 'sunRain') {
+                    sunRainTimer--;
+                    if (sunRainTimer <= 0) {
+                        prevDisplayWeather = displayWeather;
+                        weatherLerp = 0;
+                        currentWeather = 'sunny';
+                        targetRainBlur = 0;
+                        // rainIntensity will now gradually decrease via the else clause
+                    }
+                }
+
+                // ===== 雷暴闪电处理 =====
+                if (currentWeather === 'thunderstorm') {
+                    thunderCheckTimer--;
+                    if (thunderCheckTimer <= 0 && thunderBoltFrames <= 0) {
+                        thunderCheckTimer = THUNDER_STRIKE_INTERVAL;
+                        // 10%概率打闪电
+                        if (Math.random() < THUNDER_STRIKE_CHANCE) {
+                            thunderBoltFrames = 8; // 闪电显示8帧
+                            thunderBoltX = 20 + Math.random() * (WIDTH - 40);
+                            thunderStrikeTriggered = true;
+                            // 播放雷声音频
+                            const ta = document.getElementById('thunderAudio');
+                            if (ta && musicOn) { ta.currentTime = 0; ta.play().catch(() => {}); }
+                            // 检查小鸟是否被击中
+                            if (gameState === 'playing') {
+                                const bx = bird.x, by = bird.y, bw = bird.width, bh = bird.height;
+                                // 闪电是一束垂直光柱，检查小鸟是否在光柱范围内
+                                const strikeLeft = thunderBoltX - 15;
+                                const strikeRight = thunderBoltX + 15;
+                                if (bx + bw / 2 > strikeLeft && bx - bw / 2 < strikeRight) {
+                                    // 被闪电击中！
+                                    birdStruckTimer = BIRD_STRUCK_DURATION;
+                                    // 扣一颗心
+                                    if (godMode) {
+                                        // 无敌模式不扣血，但显示效果
+                                    } else if (shieldCount > 0) {
+                                        shieldCount = 0;
+                                    } else {
+                                        lives--;
+                                        if (lives <= 0) {
+                                            lives = 0;
+                                            handleDeath(true);
+                                            return;
+                                        }
+                                        invincibleTimer = 60;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (thunderBoltFrames > 0) {
+                        thunderBoltFrames--;
+                        if (thunderBoltFrames <= 0) thunderStrikeTriggered = false;
+                    }
+                } else {
+                    thunderCheckTimer = 0;
+                    thunderBoltFrames = 0;
+                    thunderStrikeTriggered = false;
+                }
+
+                // ===== 小鸟被劈黑计时器 =====
+                if (birdStruckTimer > 0) {
+                    birdStruckTimer--;
+                }
+
+                // ===== 雨天屏幕模糊过渡 =====
+                if (currentWeather === 'rain' || currentWeather === 'sunRain') {
+                    targetRainBlur = 1;
+                }
+                rainBlurAlpha += (targetRainBlur - rainBlurAlpha) * 0.05;
+                if (currentWeather !== 'rain' && currentWeather !== 'sunRain') {
+                    targetRainBlur = 0;
+                }
+
+                // ===== 粒子处理 =====
+                // 需要粒子的天气：rain, sunRain, hail
+                const needsParticles = (activeWeather === 'rain' || activeWeather === 'sunRain' || activeWeather === 'hail');
+                // 雨正在消退中：不生成新粒子，但保留已有粒子让它们自然消亡
+                const rainFading = !needsParticles && rainIntensity > 0;
+                if (!needsParticles && !rainFading) { weatherParticles = []; return; }
 
                 // 更新现有粒子
                 for (let i = weatherParticles.length - 1; i >= 0; i--) {
@@ -5859,108 +6781,181 @@
                     p.x += p.vx;
                     p.y += p.vy;
                     p.life--;
-                    // 移除死亡粒子
                     if (p.life <= 0 || p.y > HEIGHT + 20 || p.x < -20 || p.x > WIDTH + 20) {
                         weatherParticles.splice(i, 1);
                     }
                 }
 
-                // 生成新粒子
-                const maxP = weather === 'sandstorm' ? 120 : MAX_WEATHER_PARTICLES;
+                // 生成新粒子（仅在需要粒子的天气时生成）
+                if (needsParticles) {
+                let maxP;
+                if (activeWeather === 'hail') {
+                    maxP = 25;
+                } else {
+                    // 下雨：从小雨的15粒逐渐增加到大雨的80粒
+                    const currentIntensity = (activeWeather === 'rain') ? Math.max(rainIntensity, 0.15) : rainIntensity;
+                    maxP = Math.floor(15 + currentIntensity * 65);
+                }
                 while (weatherParticles.length < maxP) {
                     const p = { life: 0, x: 0, y: 0, vx: 0, vy: 0, size: 0, alpha: 1 };
-                    switch (weather) {
-                        case 'rain':
-                            p.x = Math.random() * (WIDTH + 60) - 30;
-                            p.y = Math.random() * -100 - 20;
-                            p.vx = -pipeSpeed * 0.4;
-                            p.vy = 8 + Math.random() * 6;
-                            p.size = 1 + Math.random() * 2;
-                            p.alpha = 0.5 + Math.random() * 0.4;
-                            p.life = 100;
-                            break;
-                        case 'hail':
-                            p.x = Math.random() * (WIDTH + 60) - 30;
-                            p.y = Math.random() * -80 - 20;
-                            p.vx = -pipeSpeed * 0.3;
-                            p.vy = 10 + Math.random() * 8;
-                            p.size = 3 + Math.random() * 4;
-                            p.alpha = 0.7 + Math.random() * 0.3;
-                            p.life = 120;
-                            break;
-                        case 'sandstorm':
-                            p.x = Math.random() * (WIDTH + 40) - 20;
-                            p.y = Math.random() * HEIGHT;
-                            p.vx = -pipeSpeed * 0.5 - (4 + Math.random() * 5);
-                            p.vy = (Math.random() - 0.5) * 1.5;
-                            p.size = 0.5 + Math.random() * 2.5;
-                            p.alpha = 0.35 + Math.random() * 0.45;
-                            p.life = 100;
-                            break;
+                    if (activeWeather === 'hail') {
+                        p.x = Math.random() * (WIDTH + 60) - 30;
+                        p.y = Math.random() * -80 - 20;
+                        p.vx = -pipeSpeed * 0.2;
+                        p.vy = 12 + Math.random() * 6;
+                        p.size = 2 + Math.random() * 3;
+                        p.alpha = 0.7 + Math.random() * 0.3;
+                        p.life = 100;
+                    } else {
+                        // rain / sunRain：雨滴大小和速度也随强度变化
+                        const ri = (activeWeather === 'rain') ? Math.max(rainIntensity, 0.15) : rainIntensity;
+                        p.x = Math.random() * (WIDTH + 60) - 30;
+                        p.y = Math.random() * -100 - 20;
+                        p.vx = -pipeSpeed * (0.2 + ri * 0.3);
+                        p.vy = (4 + ri * 8) + Math.random() * (2 + ri * 4);
+                        p.size = 0.5 + ri * 0.5 + Math.random() * (0.5 + ri * 1.5);
+                        p.alpha = (0.3 + ri * 0.3) + Math.random() * (0.2 + ri * 0.2);
+                        p.life = 100;
                     }
                     weatherParticles.push(p);
+                }
+                } // end if (needsParticles)
+
+                // ===== 紫色大冰块（冰雹天气） =====
+                if (activeWeather === 'hail' && !tutorialActive && gameState === 'playing') {
+                    purpleIceSpawnTimer--;
+                    if (purpleIceSpawnTimer <= 0) {
+                        purpleIceSpawnTimer = PURPLE_ICE_SPAWN_INTERVAL + Math.floor(Math.random() * 180);
+                        purpleIceBlocks.push({
+                            x: Math.random() * (WIDTH - 60) + 30,
+                            y: -40,
+                            vy: 2 + Math.random() * 2,
+                            size: 16 + Math.random() * 12,
+                            rotation: Math.random() * Math.PI * 2,
+                            rotSpeed: (Math.random() - 0.5) * 0.04
+                        });
+                    }
+                    // 更新紫色冰块
+                    for (let i = purpleIceBlocks.length - 1; i >= 0; i--) {
+                        const ice = purpleIceBlocks[i];
+                        ice.y += ice.vy;
+                        ice.rotation += ice.rotSpeed;
+                        if (ice.y > HEIGHT + 60) {
+                            purpleIceBlocks.splice(i, 1);
+                        }
+                    }
+                } else {
+                    purpleIceBlocks = [];
+                    purpleIceSpawnTimer = 0;
                 }
             }
 
             function drawWeather() {
                 const weather = (debugForceWeather && (isAdmin() || hasAnyDebugPerm())) ? debugForceWeather : currentWeather;
-                if (!weather) return;
-
-                // 闪电：全屏白光闪烁
-                if (weather === 'lightning' && lightningFlashAlpha > 0) {
-                    ctx.save();
-                    ctx.fillStyle = 'rgba(255,255,255,' + lightningFlashAlpha + ')';
-                    ctx.fillRect(0, 0, WIDTH, HEIGHT);
-                    ctx.restore();
+                if (!weather || weather === 'sunny' || weather === 'cloudy') {
+                    thunderStrikeTriggered = false;
                     return;
                 }
 
-                // 沙尘暴：绘制橙色天空背景+遮罩
-                if (weather === 'sandstorm') {
+                // 雨天屏幕模糊效果
+                if (rainBlurAlpha > 0.01) {
                     ctx.save();
-                    // 橙色天空渐变遮罩
-                    const sandGrad = ctx.createLinearGradient(0, 0, 0, HEIGHT);
-                    sandGrad.addColorStop(0, 'rgba(210,130,40,0.55)');
-                    sandGrad.addColorStop(0.5, 'rgba(200,120,50,0.45)');
-                    sandGrad.addColorStop(0.8, 'rgba(180,100,40,0.25)');
-                    sandGrad.addColorStop(1, 'rgba(140,80,30,0.1)');
-                    ctx.fillStyle = sandGrad;
+                    ctx.globalAlpha = rainBlurAlpha * 0.25;
+                    ctx.fillStyle = '#335';
                     ctx.fillRect(0, 0, WIDTH, HEIGHT);
+                    ctx.globalAlpha = 1;
                     ctx.restore();
                 }
 
-                if (weatherParticles.length === 0) return;
+                // 闪电光柱渲染
+                if (currentWeather === 'thunderstorm' && thunderBoltFrames > 0) {
+                    ctx.save();
+                    const boltAlpha = thunderBoltFrames / 8;
+                    // 闪电主光柱
+                    const boltGrad = ctx.createLinearGradient(thunderBoltX - 20, 0, thunderBoltX + 20, 0);
+                    boltGrad.addColorStop(0, 'rgba(255,255,200,0)');
+                    boltGrad.addColorStop(0.2, 'rgba(255,255,255,' + (boltAlpha * 0.9) + ')');
+                    boltGrad.addColorStop(0.5, 'rgba(255,255,255,' + boltAlpha + ')');
+                    boltGrad.addColorStop(0.8, 'rgba(255,255,200,' + (boltAlpha * 0.7) + ')');
+                    boltGrad.addColorStop(1, 'rgba(255,255,200,0)');
+                    ctx.fillStyle = boltGrad;
+                    ctx.fillRect(0, 0, WIDTH, HEIGHT);
+                    // 闪电锯齿线
+                    ctx.strokeStyle = 'rgba(255,255,255,' + boltAlpha + ')';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    let lx = thunderBoltX, ly = 0;
+                    ctx.moveTo(lx, ly);
+                    while (ly < HEIGHT) {
+                        lx = thunderBoltX + (Math.random() - 0.5) * 40;
+                        ly += 20 + Math.random() * 30;
+                        ctx.lineTo(lx, ly);
+                    }
+                    ctx.stroke();
+                    // 小分支
+                    ctx.lineWidth = 1.5;
+                    for (let b = 0; b < 3; b++) {
+                        const bx = thunderBoltX + (Math.random() - 0.5) * 60;
+                        const by = Math.random() * HEIGHT * 0.7;
+                        ctx.beginPath();
+                        ctx.moveTo(thunderBoltX, by);
+                        ctx.lineTo(bx, by + 15 + Math.random() * 20);
+                        ctx.stroke();
+                    }
+                    ctx.restore();
+                }
+
+                // 绘制天气粒子（雨、冰雹）
+                if (weatherParticles.length === 0 && purpleIceBlocks.length === 0) return;
                 ctx.save();
-
                 for (const p of weatherParticles) {
-                    ctx.fillStyle = (() => {
-                        switch (weather) {
-                            case 'rain': return 'rgba(120,180,255,' + p.alpha + ')';
-                            case 'hail': return 'rgba(220,230,240,' + p.alpha + ')';
-                            case 'sandstorm': return 'rgba(210,160,80,' + p.alpha + ')';
-                            default: return 'rgba(255,255,255,0.5)';
-                        }
-                    })();
-
-                    if (weather === 'rain') {
-                        // 雨滴：蓝色竖线
-                        ctx.fillRect(p.x, p.y, p.size * 0.5, p.size * 4);
-                    } else if (weather === 'hail') {
-                        // 冰雹：白色小圆球
+                    if (weather === 'hail') {
+                        ctx.fillStyle = 'rgba(200,210,220,' + p.alpha + ')';
                         ctx.beginPath();
                         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
                         ctx.fill();
-                        // 冰雹高光
-                        ctx.fillStyle = 'rgba(255,255,255,' + (p.alpha * 0.6) + ')';
+                        ctx.fillStyle = 'rgba(255,255,255,' + (p.alpha * 0.5) + ')';
                         ctx.beginPath();
-                        ctx.arc(p.x - p.size * 0.25, p.y - p.size * 0.25, p.size * 0.35, 0, Math.PI * 2);
+                        ctx.arc(p.x - p.size * 0.25, p.y - p.size * 0.25, p.size * 0.3, 0, Math.PI * 2);
                         ctx.fill();
                     } else {
-                        // 沙尘暴：小颗粒
-                        ctx.beginPath();
-                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                        ctx.fill();
+                        ctx.fillStyle = 'rgba(120,180,255,' + p.alpha + ')';
+                        ctx.fillRect(p.x, p.y, p.size * 0.5, p.size * 4);
                     }
+                }
+                // 绘制紫色大冰块
+                for (const ice of purpleIceBlocks) {
+                    ctx.save();
+                    ctx.translate(ice.x, ice.y);
+                    ctx.rotate(ice.rotation);
+                    // 冰块主体
+                    const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, ice.size);
+                    grad.addColorStop(0, 'rgba(180,130,220,0.95)');
+                    grad.addColorStop(0.5, 'rgba(140,80,200,0.9)');
+                    grad.addColorStop(1, 'rgba(80,30,140,0.85)');
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    // 不规则冰块形状
+                    const s = ice.size;
+                    ctx.moveTo(0, -s);
+                    ctx.bezierCurveTo(s * 0.8, -s * 0.6, s * 0.9, s * 0.3, s * 0.4, s * 0.7);
+                    ctx.bezierCurveTo(s * 0.1, s * 0.95, -s * 0.7, s * 0.5, -s * 0.6, -s * 0.1);
+                    ctx.bezierCurveTo(-s * 0.5, -s * 0.7, -s * 0.2, -s * 0.9, 0, -s);
+                    ctx.fill();
+                    // 高光
+                    ctx.fillStyle = 'rgba(220,200,255,0.5)';
+                    ctx.beginPath();
+                    ctx.ellipse(-s * 0.2, -s * 0.25, s * 0.35, s * 0.25, -0.4, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+                    ctx.beginPath();
+                    ctx.ellipse(-s * 0.25, -s * 0.3, s * 0.15, s * 0.1, -0.3, 0, Math.PI * 2);
+                    ctx.fill();
+                    // 紫色边框
+                    ctx.strokeStyle = 'rgba(100,50,180,0.6)';
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                    ctx.restore();
                 }
                 ctx.restore();
             }
@@ -6446,7 +7441,15 @@
                 for (let i = pipes.length - 1; i >= 0; i--) {
                     const p = pipes[i];
                     p.update();
-                    if (!p.passed && pipes[i].x + pipes[i].width < bird.x) { pipes[i].passed = true; score++; playPassPipeSound(); if (score >= 60 && !runStats.scoreMilestoneHeart) { runStats.scoreMilestoneHeart = true; lives++; unlockAchievement('gameGiftedHeart'); } }
+                    if (!p.passed && pipes[i].x + pipes[i].width < bird.x) {
+                        pipes[i].passed = true; score++; playPassPipeSound();
+                        if (score >= 60 && !runStats.scoreMilestoneHeart) { runStats.scoreMilestoneHeart = true; lives++; unlockAchievement('gameGiftedHeart'); }
+                        // 250分获得本局临时皇冠
+                        if (score >= 250 && !runCrownEverActive) {
+                            runCrownActive = true;
+                            runCrownEverActive = true;
+                        }
+                    }
                     if (pipes[i].isOffScreen()) pipes.splice(i, 1);
                 }
                 // 检测破纪录（仅正常模式）
@@ -6532,6 +7535,49 @@
                         }
                     }
                 }
+                // 紫色大冰块碰撞（冰雹天气，无敌时跳过，被吸尘器吸住时跳过）
+                const activeWeather2 = (debugForceWeather && (isAdmin() || hasAnyDebugPerm())) ? debugForceWeather : currentWeather;
+                if (activeWeather2 === 'hail' && invincibleTimer <= 0 && !inVacuum) {
+                    for (let i = purpleIceBlocks.length - 1; i >= 0; i--) {
+                        const ice = purpleIceBlocks[i];
+                        const iceBounds = { x: ice.x - ice.size * 0.7, y: ice.y - ice.size * 0.7, w: ice.size * 1.4, h: ice.size * 1.4 };
+                        if (rectCollide(bb, iceBounds)) {
+                            // 碎裂效果
+                            for (let j = 0; j < 10 + Math.floor(Math.random() * 8); j++) {
+                                shatteredParticles.push({
+                                    x: ice.x, y: ice.y,
+                                    vx: (Math.random() - 0.5) * 6,
+                                    vy: (Math.random() - 0.5) * 6,
+                                    size: 1 + Math.random() * 4,
+                                    color: '#9b59b6',
+                                    life: 15 + Math.random() * 20,
+                                    alpha: 1
+                                });
+                            }
+                            purpleIceBlocks.splice(i, 1);
+                            shakeTimer = 15;
+                            // 扣一颗心并启用无敌时间
+                            if (godMode) {
+                                // 无敌模式不扣血
+                                invincibleTimer = 30;
+                            } else if (shieldCount > 0) {
+                                shieldCount = 0;
+                                invincibleTimer = 30;
+                            } else {
+                                // 如果只有1条命，直接死亡；否则扣血
+                                if (lives <= 1) {
+                                    lives = 0;
+                                    deathReason = 'ice';
+                                    handleDeath(true);
+                                    return;
+                                }
+                                lives--;
+                                recordDamage();
+                                invincibleTimer = 60;
+                            }
+                        }
+                    }
+                }
                 // 异世界克隆鸟碰撞（克隆鸟不能攻击玩家，触碰克隆鸟返回原世界）
                 if (otherWorldState && cloneBird) {
                     const cloneBounds = { 
@@ -6592,6 +7638,14 @@
                     isNight = false;
                 }
                 nightAlpha = Math.max(0, Math.min(1, nightAlpha));
+
+                // 夜晚不能有阴天：从 rain/hail/thunderstorm 中随机选，都没选中就是晴天
+                if (isNight && currentWeather === 'cloudy') {
+                    const nr = Math.random();
+                    if (nr < 0.33) { currentWeather = 'rain'; targetRainBlur = 1; }
+                    else if (nr < 0.66) { currentWeather = 'hail'; }
+                    else { currentWeather = 'thunderstorm'; thunderCheckTimer = THUNDER_STRIKE_INTERVAL; }
+                }
             }
 
             // 尝试生成怪物
@@ -6699,7 +7753,26 @@
                     }
                     restoreOtherWorld();
                     saveData(); updateAllCoinUI();
-                } else { unlockAchievement('ahhhh'); endGame(); }
+                } else {
+                    // 死亡时皇冠飞走动画
+                    if ((runCrownActive || crownEquipped) && !crownFlyAnim?.active) {
+                        triggerCrownFly();
+                    }
+                    // 降价版皇冠消耗使用次数
+                    if (crownOwned && crownType === 'discounted' && crownDeathsLeft > 0) {
+                        crownDeathsLeft--;
+                        if (crownDeathsLeft <= 0) {
+                            crownType = null;
+                            crownPurchasePrice = 0;
+                            crownPurchaseDate = null;
+                            crownDeathsLeft = 0;
+                            crownOwned = false;
+                            crownEquipped = false;
+                        }
+                        saveData();
+                    }
+                    unlockAchievement('ahhhh'); endGame();
+                }
 
                 // 恢复异世界状态（保持僵尸鸟身份，克隆鸟从前面重新出现）
                 function restoreOtherWorld() {
@@ -6817,6 +7890,8 @@
                 for (const p of pipes) p.draw(ctx);
                 for (const m of monsters) m.draw(ctx);
                 drawGround();
+                // 绘制落地皇冠（在草坪上）
+                drawCrownLanded();
                 // 绘制吸尘器
                 drawVacuum();
                 if (stuckToNet) {
@@ -6844,6 +7919,8 @@
                 } else {
                     bird.draw(ctx);
                 }
+                // 皇冠飞走动画
+                drawCrownFly();
                 // 吸尘器吸住小鸟提示
                 if (gameState === 'playing' && vacuumCleaner && vacuumCleaner.birdCaught && !vacuumCleaner.escaped) {
                     const vc = vacuumCleaner;
@@ -6958,18 +8035,111 @@
                     pauseBtn.classList.remove('visible');
                     pauseModal.classList.remove('show');
                 }
-                // 音乐按钮仅在暂停时显示
-                if (gameState === 'paused') {
+                // 音乐按钮在标题界面和暂停时显示，便于随时开关背景音乐
+                if (gameState === 'start' || gameState === 'paused') {
                     musicBtn.classList.add('visible');
                 } else {
                     musicBtn.classList.remove('visible');
                 }
             }
 
+            function updateCrownFly() {
+                if (!crownFlyAnim || !crownFlyAnim.active) return;
+                crownFlyAnim.life--;
+                crownFlyAnim.x += crownFlyAnim.vx;
+                crownFlyAnim.y += crownFlyAnim.vy;
+                crownFlyAnim.vy += 0.25; // 重力
+                crownFlyAnim.rotation += crownFlyAnim.vr;
+                const grassY = HEIGHT - GROUND_HEIGHT + 3; // 草坪中央
+                if (crownFlyAnim.life <= 0 || crownFlyAnim.y >= grassY) {
+                    // 皇冠落在草坪上，永久保留
+                    crownLanded = {
+                        x: crownFlyAnim.x,
+                        y: grassY - 5, // 皇冠底部贴在草坪上
+                        rotation: crownFlyAnim.rotation
+                    };
+                    crownFlyAnim.active = false;
+                }
+            }
+
+            function drawCrownFly() {
+                if (!crownFlyAnim || !crownFlyAnim.active) return;
+                const c = crownFlyAnim;
+                ctx.save();
+                ctx.translate(c.x, c.y);
+                ctx.rotate(c.rotation);
+                ctx.globalAlpha = Math.min(1, c.life / 20);
+                // 皇冠底座
+                ctx.fillStyle = '#f1c40f';
+                ctx.beginPath();
+                ctx.moveTo(-12, 5);
+                ctx.lineTo(12, 5);
+                ctx.lineTo(10, -3);
+                ctx.lineTo(6, 3);
+                ctx.lineTo(0, -8);
+                ctx.lineTo(-6, 3);
+                ctx.lineTo(-10, -3);
+                ctx.closePath();
+                ctx.fill();
+                ctx.strokeStyle = '#b7950b';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                // 宝石
+                ctx.fillStyle = '#e74c3c';
+                ctx.beginPath(); ctx.arc(0, -3, 2.5, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#3498db';
+                ctx.beginPath(); ctx.arc(-7, 1, 1.8, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(7, 1, 1.8, 0, Math.PI * 2); ctx.fill();
+                ctx.restore();
+            }
+
+            function drawCrownLanded() {
+                if (!crownLanded) return;
+                const c = crownLanded;
+                ctx.save();
+                ctx.translate(c.x, c.y);
+                ctx.rotate(c.rotation || 0);
+                // 皇冠底座
+                ctx.fillStyle = '#f1c40f';
+                ctx.beginPath();
+                ctx.moveTo(-12, 5);
+                ctx.lineTo(12, 5);
+                ctx.lineTo(10, -3);
+                ctx.lineTo(6, 3);
+                ctx.lineTo(0, -8);
+                ctx.lineTo(-6, 3);
+                ctx.lineTo(-10, -3);
+                ctx.closePath();
+                ctx.fill();
+                ctx.strokeStyle = '#b7950b';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                // 宝石
+                ctx.fillStyle = '#e74c3c';
+                ctx.beginPath(); ctx.arc(0, -3, 2.5, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#3498db';
+                ctx.beginPath(); ctx.arc(-7, 1, 1.8, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(7, 1, 1.8, 0, Math.PI * 2); ctx.fill();
+                ctx.restore();
+            }
+
+            function triggerCrownFly() {
+                crownFlyAnim = {
+                    active: true,
+                    x: bird.x,
+                    y: bird.y - 12,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: -6 - Math.random() * 4,
+                    vr: (Math.random() - 0.5) * 0.4,
+                    rotation: 0,
+                    life: 90
+                };
+            }
+
             function gameLoop() {
                 if (btnDailyChallenge) btnDailyChallenge.classList.toggle('hidden', gameState !== 'start');
                 if (dailyCombinedBtn) dailyCombinedBtn.style.display = (gameState === 'start') ? '' : 'none';
-                update(); draw(); requestAnimationFrame(gameLoop);
+                updateCrownFly(); update(); draw(); requestAnimationFrame(gameLoop);
             }
 
             // ========== 开始/结束 ==========
@@ -7023,6 +8193,7 @@
                 endlessTimeLeft = dailyChallengeSettings.timeMinutes * 60;
                 endlessTimeAccum = 0;
                 recordBroken = false; recordDiff = 0; recordMusicTriggered = false;
+                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null; crownLanded = null;
                 initFlameParticles();
                 dayLength = 30 + dayLengthCards * 10;
                 gameTimeAccum = 0; nightAlpha = 0; isNight = false; dayCycleCount = 0;
@@ -7063,6 +8234,7 @@
                 endlessTimeLeft = dailyChallengeSettings.timeMinutes * 60;
                 endlessTimeAccum = 0;
                 recordBroken = false; recordDiff = 0; recordMusicTriggered = false;
+                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null; crownLanded = null;
                 initFlameParticles();
                 dayLength = 30 + dayLengthCards * 10;
                 gameTimeAccum = 0; nightAlpha = 0; isNight = false; dayCycleCount = 0;
@@ -7089,6 +8261,7 @@
                 roundGold = 0; roundSilver = 0;
                 lives = startLives;
                 recordBroken = false; recordDiff = 0; recordMusicTriggered = false;
+                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null; crownLanded = null;
                 initFlameParticles();
                 resetRunStats();
                 if (startLives > 1) unlockAchievement('secondLife');
@@ -7127,6 +8300,7 @@
                 endlessTimeAccum = 0;
                 lives = 999; // 无限命
                 recordBroken = false; recordDiff = 0; recordMusicTriggered = false;
+                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null; crownLanded = null;
                 // 事件重置（无尽模式也支持事件）
                 resetAllEvents();
                 // 昼夜初始化
@@ -7148,6 +8322,7 @@
             function endGame(isTimeUp) {
                 questNoDamageActive = false;
                 gameState = 'over';
+                clearSavedGame(); // 死了就清除存档，不再显示继续游戏按钮
                 resetAllEvents();
                 // 切换结束音乐：时间到/每日挑战自然结束 = 赢，否则 = 输
                 switchMusic(isTimeUp ? 'win' : 'lose');
@@ -7209,6 +8384,14 @@
                     saveData();
                     updateAllCoinUI();
                 }
+                // 无尽模式不计入皇冠解锁，正常/每日挑战达到1500分解锁折扣价
+                if (gameMode !== 'endless' && score >= 1500) {
+                    crownUnlocked = true;
+                    saveData();
+                }
+                // 本局临时皇冠结束即消失
+                runCrownActive = false;
+                runCrownEverActive = false;
                 recordBroken = false; recordDiff = 0; recordMusicTriggered = false;
                 finalScoreEl.textContent = score;
                 bestScoreEl.textContent = bestScore;
@@ -7219,7 +8402,7 @@
                 gameOverTitle.classList.toggle('time-up', !!isTimeUp);
                 // 显示死亡原因
                 if (deathReason) {
-                    const reasons = { ground: '💥 撞到地面！', pipe: '🔧 撞到管道！', net: '🕸️ 被网粘住！', zombie: '🧟 被僵尸鸟撞了！', chick: '🐤 被小野鸡撞了！', bullet: '💣 被子弹打中了！' };
+                    const reasons = { ground: '💥 撞到地面！', pipe: '🔧 撞到管道！', net: '🕸️ 被网粘住！', zombie: '🧟 被僵尸鸟撞了！', chick: '🐤 被小野鸡撞了！', bullet: '💣 被子弹打中了！', ice: '🧊 被紫色大冰块砸死了！', vacuum: '🧹 被吸尘器吸死了！' };
                     deathReasonEl.textContent = reasons[deathReason] || '';
                     deathReasonEl.style.display = 'inline-block';
                 } else {
@@ -7246,6 +8429,7 @@
                 recordBroken = false;
                 recordDiff = 0;
                 recordMusicTriggered = false;
+                runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null; crownLanded = null;
                 flameParticles = [];
                 // 退出教程时清理教程状态
                 tutorialActive = false;
@@ -7259,14 +8443,219 @@
                 pipes = []; monsters = []; bird.reset();
                 deathReason = '';
                 gameOverTitle.classList.remove('time-up');
+                updateContinueButton();
                 // 清除所有残留特效（天气、昼夜、无尽计时器等）
                 weatherParticles = [];
-                currentWeather = '';
+                currentWeather = 'sunny';
+                displayWeather = 'sunny';
+                prevDisplayWeather = 'sunny';
+                weatherLerp = 1.0;
+                rainIntensity = 0;
+                weatherTimer = 0;
+                sunRainTimer = 0;
+                thunderCheckTimer = 0;
+                thunderBoltFrames = 0;
+                thunderStrikeTriggered = false;
+                birdStruckTimer = 0;
+                rainBlurAlpha = 0;
+                targetRainBlur = 0;
                 lightningTimer = 0; lightningNext = 0; lightningFlashAlpha = 0;
                 nightAlpha = 0; isNight = false; dayCycleCount = 0; gameTimeAccum = 0;
                 endlessTimeLeft = 0; endlessTimeAccum = 0;
                 updateAllCoinUI();
                 refreshDailyButton();
+                updateContinueButton();
+            }
+
+            // ========== 存档系统 ==========
+            const SAVED_GAME_KEY = 'flappy-saved-game';
+
+            function hasSavedGame() {
+                try { return localStorage.getItem(SAVED_GAME_KEY) !== null; } catch(e) { return false; }
+            }
+
+            function saveGameState() {
+                try {
+                    const state = {
+                        VERSION,
+                        savedAt: Date.now(),
+                        score, frameCount, pipeFrameCounter,
+                        bird: { x: bird.x, y: bird.y, velocity: bird.velocity, rotation: bird.rotation, wingPhase: bird.wingPhase },
+                        pipes: pipes.map(p => ({ x: p.x, topHeight: p.topHeight, bottomY: p.bottomY, passed: p.passed, width: p.width, dropToGround: p.dropToGround || false })),
+                        monsters: monsters.map(m => {
+                            const base = { type: m instanceof ZombieBird ? 'zombie' : 'chick', x: m.x, y: m.y, wingPhase: m.wingPhase, width: m.width, height: m.height };
+                            if (m instanceof ZombieBird) { base.speed = m.speed; base.burning = m.burning; base.burnAge = m.burnAge; }
+                            else { base.vx = m.vx; base.vy = m.vy; base.age = m.age; base.maxAge = m.maxAge; }
+                            return base;
+                        }),
+                        gameMode, difficulty, gravity, jumpPower, pipeGap, pipeSpeed, pipeSpawnFrames,
+                        dayCycleCount, nightAlpha, isNight, gameTimeAccum,
+                        currentWeather, displayWeather, prevDisplayWeather, weatherLerp,
+                        rainIntensity, rainBlurAlpha, targetRainBlur, weatherTimer, sunRainTimer,
+                        thunderCheckTimer, thunderBoltFrames,
+                        lives, roundGold, roundSilver,
+                        startLives, pipeSkin, pipePosition, spawnZombie, spawnChick, chickDropFromTop,
+                        endlessTimeLeft, endlessTimeAccum,
+                        monsterChance, monsterMinGap,
+                        activeEvent, eventTimer, eventCooldownTimer,
+                        dayLength, dayLengthCards,
+                        jumpKeyCode,
+                        // 保存设置
+                        fontSizeLevel, showFlameBorder,
+                    };
+                    localStorage.setItem(SAVED_GAME_KEY, JSON.stringify(state));
+                    return true;
+                } catch(e) { return false; }
+            }
+
+            function loadGameState() {
+                try {
+                    const raw = localStorage.getItem(SAVED_GAME_KEY);
+                    if (!raw) return null;
+                    return JSON.parse(raw);
+                } catch(e) { return null; }
+            }
+
+            function clearSavedGame() {
+                try { localStorage.removeItem(SAVED_GAME_KEY); } catch(e) {}
+            }
+
+            function resumeSavedGame() {
+                const state = loadGameState();
+                if (!state) return false;
+
+                // 恢复难度参数（必须在 applyDifficulty 之前恢复 difficulty）
+                if (state.difficulty) difficulty = state.difficulty;
+                if (state.gravity) gravity = state.gravity;
+                if (state.jumpPower) jumpPower = state.jumpPower;
+                if (state.pipeGap) pipeGap = state.pipeGap;
+                if (state.pipeSpeed) pipeSpeed = state.pipeSpeed;
+                if (state.pipeSpawnFrames) pipeSpawnFrames = state.pipeSpawnFrames;
+                if (state.monsterChance) monsterChance = state.monsterChance;
+                if (state.monsterMinGap) monsterMinGap = state.monsterMinGap;
+                applyDifficulty();
+                // 恢复核心游戏状态
+                gameMode = state.gameMode || 'normal';
+                score = state.score || 0; frameCount = state.frameCount || 0;
+                pipeFrameCounter = state.pipeFrameCounter || 0;
+
+                // 恢复小鸟
+                bird.x = state.bird.x; bird.y = state.bird.y;
+                bird.velocity = state.bird.velocity; bird.rotation = state.bird.rotation;
+                bird.wingPhase = state.bird.wingPhase;
+
+                // 恢复管道
+                pipes = (state.pipes || []).map(p => {
+                    const np = new Pipe();
+                    np.x = p.x; np.topHeight = p.topHeight; np.bottomY = p.bottomY;
+                    np.passed = p.passed; np.dropToGround = p.dropToGround || false;
+                    return np;
+                });
+
+                // 恢复怪物
+                monsters = (state.monsters || []).map(m => {
+                    if (m.type === 'zombie') {
+                        const z = new ZombieBird();
+                        z.x = m.x; z.y = m.y; z.wingPhase = m.wingPhase;
+                        z.speed = m.speed; z.burning = m.burning; z.burnAge = m.burnAge;
+                        z.width = m.width; z.height = m.height;
+                        return z;
+                    } else {
+                        // Chick 需要 pipe 参数，用一个假管道构造后覆盖属性
+                        const dummyPipe = { x: m.x - 50, topHeight: 200, bottomY: 350, width: 68 };
+                        const c = new Chick(dummyPipe);
+                        c.x = m.x; c.y = m.y; c.wingPhase = m.wingPhase;
+                        c.vx = m.vx; c.vy = m.vy; c.age = m.age; c.maxAge = m.maxAge;
+                        c.width = m.width; c.height = m.height;
+                        return c;
+                    }
+                });
+
+                // 恢复时间/天气
+                dayCycleCount = state.dayCycleCount || 0;
+                nightAlpha = state.nightAlpha || 0;
+                isNight = state.isNight || false;
+                gameTimeAccum = state.gameTimeAccum || 0;
+                currentWeather = state.currentWeather || 'sunny';
+                displayWeather = state.displayWeather || 'sunny';
+                prevDisplayWeather = state.prevDisplayWeather || 'sunny';
+                weatherLerp = state.weatherLerp || 1;
+                rainIntensity = state.rainIntensity || 0;
+                rainBlurAlpha = state.rainBlurAlpha || 0;
+                targetRainBlur = state.targetRainBlur || 0;
+                weatherTimer = state.weatherTimer || 0;
+                sunRainTimer = state.sunRainTimer || 0;
+                thunderCheckTimer = state.thunderCheckTimer || 0;
+                thunderBoltFrames = state.thunderBoltFrames || 0;
+
+                // 恢复其他状态
+                lives = state.lives || 1;
+                roundGold = state.roundGold || 0; roundSilver = state.roundSilver || 0;
+                startLives = state.startLives || 1;
+                pipeSkin = state.pipeSkin || 'pipe';
+                pipePosition = state.pipePosition || 'random';
+                spawnZombie = state.spawnZombie !== false;
+                spawnChick = state.spawnChick !== false;
+                chickDropFromTop = state.chickDropFromTop || false;
+                endlessTimeLeft = state.endlessTimeLeft || 0;
+                endlessTimeAccum = state.endlessTimeAccum || 0;
+                activeEvent = state.activeEvent || null;
+                eventTimer = state.eventTimer || 0;
+                eventCooldownTimer = state.eventCooldownTimer || 0;
+                dayLength = state.dayLength || 30;
+                if (state.jumpKeyCode) jumpKeyCode = state.jumpKeyCode;
+                if (state.fontSizeLevel !== undefined) fontSizeLevel = state.fontSizeLevel;
+                if (state.showFlameBorder !== undefined) showFlameBorder = state.showFlameBorder;
+
+                // 初始化倒计时
+                countdownValue = 3; countdownTimer = 0;
+                showGo = false; goTimer = 0; shakeTimer = 0;
+                stuckToNet = false; stuckTimer = 0;
+                recordBroken = false; recordDiff = 0; recordMusicTriggered = false;
+                // 恢复存档时根据分数恢复本局皇冠状态
+                runCrownActive = score >= 250;
+                runCrownEverActive = score >= 250;
+                crownFlyAnim = null; crownLanded = null;
+                initFlameParticles();
+                resetRunStats();
+                resetAllEvents();
+
+                // 进入倒计时
+                gameState = 'countdown';
+                prevGameState = null;
+                startOverlay.classList.remove('active');
+                modeOverlay.classList.remove('active');
+                gameOverOverlay.classList.remove('active');
+                pauseModal.classList.remove('show');
+                switchMusic('playing');
+                updateContinueButton();
+                return true;
+            }
+
+            let savePromptActive = false;
+            let savePromptCallback = null;
+            function showSavePrompt(callback) {
+                savePromptActive = true;
+                savePromptCallback = callback;
+                pauseModal.querySelector('h3').textContent = '💾 保存本次记录？';
+                btnPauseResume.textContent = '✅ 保存';
+                btnPauseSave.style.display = 'none';
+                btnPauseRestart.style.display = 'none';
+                btnPauseQuit.textContent = '❌ 不保存';
+                pauseModal.classList.add('show');
+            }
+            function hideSavePrompt(saved) {
+                savePromptActive = false;
+                pauseModal.querySelector('h3').textContent = '⏸ 游戏暂停';
+                btnPauseResume.textContent = '▶ 继续游戏';
+                btnPauseSave.style.display = '';
+                btnPauseRestart.style.display = '';
+                btnPauseQuit.textContent = '🏠 不保存，退出';
+                if (savePromptCallback) { savePromptCallback(saved); savePromptCallback = null; }
+            }
+
+            function updateContinueButton() {
+                if (btnContinue) btnContinue.classList.toggle('hidden', !hasSavedGame());
             }
 
             // ========== 音乐控制（多场景） ==========
@@ -7493,6 +8882,10 @@
             document.addEventListener('touchstart', handleGlobalInput, { passive: false });
             document.addEventListener('mousedown', handleGlobalInput);
 
+            // 切后台/失焦自动暂停，防止手机通知、误滑底部横条等导致小鸟死亡
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            window.addEventListener('blur', handleWindowBlur);
+
             // canvas 上也保留一份（原有逻辑）
             canvas.addEventListener('click', () => {
                 if (gameState === 'over' || gameState === 'countdown' || gameState === 'paused') return;
@@ -7512,6 +8905,16 @@
                     startTutorial();
                 } else {
                     showModeSelect();
+                }
+            });
+            btnContinue.addEventListener('click', e => {
+                e.stopPropagation();
+                if (!hasSavedGame()) return;
+                const acc = getCurrentAccount();
+                if (acc && acc.data && !acc.data.tutorialCompleted) {
+                    clearSavedGame(); updateContinueButton(); startTutorial();
+                } else {
+                    resumeSavedGame();
                 }
             });
             tutorialConfirm.addEventListener('click', e => {
@@ -7543,7 +8946,17 @@
                 e.stopPropagation();
                 toggleMusic();
             });
-            btnPauseResume.addEventListener('click', e => { e.stopPropagation(); togglePause(); });
+            btnPauseResume.addEventListener('click', e => {
+                e.stopPropagation();
+                if (savePromptActive) {
+                    saveGameState();
+                    pauseModal.classList.remove('show');
+                    hideSavePrompt(true);
+                    updateContinueButton();
+                    return;
+                }
+                togglePause();
+            });
             btnPauseRestart.addEventListener('click', e => {
                 e.stopPropagation();
                 pauseModal.classList.remove('show');
@@ -7553,11 +8966,32 @@
                 else if (gameMode === 'daily') restartDailyChallenge();
                 else startNormalGame();
             });
-            btnPauseQuit.addEventListener('click', e => {
+            btnPauseSave.addEventListener('click', e => {
                 e.stopPropagation();
+                saveGameState();
                 pauseModal.classList.remove('show');
                 prevGameState = null;
+                updateContinueButton();
                 backToMenu();
+            });
+            btnPauseQuit.addEventListener('click', e => {
+                e.stopPropagation();
+                if (savePromptActive) {
+                    // 用户选了"不保存"
+                    pauseModal.classList.remove('show');
+                    clearSavedGame();
+                    hideSavePrompt(false);
+                    prevGameState = null;
+                    updateContinueButton();
+                    backToMenu();
+                } else {
+                    showSavePrompt((saved) => {
+                        prevGameState = null;
+                        if (!saved) clearSavedGame();
+                        updateContinueButton();
+                        backToMenu();
+                    });
+                }
             });
 
             function showFirstGuideIfNeeded() {
@@ -7730,11 +9164,74 @@
                 e.stopPropagation();
                 checkFeatureAccess(() => {
                     updateAllCoinUI();
+                    switchShopTab('buy');
                     shopModal.classList.add('show');
                 });
             });
             btnCloseShop.addEventListener('click', e => { e.stopPropagation(); shopModal.classList.remove('show'); });
             shopModal.addEventListener('click', e => e.stopPropagation());
+
+            // 商城标签切换
+            function switchShopTab(tab) {
+                if (tab === 'buy') {
+                    shopTabBuy.classList.add('active');
+                    shopTabSell.classList.remove('active');
+                    buySection.style.display = 'block';
+                    sellSection.classList.remove('active');
+                } else {
+                    shopTabBuy.classList.remove('active');
+                    shopTabSell.classList.add('active');
+                    buySection.style.display = 'none';
+                    sellSection.classList.add('active');
+                    renderSellUI();
+                }
+            }
+            shopTabBuy.addEventListener('click', e => { e.stopPropagation(); switchShopTab('buy'); });
+            shopTabSell.addEventListener('click', e => { e.stopPropagation(); switchShopTab('sell'); });
+
+            // 卖给官方
+            btnSellOfficial.addEventListener('click', e => {
+                e.stopPropagation();
+                if (!crownOwned) return;
+                const price = getOfficialCrownPrice();
+                if (sellCrown(price)) {
+                    showCrownSoldPrompt(price);
+                }
+            });
+
+            // 砍价按钮
+            btnHaggleUp.addEventListener('click', e => {
+                e.stopPropagation();
+                if (!currentHaggleBuyer) return;
+                currentHaggleBuyer.price += 50;
+                currentHaggleBuyer.markupCount++;
+                updateHaggleUI();
+            });
+            btnHaggleSell.addEventListener('click', e => {
+                e.stopPropagation();
+                if (!currentHaggleBuyer) return;
+                const buyer = crownBuyers[currentHaggleBuyer.idx];
+                const price = currentHaggleBuyer.price;
+                const baseProb = getCrownBuyerBaseProb(price);
+                const prob = Math.max(0, baseProb - currentHaggleBuyer.markupCount * 0.05);
+                if (Math.random() < prob) {
+                    // 成交
+                    if (sellCrown(price)) {
+                        showCrownSoldPrompt(price);
+                    }
+                    closeHaggle();
+                } else {
+                    // 失败
+                    buyer.failed = true;
+                    const msgs = [t('抱歉，我发现我没货了。'), t('抱歉，您似乎有点便宜了，我今天先不卖了。')];
+                    haggleResult.textContent = msgs[Math.floor(Math.random() * msgs.length)];
+                    saveData();
+                    renderSellUI();
+                    setTimeout(() => closeHaggle(), 1200);
+                }
+            });
+            btnHaggleCancel.addEventListener('click', e => { e.stopPropagation(); closeHaggle(); });
+            haggleModal.addEventListener('click', e => e.stopPropagation());
 
             // ========== 每日挑战弹窗 ==========
             btnCloseDailyChallenge.addEventListener('click', e => { e.stopPropagation(); dailyChallengeModal.classList.remove('show'); });
@@ -7851,6 +9348,35 @@
                 }
                 saveData();
             });
+
+            // ========== 设置开关：黑夜网亮度增强 ==========
+            if (switchNetBrightNight) {
+                switchNetBrightNight.addEventListener('click', e => {
+                    e.stopPropagation();
+                    netBrightNight = !netBrightNight;
+                    if (netBrightNight) {
+                        switchNetBrightNight.classList.add('on');
+                    } else {
+                        switchNetBrightNight.classList.remove('on');
+                    }
+                    saveData();
+                });
+            }
+
+            // ========== 设置开关：装备皇冠 ==========
+            if (switchCrownEquip) {
+                switchCrownEquip.addEventListener('click', e => {
+                    e.stopPropagation();
+                    if (!crownOwned) return;
+                    crownEquipped = !crownEquipped;
+                    if (crownEquipped) {
+                        switchCrownEquip.classList.add('on');
+                    } else {
+                        switchCrownEquip.classList.remove('on');
+                    }
+                    saveData();
+                });
+            }
 
             // ========== 设置开关：游戏中弹出成就提示 ==========
             switchAchievementPopup.addEventListener('click', e => {
@@ -8029,11 +9555,305 @@
                 e.stopPropagation();
                 if (totalGold >= 15) { totalGold -= 15; dayLengthCards++; saveData(); updateAllCoinUI(); }
             });
+            btnBuyCrown.addEventListener('click', e => {
+                e.stopPropagation();
+                if (crownOwned) return;
+                // 弹出降价版 / 正常版选择
+                const normalPrice = crownUnlocked ? 2500 : 9800;
+                if (crownChoiceNormalPrice) crownChoiceNormalPrice.textContent = '🪙' + normalPrice;
+                crownChoiceModal.classList.add('show');
+            });
+
+            if (crownChoiceDiscounted) {
+                crownChoiceDiscounted.addEventListener('click', e => {
+                    e.stopPropagation();
+                    if (crownOwned) return;
+                    const price = 3000;
+                    if (totalGold >= price) {
+                        totalGold -= price;
+                        crownType = 'discounted';
+                        crownPurchasePrice = price;
+                        crownPurchaseDate = getTodayString();
+                        crownDeathsLeft = CROWN_DISCOUNTED_USES;
+                        crownOwned = true;
+                        crownEquipped = true;
+                        crownChoiceModal.classList.remove('show');
+                        saveData();
+                        updateAllCoinUI();
+                        showCrownPurchasePrompt();
+                    }
+                });
+            }
+            if (crownChoiceNormal) {
+                crownChoiceNormal.addEventListener('click', e => {
+                    e.stopPropagation();
+                    if (crownOwned) return;
+                    const price = crownUnlocked ? 2500 : 9800;
+                    if (totalGold >= price) {
+                        totalGold -= price;
+                        crownType = 'normal';
+                        crownPurchasePrice = price;
+                        crownPurchaseDate = getTodayString();
+                        crownDeathsLeft = 0;
+                        crownOwned = true;
+                        crownEquipped = true;
+                        crownChoiceModal.classList.remove('show');
+                        saveData();
+                        updateAllCoinUI();
+                        showCrownPurchasePrompt();
+                    }
+                });
+            }
+            if (btnCloseCrownChoice) {
+                btnCloseCrownChoice.addEventListener('click', e => {
+                    e.stopPropagation();
+                    crownChoiceModal.classList.remove('show');
+                });
+            }
+
+            function showCrownPurchasePrompt() {
+                const title = t('🎉 永久皇冠购买成功！');
+                const desc = t('可在「游戏设置 → 开关区」中开启或关闭「装备皇冠」。');
+                showCrownToast(title, desc);
+            }
+            function showCrownSoldPrompt(price) {
+                const title = t('💰 皇冠出售成功！');
+                const desc = t('获得 🪙{0} 金币').replace('{0}', price);
+                showCrownToast(title, desc);
+            }
+            function showCrownToast(title, desc) {
+                toastIcon.textContent = '👑';
+                toastTitle.textContent = title;
+                toastDesc.textContent = desc;
+                achievementToast.classList.remove('challenge');
+                achievementToast.classList.add('show');
+                setTimeout(() => {
+                    achievementToast.classList.remove('show');
+                }, 4000);
+            }
 
             // ========== 设置弹窗 ==========
-            btnSettings.addEventListener('click', e => { e.stopPropagation(); refreshSettingsUI(); settingsModal.classList.add('show'); });
-            btnCloseSettings.addEventListener('click', e => { e.stopPropagation(); settingsModal.classList.remove('show'); });
+            btnSettings.addEventListener('click', e => { e.stopPropagation(); refreshSettingsUI(); settingsModal.classList.add('show'); clearSettingsSearch(); });
+            btnCloseSettings.addEventListener('click', e => { e.stopPropagation(); settingsModal.classList.remove('show'); clearSettingsSearch(); });
             settingsModal.addEventListener('click', e => e.stopPropagation());
+
+            // ========== 设置搜索 ==========
+            // 关键词别名映射：用户可能说的各种说法 → 实际设置项关键字
+            const SETTING_ALIASES = {
+                // 难度选择
+                '难度': 'difficulty', '简单': 'difficulty', '困难': 'difficulty', '正常': 'difficulty', '稍简单': 'difficulty',
+                // 管道位置
+                '管道位置': 'pipePosition', '偏上': 'pipePosition', '偏下': 'pipePosition', '随机位置': 'pipePosition',
+                // 管道皮肤
+                '管道皮肤': 'pipeSkin', '原版管道': 'pipeSkin', '网': 'pipeSkin', '皮肤': 'pipeSkin',
+                // 老版本材质包
+                '材质包': 'legacyTex', '老版本': 'legacyTex', '网纹': 'legacyTex', '老版本网纹': 'legacyTex',
+                // 怪物
+                '怪物': 'monster', '僵尸': 'monster', '僵尸鸟': 'monster', '小野鸡': 'chick', '野鸡': 'chick', '怪物生成': 'monster',
+                // 破纪录
+                '破纪录': 'record', '火焰': 'record', '火焰边框': 'record', '指示器': 'record', '+N': 'record', '纪录': 'record', '特效': 'record',
+                // 随机事件
+                '随机事件': 'event', '事件': 'event', '地震': 'event', '打仗': 'event', '异世界': 'event', '吸尘器': 'event', '子弹': 'bullet', '子弹密度': 'bullet',
+                '事件触发间隔': 'eventInterval', '触发间隔': 'eventInterval', '间隔': 'eventInterval',
+                // 生命
+                '生命': 'lives', '生命值': 'lives', '起始生命': 'lives', '起始生命值': 'lives', '命': 'lives', '条命': 'lives',
+                '爱心': 'lives', '血量': 'lives',
+                // 字体
+                '字体': 'fontSize', '字体大小': 'fontSize', '大小': 'fontSize',
+                // 小鸟叫声概率
+                '叫声概率': 'birdChirpProb', '小鸟叫声概率': 'birdChirpProb',
+                // 黑夜网亮度
+                '黑夜网亮度': 'netBrightNight', '网亮度': 'netBrightNight', '黑天网': 'netBrightNight', '网太黑': 'netBrightNight', '看不清网': 'netBrightNight', '网暗': 'netBrightNight',
+                // 无尽模式
+                '无尽模式': 'endlessTime', '无尽': 'endlessTime', '无尽时间': 'endlessTime', '无尽模式时间': 'endlessTime',
+                // 开关区
+                '每日最高分': 'includeDaily', '每日最高分计入': 'includeDaily', '计入': 'includeDaily',
+                '简洁': 'simpleMode', '简洁模式': 'simpleMode',
+                '成就': 'achievementPopup', '成就提示': 'achievementPopup', '成就弹窗': 'achievementPopup', '成就弹出': 'achievementPopup',
+                '成就提醒': 'achievementPopup', '弹出成就': 'achievementPopup', '弹出成就框': 'achievementPopup', '成就框': 'achievementPopup',
+                '游戏弹出成就框': 'achievementPopup', '游戏中弹出成就': 'achievementPopup', '游戏中弹出成就框': 'achievementPopup',
+                '跳跃音效': 'jumpSound', '跳跃声音': 'jumpSound', '嘟嘟': 'jumpSound', '嘟': 'jumpSound', '音效': 'jumpSound',
+                '穿过管道': 'passPipeSound', '管道音效': 'passPipeSound', '叮': 'passPipeSound', '通过管道': 'passPipeSound',
+                '小鸟阴影': 'birdShadow', '阴影': 'birdShadow', '阴影模式': 'birdShadow', '影子': 'birdShadow',
+                '小鸟叫声': 'birdChirp', '叫声': 'birdChirp', '鸟叫': 'birdChirp', '鸟叫声': 'birdChirp', '叫': 'birdChirp',
+                '皇冠': 'crown', '装备皇冠': 'crown', '永久皇冠': 'crown',
+                '事件提醒': 'warningPos', '提醒位置': 'warningPos', '提醒': 'warningPos', '事件提醒位置': 'warningPos', '事件位置': 'warningPos',
+                '语言': 'language', 'English': 'language', '英文': 'language', '中文': 'language', 'lang': 'language',
+                '按键': 'jumpKey', '跳跃按键': 'jumpKey', '键位': 'jumpKey', '空格': 'jumpKey', '键盘': 'jumpKey',
+                '重置': 'resetall', '全部重置': 'resetall', '重启': 'resetall', '清空': 'resetall', '清除数据': 'resetall',
+                '调试': 'debug', '管理员': 'admin', '管理': 'admin', '密码': 'password', '忘记密码': 'password',
+                // 按钮区其他
+                '小野鸡从上方掉落': 'chickTop', '上方掉落': 'chickTop', '野鸡掉落': 'chickTop',
+            };
+
+            function getSettingTargetId(aliasKey) {
+                // 返回设置项的 CSS 选择器或 ID
+                const map = {
+                    'difficulty': '#diffGroup',
+                    'pipePosition': '#posGroup',
+                    'pipeSkin': '#skinGroup',
+                    'monster': '#monsterGroup',
+                    'chick': '#monsterGroup',
+                    'chickTop': '#chickTopGroup',
+                    'record': '#recordGroup',
+                    'event': '#eventGroup',
+                    'bullet': '#bulletDensitySlider',
+                    'eventInterval': '#eventIntervalSlider',
+                    'lives': '#livesSlider',
+                    'fontSize': '#fontSizeSlider',
+                    'birdChirpProb': '#birdChirpProbabilitySlider',
+                    'netBrightNight': '#switchNetBrightNight',
+                    'endlessTime': '#endlessTimeSlider',
+                    'includeDaily': '#switchIncludeDaily',
+                    'simpleMode': '#switchSimpleMode',
+                    'achievementPopup': '#switchAchievementPopup',
+                    'jumpSound': '#switchJumpSound',
+                    'passPipeSound': '#switchPassPipeSound',
+                    'birdShadow': '#switchBirdShadow',
+                    'birdChirp': '#switchBirdChirp',
+                    'crown': '#crownEquipRow',
+                    'warningPos': '#warningPositionOptions',
+                    'language': '#languageOptions',
+                    'jumpKey': '#keyDisplay',
+                    'legacyTex': '#legacyTexGroup',
+                    'resetall': '#btnResetAll',
+                    'debug': '#debugGroup',
+                    'admin': '#adminManageGroup',
+                    'password': '#btnForgotPwd',
+                };
+                return map[aliasKey] || null;
+            }
+
+            function matchSettingsSearch(query) {
+                const q = query.toLowerCase().trim();
+                if (!q) return [];
+                const results = [];
+                // 遍历别名映射
+                for (const [keyword, aliasKey] of Object.entries(SETTING_ALIASES)) {
+                    if (keyword.toLowerCase().includes(q) || q.includes(keyword.toLowerCase())) {
+                        const targetId = getSettingTargetId(aliasKey);
+                        if (targetId && !results.find(r => r.targetId === targetId)) {
+                            results.push({ keyword, aliasKey, targetId });
+                        }
+                    }
+                }
+                return results;
+            }
+
+            function highlightSettingItem(targetId) {
+                if (!targetId) return;
+                const el = document.querySelector(targetId);
+                if (!el) return;
+                // 向上找到 group 或 row 容器
+                const container = el.closest('.setting-group') || el.closest('.setting-switch-row') ||
+                    el.closest('.warning-position-row') || el.closest('.setting-group.debug-entry') || el;
+                container.classList.add('search-highlight');
+                // 滚动到底部+搜索区域可见的前提下
+                setTimeout(() => {
+                    container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 50);
+                // 0.8s 后去掉高亮
+                setTimeout(() => { container.classList.remove('search-highlight'); }, 1200);
+            }
+
+            function clearSettingsSearch() {
+                if (settingsSearch) settingsSearch.value = '';
+                if (settingsSearchClear) settingsSearchClear.style.display = 'none';
+                if (settingsSearchNoResult) settingsSearchNoResult.style.display = 'none';
+                // 清除所有隐藏
+                settingsModal.querySelectorAll('.settings-section').forEach(s => s.classList.remove('search-hidden'));
+                settingsModal.querySelectorAll('.setting-group, .setting-switch-row, .warning-position-row')
+                    .forEach(el => el.classList.remove('setting-search-hidden'));
+                settingsModal.querySelectorAll('.search-highlight').forEach(el => el.classList.remove('search-highlight'));
+                // 恢复被搜索临时显示的行
+                settingsModal.querySelectorAll('.search-force-show').forEach(el => {
+                    el.classList.remove('search-force-show');
+                    el.style.display = el.dataset.searchOrigDisplay || '';
+                    delete el.dataset.searchOrigDisplay;
+                });
+            }
+
+            function performSettingsSearch() {
+                const q = (settingsSearch && settingsSearch.value || '').trim();
+                // 显示/隐藏清除按钮
+                if (settingsSearchClear) settingsSearchClear.style.display = q ? 'block' : 'none';
+                // 先清除所有状态
+                settingsModal.querySelectorAll('.settings-section').forEach(s => s.classList.remove('search-hidden'));
+                settingsModal.querySelectorAll('.setting-group, .setting-switch-row, .warning-position-row')
+                    .forEach(el => el.classList.remove('setting-search-hidden'));
+                settingsModal.querySelectorAll('.search-highlight').forEach(el => el.classList.remove('search-highlight'));
+                // 恢复被搜索临时显示的行
+                settingsModal.querySelectorAll('.search-force-show').forEach(el => {
+                    el.classList.remove('search-force-show');
+                    el.style.display = el.dataset.searchOrigDisplay || '';
+                    delete el.dataset.searchOrigDisplay;
+                });
+                if (settingsSearchNoResult) settingsSearchNoResult.style.display = 'none';
+
+                if (!q) return;
+
+                const results = matchSettingsSearch(q);
+                if (results.length === 0) {
+                    if (settingsSearchNoResult) settingsSearchNoResult.style.display = 'block';
+                    return;
+                }
+                // 显示匹配项，隐藏其他
+                const targetIds = [...new Set(results.map(r => r.targetId))];
+                // 收集所有"叶子"设置项容器
+                const allItems = settingsModal.querySelectorAll('.setting-group, .setting-switch-row, .warning-position-row');
+                const allSections = settingsModal.querySelectorAll('.settings-section');
+                let anyMatched = false;
+                allItems.forEach(item => {
+                    let matched = false;
+                    for (const targetId of targetIds) {
+                        const targetEl = document.querySelector(targetId);
+                        if (targetEl && (item.contains(targetEl) || item === targetEl || item.id === targetId.replace('#', ''))) {
+                            matched = true;
+                            break;
+                        }
+                    }
+                    if (!matched) {
+                        item.classList.add('setting-search-hidden');
+                    } else {
+                        anyMatched = true;
+                        // 如果原本是 display:none（如皇冠行），临时显示
+                        if (item.style.display === 'none' || item.style.display === '') {
+                            const currentDisplay = window.getComputedStyle(item).display;
+                            if (currentDisplay === 'none') {
+                                item.dataset.searchOrigDisplay = item.style.display;
+                                item.style.display = 'flex';
+                                item.classList.add('search-force-show');
+                            }
+                        }
+                    }
+                });
+                // 隐藏空的分区标题
+                allSections.forEach(section => {
+                    const visibleItems = section.querySelectorAll('.setting-group:not(.setting-search-hidden), .setting-switch-row:not(.setting-search-hidden), .warning-position-row:not(.setting-search-hidden)');
+                    if (visibleItems.length === 0) {
+                        section.classList.add('search-hidden');
+                    }
+                });
+                // 高亮第一个匹配项
+                if (results.length > 0) {
+                    highlightSettingItem(results[0].targetId);
+                }
+                if (settingsSearchNoResult) settingsSearchNoResult.style.display = anyMatched ? 'none' : 'block';
+            }
+
+            if (settingsSearch) {
+                settingsSearch.addEventListener('input', () => { performSettingsSearch(); });
+                settingsSearch.addEventListener('keydown', e => {
+                    if (e.key === 'Escape') { clearSettingsSearch(); settingsSearch.blur(); }
+                });
+            }
+            if (settingsSearchClear) {
+                settingsSearchClear.addEventListener('click', e => {
+                    e.stopPropagation();
+                    clearSettingsSearch();
+                    if (settingsSearch) settingsSearch.focus();
+                });
+            }
 
             // ========== 全部重置 ==========
             let resetStep = 0;           // 0=未开始, 1/2/3=第几次确认
@@ -8217,6 +10037,7 @@
                 birdShadowEnabled = false;
                 birdChirpEnabled = true;
                 birdChirpProbability = 50;
+                netBrightNight = true;
                 eventEnabled = { earthquake: true, battle: true, otherWorld: true, vacuum: true };
                 includeDailyInBestScore = true;
                 firstTimeSetupDone = false;
@@ -8224,6 +10045,7 @@
                 totalGold = 0; totalSilver = 0;
                 bestScore = 0; dailyBestScore = 0;
                 lifeCards = 0; timeCards = 0; dayLengthCards = 0;
+                crownUnlocked = false; crownType = null; crownPurchasePrice = 0; crownPurchaseDate = null; crownDeathsLeft = 0; crownOwned = false; crownEquipped = false;
                 dailyChallengeHistory = [];
                 dailyChallengeDoneToday = null;
                 dailyChallengeDate = null;
@@ -8569,6 +10391,20 @@
                 } else {
                     switchBirdChirp.classList.remove('on');
                 }
+                if (netBrightNight) {
+                    switchNetBrightNight.classList.add('on');
+                } else {
+                    switchNetBrightNight.classList.remove('on');
+                }
+                // 皇冠装备开关：仅拥有永久皇冠时显示
+                if (crownEquipRow) {
+                    crownEquipRow.style.display = crownOwned ? 'flex' : 'none';
+                }
+                if (crownEquipped) {
+                    switchCrownEquip.classList.add('on');
+                } else {
+                    switchCrownEquip.classList.remove('on');
+                }
                 // 调试模式入口
                 const debugGroup = document.getElementById('debugGroup');
                 if (debugGroup) {
@@ -8805,6 +10641,8 @@
                 if (canForceEvent && debugForceWeather) {
                     currentWeather = debugForceWeather;
                     weatherParticles = [];
+                    thunderBoltFrames = 0;
+                    thunderStrikeTriggered = false;
                     lightningTimer = 0;
                     lightningNext = 0;
                     lightningFlashAlpha = 0;
@@ -8813,8 +10651,14 @@
                     debugForceWeather = '';
                 }
                 if (!debugForceWeather) {
-                    currentWeather = '';
+                    currentWeather = 'sunny';
+                    displayWeather = 'sunny';
+                    prevDisplayWeather = 'sunny';
+                    weatherLerp = 1.0;
+                    rainIntensity = 0;
                     weatherParticles = [];
+                    thunderBoltFrames = 0;
+                    thunderStrikeTriggered = false;
                     lightningTimer = 0;
                     lightningNext = 0;
                     lightningFlashAlpha = 0;
@@ -8967,6 +10811,7 @@
                 if (shopModal.classList.contains('show') && !shopModal.contains(e.target) && e.target !== btnShop) shopModal.classList.remove('show');
                 if (settingsModal.classList.contains('show') && !settingsModal.contains(e.target) && e.target !== btnSettings) {
                     settingsModal.classList.remove('show');
+                    clearSettingsSearch();
                     isListeningForKey = false;
                 }
                 if (!debugJustOpened && debugModal.classList.contains('show') && !debugModal.contains(e.target) && e.target.id !== 'btnOpenDebug') {
@@ -10141,6 +11986,15 @@
                 document.getElementById('versionContent').innerHTML = changelogHTML;
                 document.getElementById('versionTitle').textContent = '📋 版本更新日志';
                 viewingVersionIdx = idx;
+                // 显示版本主题图片
+                const imgWrap = document.getElementById('versionImageWrap');
+                const imgEl = document.getElementById('versionImage');
+                if (h.img) {
+                    imgEl.src = h.img;
+                    imgWrap.style.display = 'block';
+                } else {
+                    imgWrap.style.display = 'none';
+                }
                 // 显示/隐藏导航按钮
                 const rollbackBtn = document.getElementById('btnRollbackVersion');
                 rollbackBtn.textContent = '⬅ 查看上一版本日志';
@@ -10163,6 +12017,15 @@
                     if (currentIdx >= 0) {
                         changelogHTML += '<p style="margin-top:8px;color:#ffffff;">更新内容：</p>';
                         changelogHTML += '<p style="white-space:pre-line;color:rgba(255,255,255,0.8);">' + VERSION_HISTORY[currentIdx].text.replace(/\n/g, '<br>') + '</p>';
+                        // 显示版本主题图片
+                        const imgWrap = document.getElementById('versionImageWrap');
+                        const imgEl = document.getElementById('versionImage');
+                        if (VERSION_HISTORY[currentIdx].img) {
+                            imgEl.src = VERSION_HISTORY[currentIdx].img;
+                            imgWrap.style.display = 'block';
+                        } else {
+                            imgWrap.style.display = 'none';
+                        }
                     } else {
                         changelogHTML += '<p style="margin-top:8px;color:rgba(255,255,255,0.8);">🎉 新版本 v' + VERSION + '</p>';
                     }
@@ -10170,7 +12033,16 @@
                         changelogHTML += '<p style="margin-top:6px;color:rgba(255,255,255,0.4);font-size:11px;">从 v' + storedVersion + ' 升级</p>';
                     }
                     document.getElementById('versionContent').innerHTML = changelogHTML;
-                    document.getElementById('versionTitle').textContent = '🎉 游戏版本已更新！';
+                    // 根据版本号变化判断标题：第二位数变化为“大版本更新”，否则为普通更新
+                    let updateTitle = '🎉 游戏版本已更新！';
+                    if (isUpdate && storedVersion !== VERSION) {
+                        const oldParts = storedVersion.split('.');
+                        const newParts = VERSION.split('.');
+                        if (oldParts.length >= 2 && newParts.length >= 2 && oldParts[1] !== newParts[1]) {
+                            updateTitle = '🎉 更新大版本！';
+                        }
+                    }
+                    document.getElementById('versionTitle').textContent = updateTitle;
                     document.getElementById('btnRollbackVersion').style.display = 'none';
                     document.getElementById('btnNextVersion').style.display = 'none';
                     viewingVersionIdx = -1;
@@ -10178,6 +12050,9 @@
                     setTimeout(() => {
                         document.getElementById('versionModal').classList.add('show');
                     }, 500);
+                } else {
+                    // 非新版本：隐藏图片
+                    document.getElementById('versionImageWrap').style.display = 'none';
                 }
             }
 
@@ -10276,6 +12151,7 @@
                 questNoDamageActive = false;
                 questCompleteModal.classList.remove('show');
                 accountSetupPanel.classList.remove('show');
+                crownLanded = null; // 返回标题清除落地皇冠
                 mainMenu.classList.remove('hidden');
                 rollSlogan();
                 updateTitleAndSlogan();
@@ -10441,6 +12317,7 @@
             drawBackground(); drawClouds(); drawGround();
             bird.reset(); bird.draw(ctx);
             checkVersionUpdate();
+            updateContinueButton();
             gameLoop();
         })();
     </script>
