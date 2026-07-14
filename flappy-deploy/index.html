@@ -3757,8 +3757,9 @@
             let crownLanded = null;     // 皇冠落地状态 { x, y }
 
             // ========== 版本系统 ==========
-            let VERSION = '1.4.4';
+            let VERSION = '1.4.5';
             const VERSION_HISTORY = [
+                { v: '1.4.5', img: '1.4.1.png', text: '🧊 修复紫色大冰块砸中后游戏卡死：砸中直接扣血，1血即死显示"被紫色大冰块砸死了"' },
                 { v: '1.4.4', img: '1.4.1.png', text: '🌙 黑夜网亮度增强：黑夜时网会变白变亮，轻松看清位置，设置中默认开启可随时关闭<br>👑 皇冠落地优化：皇冠掉落后会落在草坪上，永久留在原地，返回标题或重新开始后重置' },
                 { v: '1.4.3', img: '1.4.1.png', text: '👑 皇冠落地优化：皇冠掉落后会落在草坪上，永久留在原地，返回标题或重新开始后重置<br>🔍 设置搜索：支持模糊搜索设置项，智能匹配别名' },
                 { v: '1.4.1', img: '1.4.1.png', text: '👑 皇冠系统：达到250分获得本局皇冠；永久皇冠可在商店购买，死亡时皇冠飞走但装备后永久保留<br>✨ 更新大版本 V1.4 系列' },
@@ -7185,16 +7186,20 @@
                             // 扣一颗心并启用无敌时间
                             if (godMode) {
                                 // 无敌模式不扣血
+                                invincibleTimer = 30;
                             } else if (shieldCount > 0) {
                                 shieldCount = 0;
+                                invincibleTimer = 30;
                             } else {
-                                lives--;
-                                if (lives <= 0) {
+                                // 如果只有1条命，直接死亡；否则扣血
+                                if (lives <= 1) {
                                     lives = 0;
                                     deathReason = 'ice';
                                     handleDeath(true);
                                     return;
                                 }
+                                lives--;
+                                recordDamage();
                                 invincibleTimer = 60;
                             }
                         }
