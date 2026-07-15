@@ -2153,6 +2153,20 @@
                         <div class="setting-opt" data-val="net" data-i18n="🕸️ 网">🕸️ 网</div>
                     </div>
                 </div>
+                <div class="setting-group">
+                    <div class="setting-label" data-i18n="🐦 小鸟皮肤">🐦 小鸟皮肤</div>
+                    <div class="setting-options" id="birdSkinGroup">
+                        <div class="setting-opt active" data-val="yellow" data-i18n="🟡 黄色小鸟">🟡 黄色小鸟</div>
+                        <div class="setting-opt" data-val="red" data-i18n="🔴 红色小鸟">🔴 红色小鸟</div>
+                        <div class="setting-opt" data-val="blue" data-i18n="🔵 蓝色小鸟">🔵 蓝色小鸟</div>
+                    </div>
+                </div>
+                <div class="setting-group" id="birdLegacyTexGroupWrap">
+                    <div class="setting-label" data-i18n="📦 小鸟老版本材质包">📦 小鸟老版本材质包</div>
+                    <div class="setting-options" id="birdLegacyTexGroup">
+                        <div class="setting-opt" data-val="birdLegacyTex" data-i18n="🌀 原版黄色小鸟">🌀 原版黄色小鸟</div>
+                    </div>
+                </div>
                 <div class="setting-group" id="legacyTexGroupWrap">
                     <div class="setting-label" data-i18n="📦 老版本材质包">📦 老版本材质包</div>
                     <div class="setting-options" id="legacyTexGroup">
@@ -2335,7 +2349,7 @@
             </div>
 
             <button class="btn-close btn-save-green" id="btnCloseSettings" data-i18n="保存">保存</button>
-            <div class="settings-version" id="settingsVersion" style="cursor:pointer;" title="点击查看更新日志">版本号 v1.4.22</div>
+            <div class="settings-version" id="settingsVersion" style="cursor:pointer;" title="点击查看更新日志">版本号 v1.4.23</div>
         </div>
 
         <!-- 关闭事件提醒警告弹窗 -->
@@ -3272,6 +3286,12 @@
                     '🎨 管道皮肤': '🎨 Pipe Skin',
                     '🔧 原版管道': '🔧 Original Pipe',
                     '🕸️ 网': '🕸️ Net',
+                    '🐦 小鸟皮肤': '🐦 Bird Skin',
+                    '🟡 黄色小鸟': '🟡 Yellow Bird',
+                    '🔴 红色小鸟': '🔴 Red Bird',
+                    '🔵 蓝色小鸟': '🔵 Blue Bird',
+                    '📦 小鸟老版本材质包': '📦 Bird Legacy Texture',
+                    '🌀 原版黄色小鸟': '🌀 Classic Yellow Bird',
                     '📦 老版本材质包': '📦 Legacy Texture Pack',
                     '🌀 老版本网纹': '🌀 Legacy Net Grid',
                     '🧟 怪物生成': '🧟 Monster Spawn',
@@ -4306,6 +4326,10 @@
             netPattern = createNetPattern();
             legacyBuildingPattern = createLegacyBuildingPattern();
             let legacyBuildingPatternBright = createLegacyBuildingPatternBright();
+            // 小鸟皮肤图片
+            let birdImageRed = new Image(); birdImageRed.src = 'red-bird.png';
+            let birdImageYellow = new Image(); birdImageYellow.src = 'yellow-bird.png';
+            let birdImageBlue = new Image(); birdImageBlue.src = 'blue-bird.png';
             let gameState = 'start'; // 提前声明，避免 resizeCanvas 中触发 TDZ
 
             // 响应式缩放画布
@@ -4333,6 +4357,8 @@
             let pipePosition = 'random';
             let pipeSkin = 'pipe';    // 管道皮肤: 'pipe' 或 'net'
             let legacyTexturePack = false; // 老版本材质包：恢复网最初的滚动效果
+            let birdSkin = 'yellow';  // 小鸟皮肤: 'yellow' | 'red' | 'blue'
+            let birdLegacyTex = false; // 小鸟老版本材质包（仅黄色小鸟可选，使用代码绘制原版小鸟）
             let jumpKeyCode = 'Space';
             let spawnZombie = true;   // 是否生成僵尸小鸟
             let spawnChick = true;    // 是否生成小野鸡
@@ -4409,9 +4435,10 @@
             let mpInProgress = false;    // 是否正在联机流程中（创建/加入房间、等待、配置）
 
             // ========== 版本系统 ==========
-            let VERSION = '1.4.22';
+            let VERSION = '1.4.23';
             const VERSION_HISTORY = [
-                { v: '1.4.22', img: 'lianji.png', text:'🔄 恢复联机创建/加入房间时的“正在建立连接... 请稍候”加载画面<br>🐛 修复联机加载画面意外缺失导致的空白等待' },
+                { v: '1.4.23', img: '1.4.1.png', text:'🐦 新增小鸟皮肤：红色鸟、黄色鸟（新材质）、蓝色鸟，设置→小鸟皮肤自由切换<br>🌀 黄色小鸟支持老版本材质包，可切换回代码绘制的原版经典小鸟' },
+                { v: '1.4.22', img: 'lianji.png', text:'🔄 恢复联机创建/加入房间时的"正在建立连接... 请稍候"加载画面<br>🐛 修复联机加载画面意外缺失导致的空白等待' },
                 { v: '1.4.21', img: 'lianji.png', text:'📱 修复联机模式手机版无法跳跃：输入拦截条件缺少 mpGameStarted 检查<br>🧊 修复紫色大冰块砸死后卡死：添加死亡状态防御性检查，防止极端情况卡死' },
                 { v: '1.4.20', img: 'lianji.png', text:'🐛 修复一些重叠的BUG<br>🐛 修复暂停后点击"继续游戏"/"重新开始"无响应：addEventListener 与 onclick 重复绑定导致双击 togglePause' },
                 { v: '1.4.19', img: 'lianji.png', text:'📱 修复手机版速度过快：高刷新率屏幕游戏速度2倍BUG，固定60fps逻辑帧率<br>🐛 修复联机倒计时期间小鸟掉落：update() 增加联机模式判断<br>📷 扫码摄像头取消镜像翻转，解决左右反向问题' },
@@ -5199,7 +5226,7 @@
                     totalGold, totalSilver, lifeCards, timeCards, dayLengthCards,
                     crownUnlocked, crownType, crownPurchasePrice, crownPurchaseDate, crownDeathsLeft, crownOwned, crownEquipped,
                     crownBuyers: JSON.parse(JSON.stringify(crownBuyers)),
-                    bestScore, difficulty, pipePosition, pipeSkin, jumpKeyCode,
+                    bestScore, difficulty, pipePosition, pipeSkin, birdSkin, birdLegacyTex, jumpKeyCode,
                     spawnZombie, spawnChick, endlessTimeSetting, fontSizeLevel,
                     showFlameBorder, showRecordIndicator, startLives, simpleMode, showAchievementPopup,
                     jumpSoundEnabled, passPipeSoundEnabled, birdShadowEnabled, birdChirpEnabled, birdChirpProbability, netBrightNight, eventEnabled,
@@ -5247,6 +5274,8 @@
                 pipePosition = d.pipePosition || 'random';
                 pipeSkin = d.pipeSkin || 'pipe';
                 legacyTexturePack = d.legacyTexturePack !== undefined ? d.legacyTexturePack : false;
+                birdSkin = d.birdSkin || 'yellow';
+                birdLegacyTex = d.birdLegacyTex !== undefined ? d.birdLegacyTex : false;
                 jumpKeyCode = d.jumpKeyCode || 'Space';
                 spawnZombie = d.spawnZombie !== undefined ? d.spawnZombie : true;
                 spawnChick = d.spawnChick !== undefined ? d.spawnChick : true;
@@ -5327,7 +5356,7 @@
                         totalGold: 0, totalSilver: 0, lifeCards: 0, timeCards: 0, dayLengthCards: 0,
                         crownUnlocked: false, crownType: null, crownPurchasePrice: 0, crownPurchaseDate: null, crownDeathsLeft: 0, crownOwned: false, crownEquipped: false,
                         crownBuyers: [],
-                        bestScore: 0, difficulty: 'normal', pipePosition: 'random', pipeSkin: 'pipe', legacyTexturePack: false, jumpKeyCode: 'Space',
+                        bestScore: 0, difficulty: 'normal', pipePosition: 'random', pipeSkin: 'pipe', legacyTexturePack: false, birdSkin: 'yellow', birdLegacyTex: false, jumpKeyCode: 'Space',
                         spawnZombie: true, spawnChick: true, endlessTimeSetting: -1, fontSizeLevel: 2,
                         showFlameBorder: true, showRecordIndicator: true, startLives: 1, simpleMode: false,
                         eventEnabled: { earthquake: true, battle: true, otherWorld: true, vacuum: true },
@@ -5554,8 +5583,8 @@
                         ctx.font = '14px "PingFang SC","Microsoft YaHei",sans-serif';
                         ctx.textAlign = 'center';
                         ctx.fillText('🎯', 0, -18);
-                    } else {
-                        // 原版小鸟外观
+                    } else if (birdSkin === 'yellow' && birdLegacyTex) {
+                        // 老版本材质包：使用代码绘制的原版黄色小鸟
                         ctx.fillStyle = '#f9ca24';
                         ctx.beginPath(); ctx.ellipse(0,0,this.width/2,this.height/2,0,0,Math.PI*2); ctx.fill();
                         const bg = ctx.createRadialGradient(-3,-4,2,0,0,this.width/2);
@@ -5568,6 +5597,31 @@
                         ctx.fillStyle = '#d35400'; ctx.beginPath(); ctx.ellipse(-1,wf+5,9,5,0.2,0,Math.PI*2); ctx.fill();
                         ctx.fillStyle = '#e74c3c'; ctx.beginPath(); ctx.moveTo(16,-1); ctx.lineTo(24,1); ctx.lineTo(16,4); ctx.closePath(); ctx.fill();
                         ctx.fillStyle = '#e67e22'; ctx.beginPath(); ctx.moveTo(-16,0); ctx.lineTo(-24,-6); ctx.lineTo(-22,2); ctx.lineTo(-28,8); ctx.lineTo(-20,6); ctx.closePath(); ctx.fill();
+                    } else {
+                        // 使用小鸟皮肤图片
+                        let birdImg = birdImageYellow;
+                        if (birdSkin === 'red') birdImg = birdImageRed;
+                        else if (birdSkin === 'blue') birdImg = birdImageBlue;
+                        if (birdImg && birdImg.complete && birdImg.naturalWidth > 0) {
+                            // 图片缩放适配小鸟尺寸，稍微放大以保证覆盖
+                            const bw = this.width + 6;
+                            const bh = this.height + 4;
+                            ctx.drawImage(birdImg, -bw/2, -bh/2, bw, bh);
+                        } else {
+                            // 图片未加载完成时，回退到黄色代码绘制
+                            ctx.fillStyle = '#f9ca24';
+                            ctx.beginPath(); ctx.ellipse(0,0,this.width/2,this.height/2,0,0,Math.PI*2); ctx.fill();
+                            const bg = ctx.createRadialGradient(-3,-4,2,0,0,this.width/2);
+                            bg.addColorStop(0,'#ffeaa7'); bg.addColorStop(0.5,'#f9ca24'); bg.addColorStop(1,'#e67e22');
+                            ctx.fillStyle = bg; ctx.fill();
+                            ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(8,-4,7,0,Math.PI*2); ctx.fill();
+                            ctx.fillStyle = '#2c3e50'; ctx.beginPath(); ctx.arc(10,-4,3.5,0,Math.PI*2); ctx.fill();
+                            ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(11,-5,1.5,0,Math.PI*2); ctx.fill();
+                            ctx.fillStyle = '#e67e22'; ctx.beginPath(); ctx.ellipse(-2,wf-4,10,6,-0.2,0,Math.PI*2); ctx.fill();
+                            ctx.fillStyle = '#d35400'; ctx.beginPath(); ctx.ellipse(-1,wf+5,9,5,0.2,0,Math.PI*2); ctx.fill();
+                            ctx.fillStyle = '#e74c3c'; ctx.beginPath(); ctx.moveTo(16,-1); ctx.lineTo(24,1); ctx.lineTo(16,4); ctx.closePath(); ctx.fill();
+                            ctx.fillStyle = '#e67e22'; ctx.beginPath(); ctx.moveTo(-16,0); ctx.lineTo(-24,-6); ctx.lineTo(-22,2); ctx.lineTo(-28,8); ctx.lineTo(-20,6); ctx.closePath(); ctx.fill();
+                        }
                     }
                     // 绘制皇冠（250分临时皇冠或已装备的永久皇冠，落地后不再显示）
                     if ((runCrownActive || crownEquipped) && !crownFlyAnim?.active && !crownLanded) {
@@ -10773,6 +10827,8 @@
                 pipePosition = 'random';
                 pipeSkin = 'pipe';
                 legacyTexturePack = false;
+                birdSkin = 'yellow';
+                birdLegacyTex = false;
                 spawnZombie = true;
                 spawnChick = true;
                 endlessTimeSetting = -1;
@@ -10866,6 +10922,39 @@
                 document.querySelectorAll('#skinGroup .setting-opt').forEach(o => o.classList.remove('active'));
                 opt.classList.add('active');
                 updateLegacyTexAvailability();
+                saveData();
+            });
+
+            function updateBirdLegacyAvailability() {
+                const wrap = document.getElementById('birdLegacyTexGroupWrap');
+                const opt = document.querySelector('#birdLegacyTexGroup .setting-opt');
+                if (!wrap || !opt) return;
+                if (birdSkin === 'yellow') {
+                    wrap.classList.remove('disabled');
+                    opt.classList.remove('disabled');
+                } else {
+                    wrap.classList.add('disabled');
+                    opt.classList.add('disabled');
+                    birdLegacyTex = false;
+                    opt.classList.remove('active');
+                }
+            }
+
+            document.getElementById('birdSkinGroup').addEventListener('click', e => {
+                const opt = e.target.closest('.setting-opt');
+                if (!opt) return;
+                birdSkin = opt.dataset.val;
+                document.querySelectorAll('#birdSkinGroup .setting-opt').forEach(o => o.classList.remove('active'));
+                opt.classList.add('active');
+                updateBirdLegacyAvailability();
+                saveData();
+            });
+
+            document.getElementById('birdLegacyTexGroup').addEventListener('click', e => {
+                const opt = e.target.closest('.setting-opt');
+                if (!opt || opt.classList.contains('disabled')) return;
+                birdLegacyTex = !birdLegacyTex;
+                opt.classList.toggle('active', birdLegacyTex);
                 saveData();
             });
 
@@ -11046,6 +11135,13 @@
                 document.querySelectorAll('#skinGroup .setting-opt').forEach(o => {
                     o.classList.toggle('active', o.dataset.val === pipeSkin);
                 });
+                document.querySelectorAll('#birdSkinGroup .setting-opt').forEach(o => {
+                    o.classList.toggle('active', o.dataset.val === birdSkin);
+                });
+                document.querySelectorAll('#birdLegacyTexGroup .setting-opt').forEach(o => {
+                    o.classList.toggle('active', birdLegacyTex);
+                });
+                updateBirdLegacyAvailability();
                 document.querySelectorAll('#legacyTexGroup .setting-opt').forEach(o => {
                     o.classList.toggle('active', legacyTexturePack);
                 });
@@ -13264,7 +13360,7 @@
                 renderMpConfigPreview();
                 const peerId = 'mcfinder-' + mpRoomCode + '-host';
 
-                // 先显示“正在建立连接”加载画面
+                // 先显示"正在建立连接"加载画面
                 mpRoomOverlay.classList.remove('show');
                 mpConnectingOverlay.classList.add('show');
 
@@ -13321,7 +13417,7 @@
                 const peerId = 'mcfinder-' + code + '-client';
                 const hostId = 'mcfinder-' + code + '-host';
 
-                // 先显示“正在建立连接”加载画面
+                // 先显示"正在建立连接"加载画面
                 mpRoomOverlay.classList.remove('show');
                 mpConnectingOverlay.classList.add('show');
 
