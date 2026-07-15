@@ -1721,6 +1721,10 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         .mp-countdown { font-size: 60px; font-weight: bold; color: #f39c12; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 25; pointer-events: none; display: none; }
         .mp-countdown.show { display: block; }
+        .mp-panel-connecting { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 30px; text-align: center; min-width: 220px; }
+        .mp-connecting-spinner { width: 56px; height: 56px; border: 5px solid rgba(255,255,255,0.2); border-top-color: #f39c12; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 20px; }
+        .mp-panel-connecting h3 { color: #f1c40f; font-size: 22px; margin-bottom: 8px; }
+        .mp-panel-connecting p { color: rgba(255,255,255,0.7); font-size: 16px; }
         .mp-result { position: relative; background: rgba(20,20,50,0.97); border: 2px solid rgba(255,215,0,0.5); border-radius: 16px; padding: 24px; text-align: center; min-width: 260px; }
         .mp-result h2 { margin-bottom: 16px; }
         .mp-result .win-text { color: #f1c40f; }
@@ -1980,6 +1984,16 @@
                 <div class="mp-scan-status" id="mpScanStatus"></div>
                 <button class="mp-btn mp-btn-start" id="btnMpStartScan" data-i18n="开始扫描">🎥 开始扫描</button>
                 <button class="mp-btn mp-btn-back" id="btnMpScanBack" data-i18n="返回">返回</button>
+            </div>
+        </div>
+
+        <!-- 联机建立连接中 -->
+        <div class="mp-overlay" id="mpConnectingOverlay">
+            <div class="overlay-bg"></div>
+            <div class="mp-panel mp-panel-connecting">
+                <div class="mp-connecting-spinner"></div>
+                <h3 data-i18n="正在建立连接...">正在建立连接...</h3>
+                <p data-i18n="请稍候">请稍候</p>
             </div>
         </div>
 
@@ -2321,7 +2335,7 @@
             </div>
 
             <button class="btn-close btn-save-green" id="btnCloseSettings" data-i18n="保存">保存</button>
-            <div class="settings-version" id="settingsVersion" style="cursor:pointer;" title="点击查看更新日志">版本号 v1.4.19</div>
+            <div class="settings-version" id="settingsVersion" style="cursor:pointer;" title="点击查看更新日志">版本号 v1.4.22</div>
         </div>
 
         <!-- 关闭事件提醒警告弹窗 -->
@@ -3893,6 +3907,7 @@
             const mpGameTypeOverlay = document.getElementById('mpGameTypeOverlay');
             const mpModeSelectOverlay = document.getElementById('mpModeSelectOverlay');
             const mpRoomOverlay = document.getElementById('mpRoomOverlay');
+            const mpConnectingOverlay = document.getElementById('mpConnectingOverlay');
             const mpWaitOverlay = document.getElementById('mpWaitOverlay');
             const mpResultOverlay = document.getElementById('mpResultOverlay');
             const mpDisconnectOverlay = document.getElementById('mpDisconnectOverlay');
@@ -4394,8 +4409,11 @@
             let mpInProgress = false;    // 是否正在联机流程中（创建/加入房间、等待、配置）
 
             // ========== 版本系统 ==========
-            let VERSION = '1.4.19';
+            let VERSION = '1.4.22';
             const VERSION_HISTORY = [
+                { v: '1.4.22', img: 'lianji.png', text:'🔄 恢复联机创建/加入房间时的“正在建立连接... 请稍候”加载画面<br>🐛 修复联机加载画面意外缺失导致的空白等待' },
+                { v: '1.4.21', img: 'lianji.png', text:'📱 修复联机模式手机版无法跳跃：输入拦截条件缺少 mpGameStarted 检查<br>🧊 修复紫色大冰块砸死后卡死：添加死亡状态防御性检查，防止极端情况卡死' },
+                { v: '1.4.20', img: 'lianji.png', text:'🐛 修复一些重叠的BUG<br>🐛 修复暂停后点击"继续游戏"/"重新开始"无响应：addEventListener 与 onclick 重复绑定导致双击 togglePause' },
                 { v: '1.4.19', img: 'lianji.png', text:'📱 修复手机版速度过快：高刷新率屏幕游戏速度2倍BUG，固定60fps逻辑帧率<br>🐛 修复联机倒计时期间小鸟掉落：update() 增加联机模式判断<br>📷 扫码摄像头取消镜像翻转，解决左右反向问题' },
                 { v: '1.4.18', img: 'lianji.png', text:'🐛 修复联机双倒计时重叠：只保留联机专用 4-3-2-1-GO 倒计时<br>🐛 修复联机重新开始继承死亡位置：倒计时前立即重置小鸟与场景<br>🔌 对方掉线时显示提示并自动退出回主菜单<br>📷 新增摄像头扫描房间号二维码快速加入房间' },
                 { v: '1.4.17', img: 'lianji.png', text:'🔧 联机流程优化：创建房间→显示房间号→等待对手加入→再弹出游戏配置<br>🎮 选择权交给持有者：谁持有选择权谁就能调整配置并发给对手<br>🚀 开始游戏按钮也归选择权持有者控制' },
@@ -7998,6 +8016,11 @@
                                     lives = 0;
                                     deathReason = 'ice';
                                     handleDeath(true);
+                                    // 防御：确保游戏确实结束，防止极端情况下卡死
+                                    if (gameState !== 'over') {
+                                        endGame();
+                                        clearSavedGame();
+                                    }
                                     return;
                                 }
                                 lives--;
@@ -9318,8 +9341,8 @@
                     if (gameState === 'playing') { bird.jump(); playJumpSound(); }
                     return;
                 }
-                // 联机流程中（包括配置/等待/倒计时）禁止触发主菜单/跳过倒计时
-                if (multiplayerMode || mpCountdownActive || mpConn || mpInProgress) return;
+                // 联机流程中（配置/等待/倒计时期间）禁止触发主菜单/跳过倒计时；游戏开始后允许
+                if ((multiplayerMode || mpCountdownActive || mpConn || mpInProgress) && !mpGameStarted) return;
                 if (gameState === 'start') showModeSelect();
                 else if (gameState === 'countdown') skipCountdown();
                 else if (gameState === 'playing') { bird.jump(); playJumpSound(); }
@@ -9366,8 +9389,8 @@
 
             // 全局触摸/点击事件（手机全屏可玩）
             function handleGlobalInput(e) {
-                // 联机流程中禁止任何全局触摸触发游戏
-                if (multiplayerMode || mpCountdownActive || mpConn || mpInProgress) return;
+                // 联机流程中禁止任何全局触摸触发游戏（游戏开始后允许输入）
+                if ((multiplayerMode || mpCountdownActive || mpConn || mpInProgress) && !mpGameStarted) return;
                 // 防御性：确保目标是元素节点且支持 closest
                 const target = e.target;
                 if (!target || typeof target.closest !== 'function') return;
@@ -9388,13 +9411,13 @@
             // canvas 上也保留一份（原有逻辑）
             canvas.addEventListener('click', () => {
                 if (gameState === 'over' || gameState === 'countdown' || gameState === 'paused') return;
-                if (multiplayerMode || mpCountdownActive || mpConn || mpInProgress) return;
+                if ((multiplayerMode || mpCountdownActive || mpConn || mpInProgress) && !mpGameStarted) return;
                 handleInput();
             });
             canvas.addEventListener('touchstart', e => {
                 e.preventDefault();
                 if (gameState === 'over' || gameState === 'countdown' || gameState === 'paused') return;
-                if (multiplayerMode || mpCountdownActive || mpConn || mpInProgress) return;
+                if ((multiplayerMode || mpCountdownActive || mpConn || mpInProgress) && !mpGameStarted) return;
                 handleInput();
             });
 
@@ -9719,53 +9742,7 @@
                 e.stopPropagation();
                 toggleMusic();
             });
-            btnPauseResume.addEventListener('click', e => {
-                e.stopPropagation();
-                if (savePromptActive) {
-                    saveGameState();
-                    pauseModal.classList.remove('show');
-                    hideSavePrompt(true);
-                    updateContinueButton();
-                    return;
-                }
-                togglePause();
-            });
-            btnPauseRestart.addEventListener('click', e => {
-                e.stopPropagation();
-                pauseModal.classList.remove('show');
-                prevGameState = null;
-                if (tutorialActive) startTutorial();
-                else if (gameMode === 'endless') startEndlessGame();
-                else if (gameMode === 'daily') restartDailyChallenge();
-                else startNormalGame();
-            });
-            btnPauseSave.addEventListener('click', e => {
-                e.stopPropagation();
-                saveGameState();
-                pauseModal.classList.remove('show');
-                prevGameState = null;
-                updateContinueButton();
-                backToMenu();
-            });
-            btnPauseQuit.addEventListener('click', e => {
-                e.stopPropagation();
-                if (savePromptActive) {
-                    // 用户选了"不保存"
-                    pauseModal.classList.remove('show');
-                    clearSavedGame();
-                    hideSavePrompt(false);
-                    prevGameState = null;
-                    updateContinueButton();
-                    backToMenu();
-                } else {
-                    showSavePrompt((saved) => {
-                        prevGameState = null;
-                        if (!saved) clearSavedGame();
-                        updateContinueButton();
-                        backToMenu();
-                    });
-                }
-            });
+            // 暂停弹窗按钮已改用 safeOnClick 统一注册，避免与 addEventListener 重复触发
 
             function showFirstGuideIfNeeded() {
                 if (tutorialCompleted) return true;
@@ -13094,6 +13071,7 @@
                 mpCountdown.textContent = '';
                 mpTimer.classList.remove('show');
                 mpConfigOverlay.classList.remove('show');
+                mpConnectingOverlay.classList.remove('show');
                 mpWaitOverlay.classList.remove('show');
                 mpRoomOverlay.classList.remove('show');
                 mpScanOverlay.classList.remove('show');
@@ -13286,12 +13264,16 @@
                 renderMpConfigPreview();
                 const peerId = 'mcfinder-' + mpRoomCode + '-host';
 
+                // 先显示“正在建立连接”加载画面
+                mpRoomOverlay.classList.remove('show');
+                mpConnectingOverlay.classList.add('show');
+
                 mpPeer = new Peer(peerId, { debug: 0 });
 
                 mpPeer.on('open', id => {
+                    mpConnectingOverlay.classList.remove('show');
                     mpRoomCodeDisplay.textContent = mpRoomCode;
                     renderMpRoomQR(mpRoomCode);
-                    mpRoomOverlay.classList.remove('show');
                     // 先显示等待界面，显示房间号，等对手加入后再弹出配置界面
                     mpWaitOverlay.classList.add('show');
                     const statusEl = mpWaitOverlay.querySelector('.mp-status');
@@ -13318,6 +13300,7 @@
 
                 mpPeer.on('error', err => {
                     console.error('PeerJS error:', err);
+                    mpConnectingOverlay.classList.remove('show');
                     mpWaitOverlay.classList.remove('show');
                     mpConfigOverlay.classList.remove('show');
                     mpRoomOverlay.classList.add('show');
@@ -13338,10 +13321,14 @@
                 const peerId = 'mcfinder-' + code + '-client';
                 const hostId = 'mcfinder-' + code + '-host';
 
+                // 先显示“正在建立连接”加载画面
+                mpRoomOverlay.classList.remove('show');
+                mpConnectingOverlay.classList.add('show');
+
                 mpPeer = new Peer(peerId, { debug: 0 });
 
                 mpPeer.on('open', id => {
-                    mpRoomOverlay.classList.remove('show');
+                    mpConnectingOverlay.classList.remove('show');
                     mpWaitOverlay.classList.add('show');
                     mpRoomCodeDisplay.textContent = code;
                     mpNameOpp.textContent = t('对手');
@@ -13367,6 +13354,7 @@
 
                 mpPeer.on('error', err => {
                     console.error('PeerJS error:', err);
+                    mpConnectingOverlay.classList.remove('show');
                     mpWaitOverlay.classList.remove('show');
                     mpRoomOverlay.classList.add('show');
                     mpRoomError.textContent = t('无法连接到房间，请检查房间号');
@@ -13768,10 +13756,47 @@
                 try { mpConn.send({ type: 'giveChoice', config: mpConfig }); } catch(e) {}
             });
             safeOnClick(pauseBtn, togglePause);
-            safeOnClick(btnPauseResume, togglePause);
-            safeOnClick(btnPauseRestart, () => { togglePause(); if (gameMode === 'endless') startEndlessGame(); else if (gameMode === 'daily') backToMenu(); else startNormalGame(); });
-            safeOnClick(btnPauseSave, () => { saveGameState(); pauseModal.classList.remove('show'); prevGameState = null; updateContinueButton(); backToMenu(); });
-            safeOnClick(btnPauseQuit, () => { togglePause(); backToMenu(); });
+            safeOnClick(btnPauseResume, () => {
+                if (savePromptActive) {
+                    saveGameState();
+                    pauseModal.classList.remove('show');
+                    hideSavePrompt(true);
+                    updateContinueButton();
+                    return;
+                }
+                togglePause();
+            });
+            safeOnClick(btnPauseRestart, () => {
+                togglePause(); // 先恢复游戏状态
+                if (tutorialActive) startTutorial();
+                else if (gameMode === 'endless') startEndlessGame();
+                else if (gameMode === 'daily') restartDailyChallenge();
+                else startNormalGame();
+            });
+            safeOnClick(btnPauseSave, () => {
+                saveGameState();
+                pauseModal.classList.remove('show');
+                prevGameState = null;
+                updateContinueButton();
+                backToMenu();
+            });
+            safeOnClick(btnPauseQuit, () => {
+                if (savePromptActive) {
+                    pauseModal.classList.remove('show');
+                    clearSavedGame();
+                    hideSavePrompt(false);
+                    prevGameState = null;
+                    updateContinueButton();
+                    backToMenu();
+                } else {
+                    showSavePrompt((saved) => {
+                        prevGameState = null;
+                        if (!saved) clearSavedGame();
+                        updateContinueButton();
+                        backToMenu();
+                    });
+                }
+            });
             safeOnClick(btnCloseRules, () => rulesModal.classList.remove('show'));
             safeOnClick(btnCloseAchievements, () => achievementsModal.classList.remove('show'));
             safeOnClick(btnCloseShop, () => shopModal.classList.remove('show'));
