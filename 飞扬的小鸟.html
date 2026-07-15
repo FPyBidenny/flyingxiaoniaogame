@@ -2346,7 +2346,7 @@
             </div>
 
             <button class="btn-close btn-save-green" id="btnCloseSettings" data-i18n="保存">保存</button>
-            <div class="settings-version" id="settingsVersion" style="cursor:pointer;" title="点击查看更新日志">版本号 v1.4.23</div>
+            <div class="settings-version" id="settingsVersion" style="cursor:pointer;" title="点击查看更新日志">版本号 v1.4.26</div>
         </div>
 
         <!-- 关闭事件提醒警告弹窗 -->
@@ -4424,8 +4424,9 @@
             let mpInProgress = false;    // 是否正在联机流程中（创建/加入房间、等待、配置）
 
             // ========== 版本系统 ==========
-            let VERSION = '1.4.25';
+            let VERSION = '1.4.26';
             const VERSION_HISTORY = [
+                { v: '1.4.26', img: '1.2.22.png', text:'🔄 联机模式天气/事件同步：由主机统一决定，双方体验一致<br>🔌 优化掉线处理：对方掉线后直接返回主屏幕，不再等待' },
                 { v: '1.4.25', img: '1.2.22.png', text:'🧊 删除冰雹天气与紫色大冰块<br>⛈️ 雷雨天气概率提升至40%（原冰雹概率合并到雷雨）<br>🎨 优化游戏内HUD布局：分数挪到右侧避免与联机标志重叠，时间放在分数左侧<br>🎯 游戏结束界面文字统一居中对齐' },
                 { v: '1.4.23', img: '1.4.1.png', text:'🐦 新增小鸟皮肤：红色小鸟、蓝色小鸟，设置→小鸟皮肤自由切换<br>🎨 黄色小鸟保持原版经典代码绘制外观' },
                 { v: '1.4.22', img: 'lianji.png', text:'🔄 恢复联机创建/加入房间时的"正在建立连接... 请稍候"加载画面<br>🐛 修复联机加载画面意外缺失导致的空白等待' },
@@ -6570,6 +6571,8 @@
                 if (eventCooldownTimer > 0) return; // 事件刚结束，冷却中
                 if (otherWorldState) return; // 正在异世界
                 if (gameMode !== 'normal' && gameMode !== 'daily') return; // 只有正常模式和每日挑战触发
+                // 联机非主机：事件由主机同步，跳过本地触发
+                if (multiplayerMode && !mpIsHost) return;
                 // 夜晚也可以触发事件，让游戏更有趣
 
                 // 调试：强制事件（管理员或调试权限用户）——优先检查，不受score限制
@@ -6609,6 +6612,12 @@
                 if (selected) {
                     eventWarning = selected;
                     eventWarningTimer = EVENT_WARNING_DURATION;
+                    // 联机主机：同步事件预警给对手
+                    if (multiplayerMode && mpIsHost && mpConn) {
+                        try {
+                            mpConn.send({ type: 'eventWarning', event: selected });
+                        } catch(e) {}
+                    }
                 }
             }
 
@@ -7111,6 +7120,8 @@
                 // 天气检测：每隔5秒检测一次天气转换（调试模式不自动转换）
                 if (debugForceWeather && (isAdmin() || hasAnyDebugPerm())) {
                     // 调试强制天气，跳过自动转换
+                } else if (multiplayerMode && !mpIsHost) {
+                    // 联机非主机：天气由主机同步，跳过本地转换
                 } else {
                     weatherTimer++;
                     if (weatherTimer >= nextWeatherCheck && !tutorialActive && gameState === 'playing') {
@@ -7126,6 +7137,12 @@
                             if (currentWeather === 'rain') {
                                 rainIntensity = 0;
                             }
+                        }
+                        // 联机主机：同步天气给对手
+                        if (multiplayerMode && mpIsHost && mpConn) {
+                            try {
+                                mpConn.send({ type: 'weatherSync', weather: currentWeather, prevWeather: prevWeather });
+                            } catch(e) {}
                         }
                     }
                 }
@@ -7339,6 +7356,10 @@
                         // 异世界：预警结束后直接进入异世界
                         if (evt === 'otherWorld') {
                             enterOtherWorld(null);
+                            // 联机主机：同步异世界事件给对手
+                            if (multiplayerMode && mpIsHost && mpConn) {
+                                try { mpConn.send({ type: 'eventStart', event: 'otherWorld' }); } catch(e) {}
+                            }
                             return;
                         }
                         // 吸尘器：预警结束后生成吸尘器
@@ -7347,6 +7368,10 @@
                             activeEvent = evt;
                             eventTimer = EVENT_DURATION;
                             recordEvent(evt);
+                            // 联机主机：同步吸尘器事件给对手
+                            if (multiplayerMode && mpIsHost && mpConn) {
+                                try { mpConn.send({ type: 'eventStart', event: 'vacuum' }); } catch(e) {}
+                            }
                             return;
                         }
                         // 其余事件：正式开始
@@ -7363,6 +7388,10 @@
                             unlockAchievement('warRun');
                             // 管道在updateEvent中被清除
                         }
+                        // 联机主机：同步事件给对手
+                        if (multiplayerMode && mpIsHost && mpConn) {
+                            try { mpConn.send({ type: 'eventStart', event: evt }); } catch(e) {}
+                        }
                     }
                     return;
                 }
@@ -7377,10 +7406,15 @@
                         shatteredParticles = [];
                         battleGapBonus = 0;
                     }
+                    const endedEvent = activeEvent;
                     activeEvent = null;
                     eventTimer = 0;
                     if (gameState === 'playing' && !otherWorldState) {
                         switchMusic(recordMusicTriggered ? 'record' : 'playing');
+                    }
+                    // 联机主机：同步事件结束给对手
+                    if (multiplayerMode && mpIsHost && mpConn) {
+                        try { mpConn.send({ type: 'eventEnd', event: endedEvent }); } catch(e) {}
                     }
                     return;
                 }
@@ -13113,6 +13147,63 @@
                     } else if (data.type === 'restart') {
                         mpOppWantRestart = true;
                         mpRestartCheck();
+                    } else if (data.type === 'weatherSync') {
+                        // 主机同步天气给从机
+                        if (!multiplayerMode || mpIsHost) return; // 只有从机处理
+                        if (data.weather) {
+                            currentWeather = data.weather;
+                            prevDisplayWeather = displayWeather;
+                            weatherLerp = 0;
+                            if (currentWeather === 'rain') rainIntensity = 0;
+                            if (currentWeather === 'thunderstorm') thunderCheckTimer = THUNDER_STRIKE_INTERVAL;
+                            if (currentWeather === 'sunRain') sunRainTimer = SUNRAIN_DURATION;
+                            weatherTimer = 0;
+                            nextWeatherCheck = WEATHER_CHECK_INTERVAL + Math.floor(Math.random() * 180);
+                        }
+                    } else if (data.type === 'eventWarning') {
+                        // 主机同步事件预警给从机
+                        if (!multiplayerMode || mpIsHost) return;
+                        if (data.event && !activeEvent && !eventWarning && eventCooldownTimer <= 0 && !otherWorldState) {
+                            eventWarning = data.event;
+                            eventWarningTimer = EVENT_WARNING_DURATION;
+                        }
+                    } else if (data.type === 'eventStart') {
+                        // 主机同步事件开始给从机
+                        if (!multiplayerMode || mpIsHost) return;
+                        const evt = data.event;
+                        if (evt === 'otherWorld') {
+                            enterOtherWorld(null);
+                        } else if (evt === 'vacuum') {
+                            spawnVacuum();
+                            activeEvent = evt;
+                            eventTimer = EVENT_DURATION;
+                        } else {
+                            activeEvent = evt;
+                            eventTimer = EVENT_DURATION;
+                            if (evt === 'battle') {
+                                switchMusic('battle');
+                                battleGapBonus = 80;
+                            }
+                            if (evt === 'earthquake') {
+                                switchMusic('earthquake');
+                            }
+                        }
+                        eventWarning = null;
+                        eventWarningTimer = 0;
+                    } else if (data.type === 'eventEnd') {
+                        // 主机同步事件结束给从机
+                        if (!multiplayerMode || mpIsHost) return;
+                        if (activeEvent === 'battle') {
+                            bullets = [];
+                            shatteredParticles = [];
+                            battleGapBonus = 0;
+                        }
+                        activeEvent = null;
+                        eventTimer = 0;
+                        eventCooldownTimer = 600;
+                        if (gameState === 'playing' && !otherWorldState) {
+                            switchMusic(recordMusicTriggered ? 'record' : 'playing');
+                        }
                     }
                 });
                 conn.on('close', () => {
@@ -13123,18 +13214,9 @@
                         mpDotOpp.className = 'mp-alive-dot dead';
                         checkMpGameEnd();
                     }
-                    // 显示掉线提示并自动返回主菜单
-                    if (mpDisconnectOverlay) {
-                        mpDisconnectOverlay.classList.add('show');
-                        setTimeout(() => {
-                            mpDisconnectOverlay.classList.remove('show');
-                            disconnectMp();
-                            backToMenu();
-                        }, 2500);
-                    } else {
-                        disconnectMp();
-                        backToMenu();
-                    }
+                    // 对方掉线：直接返回主菜单，不做任何提示
+                    disconnectMp();
+                    backToMenu();
                     mpConn = null;
                 });
                 conn.on('error', () => {
@@ -13287,6 +13369,22 @@
                 recordBroken = false; recordDiff = 0; recordMusicTriggered = false;
                 runCrownActive = false; runCrownEverActive = false; crownFlyAnim = null; crownLanded = null;
                 resetAllEvents();
+                // 联机时重置天气为晴天，由主机后续决定天气变化
+                currentWeather = 'sunny';
+                displayWeather = 'sunny';
+                prevDisplayWeather = 'sunny';
+                weatherLerp = 1.0;
+                weatherParticles = [];
+                weatherTimer = 0;
+                nextWeatherCheck = 300;
+                sunRainTimer = 0;
+                rainBlurAlpha = 0;
+                targetRainBlur = 0;
+                rainIntensity = 0;
+                thunderCheckTimer = 0;
+                thunderStrikeTriggered = false;
+                thunderBoltFrames = 0;
+                birdStruckTimer = 0;
                 initFlameParticles();
 
                 // 显示记分板
