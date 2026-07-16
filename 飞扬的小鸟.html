@@ -9356,7 +9356,7 @@
                 const target = e.target;
                 if (!target || typeof target.closest !== 'function') return;
                 // 排除所有可交互元素和 UI 区域，避免误阻止按钮 click
-                if (target.closest('button, input, select, a, [role="button"], .btn, .btn-mode, .btn-start, .btn-continue, .btn-settings, .btn-shop, .btn-rules, .btn-achievements, .account-avatar-btn, .gift-btn, .daily-challenge-btn, .daily-combined-btn, .overlay-content, .modal, .account-setup-panel, .tutorial-overlay, .best-score-daily, .mp-overlay.show, .mp-config-opt')) return;
+                if (target.closest('button, input, select, a, [role="button"], .btn, .btn-mode, .btn-start, .btn-continue, .btn-settings, .btn-shop, .btn-rules, .btn-achievements, .account-avatar-btn, .gift-btn, .daily-challenge-btn, .daily-combined-btn, .overlay-content, .modal, .achievements-modal, .total-score-modal, .daily-calendar-modal, .delete-options-modal, .version-modal, .account-setup-panel, .tutorial-overlay, .best-score-daily, .mp-overlay.show, .mp-config-opt, .settings-search')) return;
                 if (gameState === 'over' || gameState === 'paused') return;
                 e.preventDefault();
                 handleInput();
