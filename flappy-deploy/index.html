@@ -65,7 +65,8 @@
             position: relative; z-index: 1; display: flex; flex-direction: column;
             align-items: center; width: 100%; padding: 20px;
         }
-        .overlay-content > * { text-align: center; width: 100%; }
+        .overlay-content > * { text-align: center; }
+
 
         /* ========== 标题 ========== */
         .title-wrap {
@@ -2056,8 +2057,8 @@
 
         <!-- 联机记分板 -->
         <div class="multiplayer-score-bar" id="mpScoreBar">
-            <div class="mp-player mp-you"><span class="mp-alive-dot live" id="mpDotYou"></span><span data-i18n="你">你</span>: <span id="mpScoreYou">0</span></div>
-            <span class="vs-text">VS</span>
+            <div class="mp-player mp-you"><span class="mp-alive-dot live" id="mpDotYou"></span><span id="mpLabelYou" data-i18n="你">你</span>: <span id="mpScoreYou">0</span></div>
+            <span class="vs-text" id="mpVsText">VS</span>
             <div class="mp-player mp-opponent"><span class="mp-alive-dot live" id="mpDotOpp"></span><span id="mpNameOpp" data-i18n="对手">对手</span>: <span id="mpScoreOpp">0</span></div>
         </div>
 
@@ -2346,7 +2347,7 @@
             </div>
 
             <button class="btn-close btn-save-green" id="btnCloseSettings" data-i18n="保存">保存</button>
-            <div class="settings-version" id="settingsVersion" style="cursor:pointer;" title="点击查看更新日志">版本号 v1.4.26</div>
+            <div class="settings-version" id="settingsVersion" style="cursor:pointer;" title="点击查看更新日志">版本号 v1.4.29</div>
         </div>
 
         <!-- 关闭事件提醒警告弹窗 -->
@@ -3954,6 +3955,8 @@
             const mpScoreOpp = document.getElementById('mpScoreOpp');
             const mpDotYou = document.getElementById('mpDotYou');
             const mpDotOpp = document.getElementById('mpDotOpp');
+            const mpLabelYou = document.getElementById('mpLabelYou');
+            const mpVsText = document.getElementById('mpVsText');
             const mpNameOpp = document.getElementById('mpNameOpp');
             const mpResultTitle = document.getElementById('mpResultTitle');
             const mpResultScoreYou = document.getElementById('mpResultScoreYou');
@@ -4424,9 +4427,12 @@
             let mpInProgress = false;    // 是否正在联机流程中（创建/加入房间、等待、配置）
 
             // ========== 版本系统 ==========
-            let VERSION = '1.4.26';
+            let VERSION = '1.4.29';
             const VERSION_HISTORY = [
-                { v: '1.4.26', img: '1.2.22.png', text:'🔄 联机模式天气/事件同步：由主机统一决定，双方体验一致<br>🔌 优化掉线处理：对方掉线后直接返回主屏幕，不再等待' },
+                { v: '1.4.29', img: '1.2.22.png', text:'🐛 修复非黄色皮肤撞网变色BUG：红/蓝小鸟碰到网粘住时不再强制变回黄色，始终保持当前皮肤颜色' },
+                { v: '1.4.28', img: '1.2.22.png', text:'⏳ 联机创建房间/加入房间：连接服务器期间显示「正在建立连接…」加载圈圈，告别空白等待<br>📋 右上角提示纵向排列：事件提示（地震中/炮火连天/吸尘器来袭）紧贴暂停键下方，新纪录提示依次往下排，不再互相重叠' },
+                { v: '1.4.27', img: '1.2.22.png', text:'🎮 联机一条命对战：分数居中并下移，避免与记分板重叠；HUD 爱心与金币改为上下两行，避免互相/记分板重叠<br>🛡️ 增强游戏循环异常兜底：防止偶发白屏/卡死，出错后自动恢复渲染<br>⏹️ 联机等待结果时退出按钮始终可用，优化对手完成后的结果展示<br>🕸️ 修复联机分数赛/死亡赛撞到网后可能反复卡死的问题：死亡后正确解除粘网状态' },
+                { v: '1.4.26', img: '1.2.22.png', text:'🔄 联机模式天气/事件同步：由主机统一决定，双方体验一致<br>🔌 优化掉线处理：对方掉线后直接返回主屏幕，不再等待<br>🎨 普通模式分数恢复居中；联机 score/death 模式改为中间双栏显示（左倒计时/死亡次数，右分数/剩余时间）<br>🔘 修复结束界面按钮过宽问题' },
                 { v: '1.4.25', img: '1.2.22.png', text:'🧊 删除冰雹天气与紫色大冰块<br>⛈️ 雷雨天气概率提升至40%（原冰雹概率合并到雷雨）<br>🎨 优化游戏内HUD布局：分数挪到右侧避免与联机标志重叠，时间放在分数左侧<br>🎯 游戏结束界面文字统一居中对齐' },
                 { v: '1.4.23', img: '1.4.1.png', text:'🐦 新增小鸟皮肤：红色小鸟、蓝色小鸟，设置→小鸟皮肤自由切换<br>🎨 黄色小鸟保持原版经典代码绘制外观' },
                 { v: '1.4.22', img: 'lianji.png', text:'🔄 恢复联机创建/加入房间时的"正在建立连接... 请稍候"加载画面<br>🐛 修复联机加载画面意外缺失导致的空白等待' },
@@ -5472,6 +5478,53 @@
             let dayCycleCount = 0; // 已完成的昼夜循环次数（用来追踪"第一个白天"）
 
             // ========== 小鸟 ==========
+            // 绘制小鸟身体（眼睛/翅膀/嘴/尾），不含 translate/rotate。
+            // 在小鸟本地坐标系(原点在身体中心)下绘制，调用前需先 ctx.translate + ctx.rotate。
+            // 参数 wf = 翅膀拍动偏移量。颜色严格按 birdSkin 选择，与 bird.draw 保持一致。
+            function drawBirdBody(ctx, wf, width, height) {
+                if (birdSkin === 'red') {
+                    ctx.fillStyle = '#e74c3c';
+                    ctx.beginPath(); ctx.ellipse(0,0,width/2,height/2,0,0,Math.PI*2); ctx.fill();
+                    const bgR = ctx.createRadialGradient(-3,-4,2,0,0,width/2);
+                    bgR.addColorStop(0,'#f5b7b1'); bgR.addColorStop(0.5,'#e74c3c'); bgR.addColorStop(1,'#922b21');
+                    ctx.fillStyle = bgR; ctx.fill();
+                    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(8,-4,7,0,Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#2c3e50'; ctx.beginPath(); ctx.arc(10,-4,3.5,0,Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(11,-5,1.5,0,Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#922b21'; ctx.beginPath(); ctx.ellipse(-2,wf-4,10,6,-0.2,0,Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#7b241c'; ctx.beginPath(); ctx.ellipse(-1,wf+5,9,5,0.2,0,Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#f39c12'; ctx.beginPath(); ctx.moveTo(16,-1); ctx.lineTo(24,1); ctx.lineTo(16,4); ctx.closePath(); ctx.fill();
+                    ctx.fillStyle = '#922b21'; ctx.beginPath(); ctx.moveTo(-16,0); ctx.lineTo(-24,-6); ctx.lineTo(-22,2); ctx.lineTo(-28,8); ctx.lineTo(-20,6); ctx.closePath(); ctx.fill();
+                } else if (birdSkin === 'blue') {
+                    ctx.fillStyle = '#5dade2';
+                    ctx.beginPath(); ctx.ellipse(0,0,width/2,height/2,0,0,Math.PI*2); ctx.fill();
+                    const bgB = ctx.createRadialGradient(-3,-4,2,0,0,width/2);
+                    bgB.addColorStop(0,'#d4e6f1'); bgB.addColorStop(0.5,'#5dade2'); bgB.addColorStop(1,'#1f618d');
+                    ctx.fillStyle = bgB; ctx.fill();
+                    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(8,-4,7,0,Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#2c3e50'; ctx.beginPath(); ctx.arc(10,-4,3.5,0,Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(11,-5,1.5,0,Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#1f618d'; ctx.beginPath(); ctx.ellipse(-2,wf-4,10,6,-0.2,0,Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#15476b'; ctx.beginPath(); ctx.ellipse(-1,wf+5,9,5,0.2,0,Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#f39c12'; ctx.beginPath(); ctx.moveTo(16,-1); ctx.lineTo(24,1); ctx.lineTo(16,4); ctx.closePath(); ctx.fill();
+                    ctx.fillStyle = '#1f618d'; ctx.beginPath(); ctx.moveTo(-16,0); ctx.lineTo(-24,-6); ctx.lineTo(-22,2); ctx.lineTo(-28,8); ctx.lineTo(-20,6); ctx.closePath(); ctx.fill();
+                } else {
+                    // 黄色小鸟（原版经典外观）
+                    ctx.fillStyle = '#f9ca24';
+                    ctx.beginPath(); ctx.ellipse(0,0,width/2,height/2,0,0,Math.PI*2); ctx.fill();
+                    const bg = ctx.createRadialGradient(-3,-4,2,0,0,width/2);
+                    bg.addColorStop(0,'#ffeaa7'); bg.addColorStop(0.5,'#f9ca24'); bg.addColorStop(1,'#e67e22');
+                    ctx.fillStyle = bg; ctx.fill();
+                    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(8,-4,7,0,Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#2c3e50'; ctx.beginPath(); ctx.arc(10,-4,3.5,0,Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(11,-5,1.5,0,Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#e67e22'; ctx.beginPath(); ctx.ellipse(-2,wf-4,10,6,-0.2,0,Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#d35400'; ctx.beginPath(); ctx.ellipse(-1,wf+5,9,5,0.2,0,Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#e74c3c'; ctx.beginPath(); ctx.moveTo(16,-1); ctx.lineTo(24,1); ctx.lineTo(16,4); ctx.closePath(); ctx.fill();
+                    ctx.fillStyle = '#e67e22'; ctx.beginPath(); ctx.moveTo(-16,0); ctx.lineTo(-24,-6); ctx.lineTo(-22,2); ctx.lineTo(-28,8); ctx.lineTo(-20,6); ctx.closePath(); ctx.fill();
+                }
+            }
+
             const BIRD_X = 70;            // 小鸟固定水平位置（左侧竖直区域中心）
             const bird = {
                 x: BIRD_X, y: HEIGHT / 2, width: 34, height: 24,
@@ -5571,46 +5624,13 @@
                         ctx.fillText('🎯', 0, -18);
                     } else if (birdSkin === 'red') {
                         // 红色小鸟（代码绘制，红色主题）
-                        ctx.fillStyle = '#e74c3c';
-                        ctx.beginPath(); ctx.ellipse(0,0,this.width/2,this.height/2,0,0,Math.PI*2); ctx.fill();
-                        const bgR = ctx.createRadialGradient(-3,-4,2,0,0,this.width/2);
-                        bgR.addColorStop(0,'#f5b7b1'); bgR.addColorStop(0.5,'#e74c3c'); bgR.addColorStop(1,'#922b21');
-                        ctx.fillStyle = bgR; ctx.fill();
-                        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(8,-4,7,0,Math.PI*2); ctx.fill();
-                        ctx.fillStyle = '#2c3e50'; ctx.beginPath(); ctx.arc(10,-4,3.5,0,Math.PI*2); ctx.fill();
-                        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(11,-5,1.5,0,Math.PI*2); ctx.fill();
-                        ctx.fillStyle = '#922b21'; ctx.beginPath(); ctx.ellipse(-2,wf-4,10,6,-0.2,0,Math.PI*2); ctx.fill();
-                        ctx.fillStyle = '#7b241c'; ctx.beginPath(); ctx.ellipse(-1,wf+5,9,5,0.2,0,Math.PI*2); ctx.fill();
-                        ctx.fillStyle = '#f39c12'; ctx.beginPath(); ctx.moveTo(16,-1); ctx.lineTo(24,1); ctx.lineTo(16,4); ctx.closePath(); ctx.fill();
-                        ctx.fillStyle = '#922b21'; ctx.beginPath(); ctx.moveTo(-16,0); ctx.lineTo(-24,-6); ctx.lineTo(-22,2); ctx.lineTo(-28,8); ctx.lineTo(-20,6); ctx.closePath(); ctx.fill();
+                        drawBirdBody(ctx, wf, this.width, this.height);
                     } else if (birdSkin === 'blue') {
                         // 蓝色小鸟（代码绘制，浅蓝主题）
-                        ctx.fillStyle = '#5dade2';
-                        ctx.beginPath(); ctx.ellipse(0,0,this.width/2,this.height/2,0,0,Math.PI*2); ctx.fill();
-                        const bgB = ctx.createRadialGradient(-3,-4,2,0,0,this.width/2);
-                        bgB.addColorStop(0,'#d4e6f1'); bgB.addColorStop(0.5,'#5dade2'); bgB.addColorStop(1,'#1f618d');
-                        ctx.fillStyle = bgB; ctx.fill();
-                        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(8,-4,7,0,Math.PI*2); ctx.fill();
-                        ctx.fillStyle = '#2c3e50'; ctx.beginPath(); ctx.arc(10,-4,3.5,0,Math.PI*2); ctx.fill();
-                        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(11,-5,1.5,0,Math.PI*2); ctx.fill();
-                        ctx.fillStyle = '#1f618d'; ctx.beginPath(); ctx.ellipse(-2,wf-4,10,6,-0.2,0,Math.PI*2); ctx.fill();
-                        ctx.fillStyle = '#15476b'; ctx.beginPath(); ctx.ellipse(-1,wf+5,9,5,0.2,0,Math.PI*2); ctx.fill();
-                        ctx.fillStyle = '#f39c12'; ctx.beginPath(); ctx.moveTo(16,-1); ctx.lineTo(24,1); ctx.lineTo(16,4); ctx.closePath(); ctx.fill();
-                        ctx.fillStyle = '#1f618d'; ctx.beginPath(); ctx.moveTo(-16,0); ctx.lineTo(-24,-6); ctx.lineTo(-22,2); ctx.lineTo(-28,8); ctx.lineTo(-20,6); ctx.closePath(); ctx.fill();
+                        drawBirdBody(ctx, wf, this.width, this.height);
                     } else {
                         // 黄色小鸟（代码绘制，原版经典外观）
-                        ctx.fillStyle = '#f9ca24';
-                        ctx.beginPath(); ctx.ellipse(0,0,this.width/2,this.height/2,0,0,Math.PI*2); ctx.fill();
-                        const bg = ctx.createRadialGradient(-3,-4,2,0,0,this.width/2);
-                        bg.addColorStop(0,'#ffeaa7'); bg.addColorStop(0.5,'#f9ca24'); bg.addColorStop(1,'#e67e22');
-                        ctx.fillStyle = bg; ctx.fill();
-                        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(8,-4,7,0,Math.PI*2); ctx.fill();
-                        ctx.fillStyle = '#2c3e50'; ctx.beginPath(); ctx.arc(10,-4,3.5,0,Math.PI*2); ctx.fill();
-                        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(11,-5,1.5,0,Math.PI*2); ctx.fill();
-                        ctx.fillStyle = '#e67e22'; ctx.beginPath(); ctx.ellipse(-2,wf-4,10,6,-0.2,0,Math.PI*2); ctx.fill();
-                        ctx.fillStyle = '#d35400'; ctx.beginPath(); ctx.ellipse(-1,wf+5,9,5,0.2,0,Math.PI*2); ctx.fill();
-                        ctx.fillStyle = '#e74c3c'; ctx.beginPath(); ctx.moveTo(16,-1); ctx.lineTo(24,1); ctx.lineTo(16,4); ctx.closePath(); ctx.fill();
-                        ctx.fillStyle = '#e67e22'; ctx.beginPath(); ctx.moveTo(-16,0); ctx.lineTo(-24,-6); ctx.lineTo(-22,2); ctx.lineTo(-28,8); ctx.lineTo(-20,6); ctx.closePath(); ctx.fill();
+                        drawBirdBody(ctx, wf, this.width, this.height);
                     }
                     // 绘制皇冠（250分临时皇冠或已装备的永久皇冠，落地后不再显示）
                     if ((runCrownActive || crownEquipped) && !crownFlyAnim?.active && !crownLanded) {
@@ -6067,15 +6087,28 @@
                     x += 28 * SCALE;
                 }
 
+                const heartText = tutorialActive ? '❤️ ∞' : '❤️ x' + lives;
                 // 生命（正常模式 / 每日挑战）
                 if (shakeTimer > 0) {
                     ctx.fillStyle = '#e74c3c';
-                    ctx.fillText(tutorialActive ? '❤️ ∞' : '❤️ x' + lives, x + Math.sin(shakeTimer * 1.5) * 6 * SCALE, hudY + Math.cos(shakeTimer * 1.3) * 4 * SCALE);
+                    ctx.fillText(heartText, x + Math.sin(shakeTimer * 1.5) * 6 * SCALE, hudY + Math.cos(shakeTimer * 1.3) * 4 * SCALE);
                 } else {
                     ctx.fillStyle = '#e74c3c';
-                    ctx.fillText(tutorialActive ? '❤️ ∞' : '❤️ x' + lives, x, hudY);
+                    ctx.fillText(heartText, x, hudY);
                 }
-                x += ctx.measureText(tutorialActive ? '❤️ ∞' : '❤️ x' + lives).width + 14 * SCALE;
+
+                // 联机模式：金币放在爱心下方，避免与记分板/爱心重叠
+                if (multiplayerMode) {
+                    const lineHeight = hudFontSize + 4 * SCALE;
+                    const rw = gameMode === 'endless' ? getEndlessRewards(score) : gameMode === 'daily' ? getDailyRewards(score) : getLiveRewards(score);
+                    ctx.fillStyle = '#f1c40f';
+                    ctx.fillText('🪙 ' + rw.gold, x, hudY + lineHeight);
+                    ctx.fillStyle = '#bdc3c7';
+                    ctx.fillText('🥈 ' + rw.silver, x + ctx.measureText('🪙 ' + rw.gold).width + 10 * SCALE, hudY + lineHeight);
+                    return;
+                }
+
+                x += ctx.measureText(heartText).width + 14 * SCALE;
 
                 // 无尽模式：显示 ∞
                 if (gameMode === 'endless') {
@@ -8258,18 +8291,8 @@
                     ctx.save(); ctx.translate(stuckBirdX, stuckBirdY);
                     ctx.rotate(Math.PI / 2); // 横过来，挂在网上
                     const wf = Math.sin(frameCount * 0.15) * 5;
-                    ctx.fillStyle = '#f9ca24';
-                    ctx.beginPath(); ctx.ellipse(0,0,bird.width/2,bird.height/2,0,0,Math.PI*2); ctx.fill();
-                    const bg1 = ctx.createRadialGradient(-3,-4,2,0,0,bird.width/2);
-                    bg1.addColorStop(0,'#ffeaa7'); bg1.addColorStop(0.5,'#f9ca24'); bg1.addColorStop(1,'#e67e22');
-                    ctx.fillStyle = bg1; ctx.fill();
-                    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(8,-4,7,0,Math.PI*2); ctx.fill();
-                    ctx.fillStyle = '#2c3e50'; ctx.beginPath(); ctx.arc(10,-4,3.5,0,Math.PI*2); ctx.fill();
-                    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(11,-5,1.5,0,Math.PI*2); ctx.fill();
-                    ctx.fillStyle = '#e67e22'; ctx.beginPath(); ctx.ellipse(-2,wf-4,10,6,-0.2,0,Math.PI*2); ctx.fill();
-                    ctx.fillStyle = '#d35400'; ctx.beginPath(); ctx.ellipse(-1,wf+5,9,5,0.2,0,Math.PI*2); ctx.fill();
-                    ctx.fillStyle = '#e74c3c'; ctx.beginPath(); ctx.moveTo(16,-1); ctx.lineTo(24,1); ctx.lineTo(16,4); ctx.closePath(); ctx.fill();
-                    ctx.fillStyle = '#e67e22'; ctx.beginPath(); ctx.moveTo(-16,0); ctx.lineTo(-24,-6); ctx.lineTo(-22,2); ctx.lineTo(-28,8); ctx.lineTo(-20,6); ctx.closePath(); ctx.fill();
+                    // 身体颜色跟随当前皮肤（drawBirdBody 内部按 birdSkin 选择配色）
+                    drawBirdBody(ctx, wf, bird.width, bird.height);
                     // X眼（死了）
                     ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 1.5;
                     ctx.beginPath(); ctx.moveTo(4, -8); ctx.lineTo(10, -2); ctx.stroke();
@@ -8319,14 +8342,14 @@
                 // 火焰边框
                 drawFlameBorder();
                 if (gameState === 'playing' || gameState === 'countdown') {
-                    // 分数：挪到右侧，避免与联机标志重叠
+                    // 分数：普通模式居中；联机模式也居中，整体下移避免与记分板重叠
                     const fs = getFontScale();
                     const scoreFontSize = Math.max(24, Math.floor(52 * SCALE * fs));
-                    const scoreX = WIDTH / 2 + 30 * SCALE;
-                    const scoreY = 80 * SCALE;
+                    const scoreX = WIDTH / 2;
+                    const scoreY = multiplayerMode ? 110 * SCALE : 80 * SCALE;
                     ctx.fillStyle = '#fff';
                     ctx.font = 'bold ' + scoreFontSize + 'px "PingFang SC","Microsoft YaHei",sans-serif';
-                    ctx.textAlign = 'left';
+                    ctx.textAlign = 'center';
                     ctx.shadowColor = 'rgba(0,0,0,0.35)'; ctx.shadowBlur = 10 * SCALE;
                     ctx.fillText(score, scoreX, scoreY);
                     ctx.shadowBlur = 0;
@@ -8502,48 +8525,74 @@
             let _lastGameTime = 0, _gameAccTime = 0;
             const _FIXED_FRAME = 1000 / 60; // 固定60fps步长
             function gameLoop() {
-                if (btnDailyChallenge) btnDailyChallenge.classList.toggle('hidden', gameState !== 'start');
-                if (dailyCombinedBtn) dailyCombinedBtn.style.display = (gameState === 'start') ? '' : 'none';
-                // 固定时间步长：防止高刷新率屏幕加速
-                const now = performance.now();
-                if (!_lastGameTime) _lastGameTime = now;
-                const rawElapsed = now - _lastGameTime;
-                _lastGameTime = now;
-                _gameAccTime += Math.min(rawElapsed, 120); // 单帧最长120ms防止卡顿堆积
-                while (_gameAccTime >= _FIXED_FRAME) {
-                    _gameAccTime -= _FIXED_FRAME;
-                    updateCrownFly(); update();
-                    // 联机模式：每15帧同步一次分数
-                    if (multiplayerMode && mpGameStarted && gameState === 'playing') {
-                        _mpSyncFrame++;
-                        if (_mpSyncFrame >= 15) { _mpSyncFrame = 0; syncMpScore(); }
-                        // 限时模式倒计时
-                        if (mpTimeActive && (mpGameMode === 'score' || mpGameMode === 'death')) {
-                            mpTimeLeft--;
-                            if (mpTimeLeft <= 0) {
-                                mpTimeLeft = 0;
-                                mpTimeActive = false;
-                                mpMyDead = true;
-                                mpDotYou.className = 'mp-alive-dot dead';
-                                mpTimer.textContent = '0';
-                                mpTimer.classList.add('urgent');
-                                if (mpConn) {
-                                    try { mpConn.send({ type: 'timeUp', score: score, deathCount: mpMyDeathCount }); } catch(e) {}
-                                }
-                                endGame(true);
-                                checkMpGameEnd();
-                            } else {
-                                if (mpTimeLeft % 60 === 0) {
-                                    const secs = Math.ceil(mpTimeLeft / 60);
-                                    mpTimer.textContent = secs;
-                                    if (secs <= 10) mpTimer.classList.add('urgent');
+                try {
+                    if (btnDailyChallenge) btnDailyChallenge.classList.toggle('hidden', gameState !== 'start');
+                    if (dailyCombinedBtn) dailyCombinedBtn.style.display = (gameState === 'start') ? '' : 'none';
+                    // 固定时间步长：防止高刷新率屏幕加速
+                    const now = performance.now();
+                    if (!_lastGameTime) _lastGameTime = now;
+                    const rawElapsed = now - _lastGameTime;
+                    _lastGameTime = now;
+                    _gameAccTime += Math.min(rawElapsed, 120); // 单帧最长120ms防止卡顿堆积
+                    while (_gameAccTime >= _FIXED_FRAME) {
+                        _gameAccTime -= _FIXED_FRAME;
+                        try {
+                            updateCrownFly();
+                            update();
+                        } catch (err) {
+                            console.error('Update error:', err);
+                        }
+                        // 联机模式：每15帧同步一次分数
+                        if (multiplayerMode && mpGameStarted && gameState === 'playing') {
+                            _mpSyncFrame++;
+                            if (_mpSyncFrame >= 15) { _mpSyncFrame = 0; syncMpScore(); }
+                            // 限时模式倒计时
+                            if (mpTimeActive && (mpGameMode === 'score' || mpGameMode === 'death')) {
+                                mpTimeLeft--;
+                                if (mpTimeLeft <= 0) {
+                                    mpTimeLeft = 0;
+                                    mpTimeActive = false;
+                                    mpMyDead = true;
+                                    mpDotYou.className = 'mp-alive-dot dead';
+                                    mpTimer.textContent = '0';
+                                    mpTimer.classList.add('urgent');
+                                    if (mpConn) {
+                                        try { mpConn.send({ type: 'timeUp', score: score, deathCount: mpMyDeathCount }); } catch(e) {}
+                                    }
+                                    endGame(true);
+                                    checkMpGameEnd();
+                                } else {
+                                    if (mpTimeLeft % 60 === 0) {
+                                        const secs = Math.ceil(mpTimeLeft / 60);
+                                        mpTimer.textContent = secs;
+                                        if (secs <= 10) mpTimer.classList.add('urgent');
+                                        // 同步更新记分板显示
+                                        if (mpGameMode === 'score') {
+                                            mpScoreYou.textContent = secs;
+                                        } else if (mpGameMode === 'death') {
+                                            mpScoreOpp.textContent = secs;
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
+                    try {
+                        draw();
+                    } catch (err) {
+                        console.error('Draw error:', err);
+                        // 尽量还原 draw() 开始的 ctx.save()，防止状态栈泄漏
+                        try { ctx.restore(); } catch (e) {}
+                        // 重置画布状态，避免阴影/变换泄漏导致后续帧异常
+                        ctx.setTransform(1, 0, 0, 1, 0, 0);
+                        ctx.shadowBlur = 0;
+                        ctx.globalAlpha = 1;
+                    }
+                } catch (err) {
+                    console.error('gameLoop error:', err);
+                } finally {
+                    requestAnimationFrame(gameLoop);
                 }
-                draw();
-                requestAnimationFrame(gameLoop);
             }
 
             // ========== 开始/结束 ==========
@@ -13100,7 +13149,7 @@
                         startMpCountdown();
                     } else if (data.type === 'score') {
                         mpOpponentScore = data.score;
-                        mpScoreOpp.textContent = data.score;
+                        if (mpGameMode === 'onelife') mpScoreOpp.textContent = data.score;
                     } else if (data.type === 'dead') {
                         mpOppDead = true;
                         mpOpponentAlive = false;
@@ -13110,7 +13159,7 @@
                         checkMpGameEnd();
                     } else if (data.type === 'name') {
                         mpOpponentName = data.name;
-                        mpNameOpp.textContent = data.name;
+                        if (mpGameMode === 'onelife') mpNameOpp.textContent = data.name;
                         // 更新"把选择权给对手"按钮文案
                         if (btnMpGiveChoice) {
                             btnMpGiveChoice.textContent = '🤝 ' + t('把选择权给') + data.name;
@@ -13137,7 +13186,6 @@
                         renderMpConfigPreview();
                     } else if (data.type === 'deathCount') {
                         mpOppDeathCount = data.count;
-                        if (mpGameMode === 'death') mpScoreOpp.textContent = data.count;
                     } else if (data.type === 'timeUp') {
                         mpOppDead = true; mpOpponentAlive = false;
                         mpDotOpp.className = 'mp-alive-dot dead';
@@ -13389,10 +13437,28 @@
 
                 // 显示记分板
                 mpScoreBar.classList.add('show');
-                if (mpGameMode === 'death') {
-                    mpScoreYou.textContent = '0';
+                if (mpGameMode === 'score') {
+                    if (mpLabelYou) mpLabelYou.textContent = t('时间');
+                    if (mpVsText) mpVsText.style.display = 'none';
+                    if (mpDotYou) mpDotYou.style.display = 'none';
+                    if (mpNameOpp) { mpNameOpp.textContent = t('分'); mpNameOpp.style.display = ''; }
+                    if (mpDotOpp) mpDotOpp.style.display = 'none';
+                    mpScoreYou.textContent = '90';
                     mpScoreOpp.textContent = '0';
+                } else if (mpGameMode === 'death') {
+                    if (mpLabelYou) mpLabelYou.textContent = t('死');
+                    if (mpVsText) mpVsText.style.display = 'none';
+                    if (mpDotYou) mpDotYou.style.display = 'none';
+                    if (mpNameOpp) { mpNameOpp.textContent = t('时间'); mpNameOpp.style.display = ''; }
+                    if (mpDotOpp) mpDotOpp.style.display = 'none';
+                    mpScoreYou.textContent = '0';
+                    mpScoreOpp.textContent = '90';
                 } else {
+                    if (mpLabelYou) mpLabelYou.textContent = t('你');
+                    if (mpVsText) mpVsText.style.display = '';
+                    if (mpDotYou) mpDotYou.style.display = '';
+                    if (mpNameOpp) { mpNameOpp.textContent = mpOpponentName || t('对手'); mpNameOpp.style.display = ''; }
+                    if (mpDotOpp) mpDotOpp.style.display = '';
                     mpScoreYou.textContent = '0';
                     mpScoreOpp.textContent = '0';
                 }
@@ -13403,7 +13469,8 @@
                 if (mpGameMode === 'score' || mpGameMode === 'death') {
                     mpTimeLeft = 5400; // 90秒 * 60fps
                     mpTimeActive = false; // 先不启动，等GO之后
-                    mpTimer.classList.add('show');
+                    // 倒计时在记分板中显示，不再单独显示
+                    mpTimer.classList.remove('show');
                     mpTimer.textContent = '90';
                     mpTimer.classList.remove('urgent');
                 } else {
@@ -13454,10 +13521,17 @@
                 if (!mpConn || !mpGameStarted || mpMyDead) return;
                 try {
                     if (mpGameMode === 'death') {
-                        // 死亡赛显示死亡次数
+                        // 死亡赛：左边显示死亡次数，右边显示剩余时间
                         mpScoreYou.textContent = mpMyDeathCount;
+                        mpScoreOpp.textContent = Math.ceil(mpTimeLeft / 60);
                         mpConn.send({ type: 'deathCount', count: mpMyDeathCount });
+                    } else if (mpGameMode === 'score') {
+                        // 分数赛：左边显示倒计时，右边显示分数
+                        mpScoreYou.textContent = Math.ceil(mpTimeLeft / 60);
+                        mpScoreOpp.textContent = score;
+                        mpConn.send({ type: 'score', score: score });
                     } else {
+                        // 一条命模式：保持双方分数对比
                         mpScoreYou.textContent = score;
                         mpConn.send({ type: 'score', score: score });
                     }
@@ -13593,6 +13667,9 @@
                     // 重置小鸟和场景
                     bird.reset();
                     pipes = []; monsters = []; pipeFrameCounter = 0;
+                    stuckToNet = false;
+                    stuckTimer = 0;
+                    deathReason = '';
                     invincibleTimer = 90; // 1.5秒无敌
                     // 给些抖动反馈
                     shakeTimer = 15;
