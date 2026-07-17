@@ -2151,13 +2151,6 @@
                     </div>
                 </div>
                 <div class="setting-group">
-                    <div class="setting-label" data-i18n="🎨 管道皮肤">🎨 管道皮肤</div>
-                    <div class="setting-options" id="skinGroup">
-                        <div class="setting-opt active" data-val="pipe" data-i18n="🔧 原版管道">🔧 原版管道</div>
-                        <div class="setting-opt" data-val="net" data-i18n="🕸️ 网">🕸️ 网</div>
-                    </div>
-                </div>
-                <div class="setting-group">
                     <div class="setting-label" data-i18n="🐦 小鸟皮肤">🐦 小鸟皮肤</div>
                     <div class="setting-options" id="birdSkinGroup">
                         <div class="setting-opt active" data-val="yellow" data-i18n="🟡 黄色小鸟">🟡 黄色小鸟</div>
@@ -2348,6 +2341,7 @@
 
             <button class="btn-close btn-save-green" id="btnCloseSettings" data-i18n="保存">保存</button>
             <div class="settings-version" id="settingsVersion" style="cursor:pointer;" title="点击查看更新日志">版本号 v1.4.29</div>
+            <div style="text-align:center;font-size:11px;color:rgba(255,255,255,0.3);margin-top:8px;line-height:1.5;">本项目仅为个人学习与技术演示，与原 Flappy Bird 官方无关，不代表原作。</div>
         </div>
 
         <!-- 关闭事件提醒警告弹窗 -->
@@ -4348,7 +4342,7 @@
             // ========== 设置 ==========
             let difficulty = 'normal';
             let pipePosition = 'random';
-            let pipeSkin = 'pipe';    // 管道皮肤: 'pipe' 或 'net'
+            let pipeSkin = 'net';    // 管道皮肤: 'pipe' 或 'net'
             let legacyTexturePack = false; // 老版本材质包：恢复网最初的滚动效果
             let birdSkin = 'yellow';  // 小鸟皮肤: 'yellow' | 'red' | 'blue'
             let jumpKeyCode = 'Space';
@@ -4427,7 +4421,7 @@
             let mpInProgress = false;    // 是否正在联机流程中（创建/加入房间、等待、配置）
 
             // ========== 版本系统 ==========
-            let VERSION = '1.5.1';
+            let VERSION = '1.5.2';
             const VERSION_HISTORY = [
                 { v: '1.5.1', img: '1.5.1.png', text:'📢 游戏已进入缓慢更新状态，本游戏几乎不会再更新内容，大多数时候只会修理问题' },
                 { v: '1.4.31', img: '1.2.22.png', text:'🎵 修复联机对战胜负音乐反了的BUG：结算界面根据胜负结果正确切换胜利/失败背景音乐' },
@@ -5351,7 +5345,7 @@
                         totalGold: 0, totalSilver: 0, lifeCards: 0, timeCards: 0, dayLengthCards: 0,
                         crownUnlocked: false, crownType: null, crownPurchasePrice: 0, crownPurchaseDate: null, crownDeathsLeft: 0, crownOwned: false, crownEquipped: false,
                         crownBuyers: [],
-                        bestScore: 0, difficulty: 'normal', pipePosition: 'random', pipeSkin: 'pipe', legacyTexturePack: false, birdSkin: 'yellow', jumpKeyCode: 'Space',
+                        bestScore: 0, difficulty: 'normal', pipePosition: 'random', pipeSkin: 'net', legacyTexturePack: false, birdSkin: 'yellow', jumpKeyCode: 'Space',
                         spawnZombie: true, spawnChick: true, endlessTimeSetting: -1, fontSizeLevel: 2,
                         showFlameBorder: true, showRecordIndicator: true, startLives: 1, simpleMode: false,
                         eventEnabled: { earthquake: true, battle: true, otherWorld: true, vacuum: true },
@@ -10735,7 +10729,7 @@
                 // 恢复默认游戏设置
                 difficulty = 'normal';
                 pipePosition = 'random';
-                pipeSkin = 'pipe';
+                pipeSkin = 'net';
                 legacyTexturePack = false;
                 birdSkin = 'yellow';
                 spawnZombie = true;
