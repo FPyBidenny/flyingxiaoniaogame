@@ -11129,33 +11129,41 @@
             });
 
             // 背景样式切换
-            document.getElementById('bgGroup').addEventListener('click', e => {
-                const opt = e.target.closest('.setting-opt');
-                if (!opt) return;
-                cityBgEnabled = opt.dataset.val === 'city';
-                document.querySelectorAll('#bgGroup .setting-opt').forEach(o => o.classList.remove('active'));
-                opt.classList.add('active');
-                // 透明度滑块禁用状态切换
-                const slider = document.getElementById('cityAlphaSlider');
-                const group = document.getElementById('cityAlphaGroup');
-                if (cityBgEnabled) {
-                    slider.disabled = false;
-                    group.style.opacity = '1';
-                } else {
-                    slider.disabled = true;
-                    group.style.opacity = '0.4';
-                }
-                saveData();
-            });
+            const bgGroup = document.getElementById('bgGroup');
+            if (bgGroup) {
+                bgGroup.addEventListener('click', e => {
+                    const opt = e.target.closest('.setting-opt');
+                    if (!opt) return;
+                    cityBgEnabled = opt.dataset.val === 'city';
+                    document.querySelectorAll('#bgGroup .setting-opt').forEach(o => o.classList.remove('active'));
+                    opt.classList.add('active');
+                    const slider = document.getElementById('cityAlphaSlider');
+                    const group = document.getElementById('cityAlphaGroup');
+                    if (slider && group) {
+                        if (cityBgEnabled) {
+                            slider.disabled = false;
+                            group.style.opacity = '1';
+                        } else {
+                            slider.disabled = true;
+                            group.style.opacity = '0.4';
+                        }
+                    }
+                    saveData();
+                });
+            }
 
             // 城市透明度滑块
-            document.getElementById('cityAlphaSlider').addEventListener('input', e => {
-                cityAlpha = e.target.value / 100;
-                document.getElementById('cityAlphaVal').textContent = e.target.value + '%';
-            });
-            document.getElementById('cityAlphaSlider').addEventListener('change', () => {
-                saveData();
-            });
+            const alphaSlider = document.getElementById('cityAlphaSlider');
+            if (alphaSlider) {
+                alphaSlider.addEventListener('input', e => {
+                    cityAlpha = e.target.value / 100;
+                    const valEl = document.getElementById('cityAlphaVal');
+                    if (valEl) valEl.textContent = e.target.value + '%';
+                });
+                alphaSlider.addEventListener('change', () => {
+                    saveData();
+                });
+            }
 
             document.getElementById('birdSkinGroup').addEventListener('click', e => {
                 const opt = e.target.closest('.setting-opt');
