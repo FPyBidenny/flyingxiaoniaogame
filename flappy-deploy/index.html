@@ -4420,8 +4420,9 @@
             let mpInProgress = false;    // 是否正在联机流程中（创建/加入房间、等待、配置）
 
             // ========== 版本系统 ==========
-            let VERSION = '1.5.2';
+            let VERSION = '1.5.3';
             const VERSION_HISTORY = [
+                { v: '1.5.3', img: '1.5.1.png', text:'🏙️ 新增繁茂城市背景：远景小楼、近景大楼、电线杆、水电站、地下管道错落分布，大楼在前遮挡小楼不重叠；夜晚楼房窗户40%概率亮灯<br>👑 修复粘到网上后皇冠突然消失的BUG：粘网后皇冠直接掉出去' },
                 { v: '1.5.2', img: '1.5.1.png', text:'📢 游戏已进入缓慢更新状态，本游戏几乎不会再更新内容，大多数时候只会修理问题' },
                 { v: '1.5.1', img: '1.5.1.png', text:'📢 游戏已进入缓慢更新状态，本游戏几乎不会再更新内容，大多数时候只会修理问题' },
                 { v: '1.4.31', img: '1.2.22.png', text:'🎵 修复联机对战胜负音乐反了的BUG：结算界面根据胜负结果正确切换胜利/失败背景音乐' },
@@ -5991,6 +5992,9 @@
                 if (nightAlpha > 0.3) {
                     drawMoon(nightAlpha);
                 }
+
+                // 繁茂城市背景 - 远景小楼
+                drawCityBuildings('far');
             }
 
             // 月亮精灵贴图（只用第0格圆月，每格 280x280）
@@ -6010,7 +6014,223 @@
                 ctx.drawImage(moonImg, 0, 0, cellW, cellH, mx - mr, my - mr, mr * 2, mr * 2);
                 ctx.restore();
             }
+
+            // ========== 繁茂城市背景 ==========
+            let cityBuildings = { far: [], near: [], poles: [], pipes: [] };
+            let cityWindowsLit = {}; // 夜晚亮灯状态，key为建筑id
+
+            function generateCityBuildings() {
+                const gy = HEIGHT - GROUND_HEIGHT;
+                cityBuildings = { far: [], near: [], poles: [], pipes: [] };
+                cityWindowsLit = {};
+
+                // 远景小楼（后排，较小，颜色偏冷偏暗）
+                let farX = -20;
+                let farId = 0;
+                while (farX < WIDTH + 50) {
+                    const w = 35 + Math.random() * 45;
+                    const h = 60 + Math.random() * 100;
+                    const floors = Math.floor(h / 18);
+                    cityBuildings.far.push({
+                        id: 'far_' + farId++,
+                        x: farX,
+                        y: gy - h,
+                        w: w,
+                        h: h,
+                        floors: floors,
+                        windowsPerFloor: Math.floor(w / 12)
+                    });
+                    farX += w + 3 + Math.random() * 8; // 楼间距小，密集
+                }
+
+                // 近景大楼（前排，较大，颜色偏暖，遮挡小楼）
+                let nearX = -60;
+                let nearId = 0;
+                while (nearX < WIDTH + 100) {
+                    const w = 60 + Math.random() * 80;
+                    const h = 120 + Math.random() * 180;
+                    const floors = Math.floor(h / 22);
+                    cityBuildings.near.push({
+                        id: 'near_' + nearId++,
+                        x: nearX,
+                        y: gy - h,
+                        w: w,
+                        h: h,
+                        floors: floors,
+                        windowsPerFloor: Math.floor(w / 16),
+                        isFactory: Math.random() < 0.12 // 少量工厂造型
+                    });
+                    nearX += w + 8 + Math.random() * 20;
+                }
+
+                // 水电站（特殊建筑，放在偏左位置）
+                const hydroX = WIDTH * 0.55;
+                cityBuildings.near.push({
+                    id: 'hydro',
+                    x: hydroX,
+                    y: gy - 90,
+                    w: 110,
+                    h: 90,
+                    floors: 4,
+                    windowsPerFloor: 5,
+                    isHydro: true
+                });
+
+                // 电线杆
+                for (let i = 0; i < 6; i++) {
+                    cityBuildings.poles.push({
+                        x: 40 + i * (WIDTH / 5.5) + Math.random() * 30,
+                        y: gy - 45,
+                        h: 45
+                    });
+                }
+
+                // 地下管道入口（露出地面的部分）
+                for (let i = 0; i < 4; i++) {
+                    cityBuildings.pipes.push({
+                        x: 80 + i * 180 + Math.random() * 40,
+                        y: gy - 8,
+                        w: 22 + Math.random() * 10
+                    });
+                }
+
+                // 预先生成夜晚窗户亮灯状态
+                generateWindowLights();
+            }
+
+            function generateWindowLights() {
+                cityWindowsLit = {};
+                const allBuildings = [...cityBuildings.far, ...cityBuildings.near];
+                for (const b of allBuildings) {
+                    cityWindowsLit[b.id] = [];
+                    for (let f = 0; f < b.floors; f++) {
+                        const row = [];
+                        for (let w = 0; w < b.windowsPerFloor; w++) {
+                            row.push(Math.random() < 0.4); // 40%概率亮灯
+                        }
+                        cityWindowsLit[b.id].push(row);
+                    }
+                }
+            }
+
+            function drawCityBuildings(layer) {
+                const gy = HEIGHT - GROUND_HEIGHT;
+                const buildings = layer === 'far' ? cityBuildings.far : cityBuildings.near;
+
+                for (const b of buildings) {
+                    // 建筑主体
+                    let baseColor, darkColor;
+                    if (layer === 'far') {
+                        baseColor = '#3a4a6b';
+                        darkColor = '#2a3a5a';
+                    } else if (b.isHydro) {
+                        baseColor = '#5d6d7e';
+                        darkColor = '#4a5a6a';
+                    } else if (b.isFactory) {
+                        baseColor = '#7a6b5a';
+                        darkColor = '#5a4b3a';
+                    } else {
+                        baseColor = '#4a5568';
+                        darkColor = '#3a4558';
+                    }
+
+                    // 夜晚整体变暗
+                    const nightFactor = nightAlpha || 0;
+                    const bodyColor = lerpColor(baseColor, '#1a1a2e', nightFactor * 0.5);
+                    const shadowColor = lerpColor(darkColor, '#0f0f1a', nightFactor * 0.5);
+
+                    ctx.fillStyle = bodyColor;
+                    ctx.fillRect(b.x, b.y, b.w, b.h);
+
+                    // 建筑侧面阴影
+                    ctx.fillStyle = shadowColor;
+                    ctx.fillRect(b.x + b.w - 6, b.y, 6, b.h);
+                    ctx.fillRect(b.x, b.y, b.w, 4);
+
+                    // 水电站特殊造型：水坝和水管
+                    if (b.isHydro) {
+                        ctx.fillStyle = '#3498db';
+                        ctx.fillRect(b.x + 10, b.y + 20, b.w - 20, 8);
+                        // 泄洪口
+                        ctx.fillStyle = '#2980b9';
+                        for (let i = 0; i < 3; i++) {
+                            ctx.fillRect(b.x + 25 + i * 28, b.y + 35, 16, b.h - 40);
+                        }
+                    }
+
+                    // 工厂烟囱
+                    if (b.isFactory) {
+                        ctx.fillStyle = shadowColor;
+                        ctx.fillRect(b.x + b.w * 0.2, b.y - 25, 12, 28);
+                        ctx.fillRect(b.x + b.w * 0.6, b.y - 18, 10, 22);
+                    }
+
+                    // 窗户
+                    const winW = layer === 'far' ? 5 : 7;
+                    const winH = layer === 'far' ? 7 : 9;
+                    const winPadX = (b.w - b.windowsPerFloor * winW) / (b.windowsPerFloor + 1);
+                    const winPadY = (b.h - b.floors * winH) / (b.floors + 1);
+
+                    const lights = cityWindowsLit[b.id] || [];
+                    for (let f = 0; f < b.floors; f++) {
+                        for (let w = 0; w < b.windowsPerFloor; w++) {
+                            const wx = b.x + winPadX + w * (winW + winPadX);
+                            const wy = b.y + winPadY + f * (winH + winPadY);
+
+                            // 夜晚亮灯
+                            if (nightAlpha > 0.3 && lights[f] && lights[f][w]) {
+                                ctx.fillStyle = '#f9e79f';
+                                ctx.shadowColor = '#f4d03f';
+                                ctx.shadowBlur = 4;
+                            } else {
+                                ctx.fillStyle = layer === 'far' ? '#2a3a55' : '#2c3e50';
+                                ctx.shadowBlur = 0;
+                            }
+                            ctx.fillRect(wx, wy, winW, winH);
+                            ctx.shadowBlur = 0;
+                        }
+                    }
+                }
+
+                // 仅近景层绘制电线杆和地下管道
+                if (layer === 'near') {
+                    // 电线杆
+                    for (const p of cityBuildings.poles) {
+                        ctx.fillStyle = '#4a4a4a';
+                        ctx.fillRect(p.x - 2, p.y, 4, p.h);
+                        // 横担
+                        ctx.fillRect(p.x - 12, p.y + 6, 24, 2);
+                        ctx.fillRect(p.x - 10, p.y + 14, 20, 2);
+                        // 电线
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(p.x - 12, p.y + 7);
+                        ctx.lineTo(p.x + 12, p.y + 7);
+                        ctx.stroke();
+                    }
+
+                    // 地下管道入口
+                    for (const p of cityBuildings.pipes) {
+                        ctx.fillStyle = '#555';
+                        ctx.beginPath();
+                        ctx.ellipse(p.x + p.w / 2, p.y + 4, p.w / 2, 6, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.fillStyle = '#333';
+                        ctx.beginPath();
+                        ctx.ellipse(p.x + p.w / 2, p.y + 4, p.w / 2 - 3, 4, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+
+            // 初始化城市背景
+            generateCityBuildings();
+
             function drawGround() {
+                // 繁茂城市背景 - 近景大楼、电线杆、水电站
+                drawCityBuildings('near');
+
                 const gy = HEIGHT-GROUND_HEIGHT;
                 const gg = ctx.createLinearGradient(0,gy,0,HEIGHT);
                 gg.addColorStop(0,'#8b5e3c'); gg.addColorStop(0.08,'#a0724a'); gg.addColorStop(0.4,'#6b3410'); gg.addColorStop(1,'#4a2208');
@@ -7929,6 +8149,10 @@
                             stuckBirdX = bird.x;
                             stuckBirdY = bird.y;
                             shakeTimer = 20;
+                            // 粘网时皇冠直接掉出去
+                            if ((runCrownActive || crownEquipped) && !crownFlyAnim?.active) {
+                                triggerCrownFly();
+                            }
                             return;
                         }
                         if (lives > 1 && pipeSkin !== 'net') unlockAchievement('dizzyDizzy');
