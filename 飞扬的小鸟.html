@@ -2158,10 +2158,11 @@
                         <div class="setting-opt" data-val="blue" data-i18n="🔵 蓝色小鸟">🔵 蓝色小鸟</div>
                     </div>
                 </div>
-                <div class="setting-group" id="legacyTexGroupWrap">
-                    <div class="setting-label" data-i18n="📦 老版本材质包">📦 老版本材质包</div>
-                    <div class="setting-options" id="legacyTexGroup">
-                        <div class="setting-opt" data-val="legacyTex" data-i18n="🌀 老版本网纹">🌀 老版本网纹</div>
+                <div class="setting-group">
+                    <div class="setting-label" data-i18n="🎨 管道皮肤">🎨 管道皮肤</div>
+                    <div class="setting-options" id="skinGroup">
+                        <div class="setting-opt active" data-val="net" data-i18n="🕸️ 新版网">🕸️ 新版网</div>
+                        <div class="setting-opt" data-val="legacy" data-i18n="🌀 老版网">🌀 老版网</div>
                     </div>
                 </div>
                 <div class="setting-group">
@@ -3275,14 +3276,12 @@
                     '偏上': 'Top',
                     '偏下': 'Bottom',
                     '🎨 管道皮肤': '🎨 Pipe Skin',
-                    '🔧 原版管道': '🔧 Original Pipe',
-                    '🕸️ 网': '🕸️ Net',
+                    '🕸️ 新版网': '🕸️ New Net',
+                    '🌀 老版网': '🌀 Legacy Net',
                     '🐦 小鸟皮肤': '🐦 Bird Skin',
                     '🟡 黄色小鸟': '🟡 Yellow Bird',
                     '🔴 红色小鸟': '🔴 Red Bird',
                     '🔵 蓝色小鸟': '🔵 Blue Bird',
-                    '📦 老版本材质包': '📦 Legacy Texture Pack',
-                    '🌀 老版本网纹': '🌀 Legacy Net Grid',
                     '🧟 怪物生成': '🧟 Monster Spawn',
                     '🧟 僵尸鸟': '🧟 Zombie Bird',
                     '🐤 小野鸡': '🐤 Chick',
@@ -10353,8 +10352,8 @@
                 '难度': 'difficulty', '简单': 'difficulty', '困难': 'difficulty', '正常': 'difficulty', '稍简单': 'difficulty',
                 // 管道位置
                 '管道位置': 'pipePosition', '偏上': 'pipePosition', '偏下': 'pipePosition', '随机位置': 'pipePosition',
-                // 老版本材质包
-                '材质包': 'legacyTex', '老版本': 'legacyTex', '网纹': 'legacyTex', '老版本网纹': 'legacyTex',
+                // 管道皮肤（新版网/老版网）
+                '管道皮肤': 'pipeSkin', '皮肤': 'pipeSkin', '网': 'pipeSkin', '新版网': 'pipeSkin', '老版网': 'pipeSkin', '网纹': 'pipeSkin', '材质包': 'pipeSkin', '老版本': 'pipeSkin',
                 // 怪物
                 '怪物': 'monster', '僵尸': 'monster', '僵尸鸟': 'monster', '小野鸡': 'chick', '野鸡': 'chick', '怪物生成': 'monster',
                 // 破纪录
@@ -10398,6 +10397,7 @@
                 const map = {
                     'difficulty': '#diffGroup',
                     'pipePosition': '#posGroup',
+                    'pipeSkin': '#skinGroup',
                     'monster': '#monsterGroup',
                     'chick': '#monsterGroup',
                     'chickTop': '#chickTopGroup',
@@ -10421,7 +10421,6 @@
                     'warningPos': '#warningPositionOptions',
                     'language': '#languageOptions',
                     'jumpKey': '#keyDisplay',
-                    'legacyTex': '#legacyTexGroup',
                     'resetall': '#btnResetAll',
                     'debug': '#debugGroup',
                     'admin': '#adminManageGroup',
@@ -10801,20 +10800,16 @@
                 saveData();
             });
 
-            function updateLegacyTexAvailability() {
-                const wrap = document.getElementById('legacyTexGroupWrap');
-                const opt = document.querySelector('#legacyTexGroup .setting-opt');
-                if (!wrap || !opt) return;
-                if (pipeSkin === 'net') {
-                    wrap.classList.remove('disabled');
-                    opt.classList.remove('disabled');
-                } else {
-                    wrap.classList.add('disabled');
-                    opt.classList.add('disabled');
-                    legacyTexturePack = false;
-                    opt.classList.remove('active');
-                }
-            }
+            document.getElementById('skinGroup').addEventListener('click', e => {
+                const opt = e.target.closest('.setting-opt');
+                if (!opt) return;
+                // 新版网/老版网 互斥切换；底层 pipeSkin 恒为 'net'，由 legacyTexturePack 控制纹理
+                legacyTexturePack = opt.dataset.val === 'legacy';
+                pipeSkin = 'net';
+                document.querySelectorAll('#skinGroup .setting-opt').forEach(o => o.classList.remove('active'));
+                opt.classList.add('active');
+                saveData();
+            });
 
             document.getElementById('birdSkinGroup').addEventListener('click', e => {
                 const opt = e.target.closest('.setting-opt');
@@ -10822,14 +10817,6 @@
                 birdSkin = opt.dataset.val;
                 document.querySelectorAll('#birdSkinGroup .setting-opt').forEach(o => o.classList.remove('active'));
                 opt.classList.add('active');
-                saveData();
-            });
-
-            document.getElementById('legacyTexGroup').addEventListener('click', e => {
-                const opt = e.target.closest('.setting-opt');
-                if (!opt || opt.classList.contains('disabled')) return;
-                legacyTexturePack = !legacyTexturePack;
-                opt.classList.toggle('active', legacyTexturePack);
                 saveData();
             });
 
@@ -11002,10 +10989,9 @@
                 document.querySelectorAll('#birdSkinGroup .setting-opt').forEach(o => {
                     o.classList.toggle('active', o.dataset.val === birdSkin);
                 });
-                document.querySelectorAll('#legacyTexGroup .setting-opt').forEach(o => {
-                    o.classList.toggle('active', legacyTexturePack);
+                document.querySelectorAll('#skinGroup .setting-opt').forEach(o => {
+                    o.classList.toggle('active', (o.dataset.val === 'legacy') === legacyTexturePack);
                 });
-                updateLegacyTexAvailability();
                 document.querySelectorAll('#monsterGroup .setting-opt').forEach(o => {
                     if (o.dataset.val === 'zombie') o.classList.toggle('active', spawnZombie);
                     if (o.dataset.val === 'chick') o.classList.toggle('active', spawnChick);
