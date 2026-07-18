@@ -4433,8 +4433,9 @@
             let mpInProgress = false;    // 是否正在联机流程中（创建/加入房间、等待、配置）
 
             // ========== 版本系统 ==========
-            let VERSION = '1.5.4';
+            let VERSION = '1.5.5';
             const VERSION_HISTORY = [
+                { v: '1.5.5', img: '1.5.1.png', text:'🏙️ 简化城市背景：移除远景小楼，只保留近景大楼一层<br>📢 游戏已进入缓慢更新状态，本游戏几乎不会再更新内容，大多数时候只会修理问题' },
                 { v: '1.5.4', img: '1.5.1.png', text:'🏙️ 繁茂城市背景随游戏滚动：远景近景视差移动，大楼在前遮挡小楼<br>⚙️ 设置新增背景样式切换：天空背景 / 繁茂城市背景可选，配套城市透明度滑块（未开启时置灰不可调）<br>🕸️ 优化绘制层级：楼房在管道后方，不会挡住网<br>👑 修复皇冠重复甩出BUG：皇冠落地后死亡不再触发第二次飞走<br>👑 新增皇冠粘网效果：皇冠飞出去碰到网会粘在网上<br>📢 游戏已进入缓慢更新状态，本游戏几乎不会再更新内容，大多数时候只会修理问题' },
                 { v: '1.5.3', img: '1.5.1.png', text:'🏙️ 新增繁茂城市背景：远景小楼、近景大楼、电线杆、水电站、地下管道错落分布，大楼在前遮挡小楼不重叠；夜晚楼房窗户40%概率亮灯<br>👑 修复粘到网上后皇冠突然消失的BUG：粘网后皇冠直接掉出去' },
                 { v: '1.5.2', img: '1.5.1.png', text:'📢 游戏已进入缓慢更新状态，本游戏几乎不会再更新内容，大多数时候只会修理问题' },
@@ -6008,9 +6009,6 @@
                 if (nightAlpha > 0.3) {
                     drawMoon(nightAlpha);
                 }
-
-                // 繁茂城市背景 - 远景小楼
-                drawCityBuildings('far');
             }
 
             // 月亮精灵贴图（只用第0格圆月，每格 280x280）
@@ -6032,35 +6030,16 @@
             }
 
             // ========== 繁茂城市背景 ==========
-            let cityBuildings = { far: [], near: [], poles: [], pipes: [] };
+            let cityBuildings = { near: [], poles: [], pipes: [] };
             let cityWindowsLit = {}; // 夜晚亮灯状态，key为建筑id
 
             function generateCityBuildings() {
                 const gy = HEIGHT - GROUND_HEIGHT;
-                cityBuildings = { far: [], near: [], poles: [], pipes: [] };
+                cityBuildings = { near: [], poles: [], pipes: [] };
                 cityWindowsLit = {};
                 const totalW = WIDTH * 2.5; // 生成2.5屏宽，保证循环无缝
 
-                // 远景小楼（后排，较小，颜色偏冷偏暗）
-                let farX = -20;
-                let farId = 0;
-                while (farX < totalW) {
-                    const w = 35 + Math.random() * 45;
-                    const h = 60 + Math.random() * 100;
-                    const floors = Math.floor(h / 18);
-                    cityBuildings.far.push({
-                        id: 'far_' + farId++,
-                        baseX: farX,
-                        y: gy - h,
-                        w: w,
-                        h: h,
-                        floors: floors,
-                        windowsPerFloor: Math.floor(w / 12)
-                    });
-                    farX += w + 3 + Math.random() * 8;
-                }
-
-                // 近景大楼（前排，较大，颜色偏暖，遮挡小楼）
+                // 近景大楼（前排，较大）
                 let nearX = -60;
                 let nearId = 0;
                 while (nearX < totalW) {
@@ -6120,18 +6099,8 @@
                 const frozen = vacuumCleaner && vacuumCleaner.birdCaught && !vacuumCleaner.escaped;
                 if (frozen || gameState !== 'playing') return;
 
-                const farSpeed = 0.6;
                 const nearSpeed = 1.4;
                 const groundSpeed = 2.0;
-
-                // 远景建筑滚动
-                for (const b of cityBuildings.far) {
-                    b.baseX -= farSpeed;
-                    if (b.baseX + b.w < -50) {
-                        const lastB = cityBuildings.far.reduce((a, c) => c.baseX > a.baseX ? c : a);
-                        b.baseX = lastB.baseX + lastB.w + 3 + Math.random() * 8;
-                    }
-                }
 
                 // 近景建筑滚动（水电站不循环）
                 for (const b of cityBuildings.near) {
@@ -6164,7 +6133,7 @@
 
             function generateWindowLights() {
                 cityWindowsLit = {};
-                const allBuildings = [...cityBuildings.far, ...cityBuildings.near];
+                const allBuildings = [...cityBuildings.near];
                 for (const b of allBuildings) {
                     cityWindowsLit[b.id] = [];
                     for (let f = 0; f < b.floors; f++) {
@@ -6177,21 +6146,17 @@
                 }
             }
 
-            function drawCityBuildings(layer) {
+            function drawCityBuildings() {
                 if (!cityBgEnabled) return;
                 const gy = HEIGHT - GROUND_HEIGHT;
-                const buildings = layer === 'far' ? cityBuildings.far : cityBuildings.near;
 
                 ctx.save();
                 ctx.globalAlpha = cityAlpha;
 
-                for (const b of buildings) {
+                for (const b of cityBuildings.near) {
                     // 建筑主体
                     let baseColor, darkColor;
-                    if (layer === 'far') {
-                        baseColor = '#3a4a6b';
-                        darkColor = '#2a3a5a';
-                    } else if (b.isHydro) {
+                    if (b.isHydro) {
                         baseColor = '#5d6d7e';
                         darkColor = '#4a5a6a';
                     } else if (b.isFactory) {
@@ -6234,8 +6199,8 @@
                     }
 
                     // 窗户
-                    const winW = layer === 'far' ? 5 : 7;
-                    const winH = layer === 'far' ? 7 : 9;
+                    const winW = 7;
+                    const winH = 9;
                     const winPadX = (b.w - b.windowsPerFloor * winW) / (b.windowsPerFloor + 1);
                     const winPadY = (b.h - b.floors * winH) / (b.floors + 1);
 
@@ -6251,7 +6216,7 @@
                                 ctx.shadowColor = '#f4d03f';
                                 ctx.shadowBlur = 4;
                             } else {
-                                ctx.fillStyle = layer === 'far' ? '#2a3a55' : '#2c3e50';
+                                ctx.fillStyle = '#2c3e50';
                                 ctx.shadowBlur = 0;
                             }
                             ctx.fillRect(wx, wy, winW, winH);
@@ -6260,35 +6225,32 @@
                     }
                 }
 
-                // 仅近景层绘制电线杆和地下管道
-                if (layer === 'near') {
-                    // 电线杆
-                    for (const p of cityBuildings.poles) {
-                        ctx.fillStyle = '#4a4a4a';
-                        ctx.fillRect(p.baseX - 2, p.y, 4, p.h);
-                        // 横担
-                        ctx.fillRect(p.baseX - 12, p.y + 6, 24, 2);
-                        ctx.fillRect(p.baseX - 10, p.y + 14, 20, 2);
-                        // 电线
-                        ctx.strokeStyle = '#333';
-                        ctx.lineWidth = 1;
-                        ctx.beginPath();
-                        ctx.moveTo(p.baseX - 12, p.y + 7);
-                        ctx.lineTo(p.baseX + 12, p.y + 7);
-                        ctx.stroke();
-                    }
+                // 电线杆
+                for (const p of cityBuildings.poles) {
+                    ctx.fillStyle = '#4a4a4a';
+                    ctx.fillRect(p.baseX - 2, p.y, 4, p.h);
+                    // 横担
+                    ctx.fillRect(p.baseX - 12, p.y + 6, 24, 2);
+                    ctx.fillRect(p.baseX - 10, p.y + 14, 20, 2);
+                    // 电线
+                    ctx.strokeStyle = '#333';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(p.baseX - 12, p.y + 7);
+                    ctx.lineTo(p.baseX + 12, p.y + 7);
+                    ctx.stroke();
+                }
 
-                    // 地下管道入口
-                    for (const p of cityBuildings.pipes) {
-                        ctx.fillStyle = '#555';
-                        ctx.beginPath();
-                        ctx.ellipse(p.baseX + p.w / 2, p.y + 4, p.w / 2, 6, 0, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.fillStyle = '#333';
-                        ctx.beginPath();
-                        ctx.ellipse(p.baseX + p.w / 2, p.y + 4, p.w / 2 - 3, 4, 0, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
+                // 地下管道入口
+                for (const p of cityBuildings.pipes) {
+                    ctx.fillStyle = '#555';
+                    ctx.beginPath();
+                    ctx.ellipse(p.baseX + p.w / 2, p.y + 4, p.w / 2, 6, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#333';
+                    ctx.beginPath();
+                    ctx.ellipse(p.baseX + p.w / 2, p.y + 4, p.w / 2 - 3, 4, 0, 0, Math.PI * 2);
+                    ctx.fill();
                 }
 
                 ctx.restore();
@@ -8569,7 +8531,7 @@
                 const activeWeather = (debugForceWeather && (isAdmin() || hasAnyDebugPerm())) ? debugForceWeather : currentWeather;
                 if (activeWeather !== 'sandstorm') drawClouds();
                 // 繁茂城市近景（在管道前面，地面后面）
-                drawCityBuildings('near');
+                drawCityBuildings();
                 for (const p of pipes) p.draw(ctx);
                 for (const m of monsters) m.draw(ctx);
                 drawGround();
