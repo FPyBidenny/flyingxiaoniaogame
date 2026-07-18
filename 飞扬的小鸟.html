@@ -2172,10 +2172,6 @@
                         <div class="setting-opt active" data-val="city" data-i18n="🏙️ 繁茂城市">🏙️ 繁茂城市</div>
                     </div>
                 </div>
-                <div class="setting-group" id="cityAlphaGroup">
-                    <div class="setting-label"><span data-i18n="城市透明度">城市透明度</span> <span id="cityAlphaVal">100%</span></div>
-                    <input type="range" min="20" max="100" value="100" class="setting-slider" id="cityAlphaSlider">
-                </div>
                 <div class="setting-group">
                     <div class="setting-label" data-i18n="🧟 怪物生成">🧟 怪物生成</div>
                     <div class="setting-options" id="monsterGroup">
@@ -2252,6 +2248,11 @@
                     <input type="range" class="endless-time-slider" id="endlessTimeSlider" min="15" max="30" value="30" step="1">
                     <div class="endless-time-label" id="endlessTimeLabel">30 秒</div>
                     <div class="endless-time-max" id="endlessTimeMax">最大时间：30 秒（基础30s + 加时卡 0×15s）</div>
+                </div>
+                <div class="setting-group" id="cityAlphaGroup">
+                    <div class="setting-label" data-i18n="🏙️ 城市透明度">🏙️ 城市透明度</div>
+                    <input type="range" class="font-size-slider" id="cityAlphaSlider" min="20" max="100" value="100" step="1">
+                    <div class="font-size-label" id="cityAlphaVal">100%</div>
                 </div>
             </div>
 
@@ -4433,8 +4434,9 @@
             let mpInProgress = false;    // 是否正在联机流程中（创建/加入房间、等待、配置）
 
             // ========== 版本系统 ==========
-            let VERSION = '1.5.5';
+            let VERSION = '1.5.6';
             const VERSION_HISTORY = [
+                { v: '1.5.6', img: '1.5.1.png', text:'⚙️ 优化设置布局：城市透明度滑块移至滑块区，分类更清晰<br>📢 游戏已进入缓慢更新状态，本游戏几乎不会再更新内容，大多数时候只会修理问题' },
                 { v: '1.5.5', img: '1.5.1.png', text:'🏙️ 简化城市背景：移除远景小楼，只保留近景大楼一层<br>📢 游戏已进入缓慢更新状态，本游戏几乎不会再更新内容，大多数时候只会修理问题' },
                 { v: '1.5.4', img: '1.5.1.png', text:'🏙️ 繁茂城市背景随游戏滚动：远景近景视差移动，大楼在前遮挡小楼<br>⚙️ 设置新增背景样式切换：天空背景 / 繁茂城市背景可选，配套城市透明度滑块（未开启时置灰不可调）<br>🕸️ 优化绘制层级：楼房在管道后方，不会挡住网<br>👑 修复皇冠重复甩出BUG：皇冠落地后死亡不再触发第二次飞走<br>👑 新增皇冠粘网效果：皇冠飞出去碰到网会粘在网上<br>📢 游戏已进入缓慢更新状态，本游戏几乎不会再更新内容，大多数时候只会修理问题' },
                 { v: '1.5.3', img: '1.5.1.png', text:'🏙️ 新增繁茂城市背景：远景小楼、近景大楼、电线杆、水电站、地下管道错落分布，大楼在前遮挡小楼不重叠；夜晚楼房窗户40%概率亮灯<br>👑 修复粘到网上后皇冠突然消失的BUG：粘网后皇冠直接掉出去' },
