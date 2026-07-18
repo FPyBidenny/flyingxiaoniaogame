@@ -4423,6 +4423,7 @@
             // ========== 版本系统 ==========
             let VERSION = '1.5.2';
             const VERSION_HISTORY = [
+                { v: '1.5.2', img: '1.5.1.png', text:'📢 游戏已进入缓慢更新状态，本游戏几乎不会再更新内容，大多数时候只会修理问题' },
                 { v: '1.5.1', img: '1.5.1.png', text:'📢 游戏已进入缓慢更新状态，本游戏几乎不会再更新内容，大多数时候只会修理问题' },
                 { v: '1.4.31', img: '1.2.22.png', text:'🎵 修复联机对战胜负音乐反了的BUG：结算界面根据胜负结果正确切换胜利/失败背景音乐' },
                 { v: '1.4.30', img: '1.2.22.png', text:'🐛 修复手机版成就弹窗无法点击和滚动：全局触摸事件排除所有弹窗类型，成就/总分/日历等弹窗内按钮点击与列表滑动恢复正常' },
@@ -10352,8 +10353,6 @@
                 '难度': 'difficulty', '简单': 'difficulty', '困难': 'difficulty', '正常': 'difficulty', '稍简单': 'difficulty',
                 // 管道位置
                 '管道位置': 'pipePosition', '偏上': 'pipePosition', '偏下': 'pipePosition', '随机位置': 'pipePosition',
-                // 管道皮肤
-                '管道皮肤': 'pipeSkin', '原版管道': 'pipeSkin', '网': 'pipeSkin', '皮肤': 'pipeSkin',
                 // 老版本材质包
                 '材质包': 'legacyTex', '老版本': 'legacyTex', '网纹': 'legacyTex', '老版本网纹': 'legacyTex',
                 // 怪物
@@ -10399,7 +10398,6 @@
                 const map = {
                     'difficulty': '#diffGroup',
                     'pipePosition': '#posGroup',
-                    'pipeSkin': '#skinGroup',
                     'monster': '#monsterGroup',
                     'chick': '#monsterGroup',
                     'chickTop': '#chickTopGroup',
@@ -10818,16 +10816,6 @@
                 }
             }
 
-            document.getElementById('skinGroup').addEventListener('click', e => {
-                const opt = e.target.closest('.setting-opt');
-                if (!opt) return;
-                pipeSkin = opt.dataset.val;
-                document.querySelectorAll('#skinGroup .setting-opt').forEach(o => o.classList.remove('active'));
-                opt.classList.add('active');
-                updateLegacyTexAvailability();
-                saveData();
-            });
-
             document.getElementById('birdSkinGroup').addEventListener('click', e => {
                 const opt = e.target.closest('.setting-opt');
                 if (!opt) return;
@@ -11010,9 +10998,6 @@
                 });
                 document.querySelectorAll('#posGroup .setting-opt').forEach(o => {
                     o.classList.toggle('active', o.dataset.val === pipePosition);
-                });
-                document.querySelectorAll('#skinGroup .setting-opt').forEach(o => {
-                    o.classList.toggle('active', o.dataset.val === pipeSkin);
                 });
                 document.querySelectorAll('#birdSkinGroup .setting-opt').forEach(o => {
                     o.classList.toggle('active', o.dataset.val === birdSkin);
