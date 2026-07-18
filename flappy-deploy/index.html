@@ -4354,6 +4354,8 @@
             let pipePosition = 'random';
             let pipeSkin = 'net';    // 管道皮肤: 'pipe' 或 'net'
             let legacyTexturePack = false; // 老版本材质包：恢复网最初的滚动效果
+            let cityBgEnabled = true; // 繁茂城市背景开关
+            let cityAlpha = 1; // 城市背景透明度
             let birdSkin = 'yellow';  // 小鸟皮肤: 'yellow' | 'red' | 'blue'
             let jumpKeyCode = 'Space';
             let spawnZombie = true;   // 是否生成僵尸小鸟
@@ -6032,8 +6034,6 @@
             // ========== 繁茂城市背景 ==========
             let cityBuildings = { far: [], near: [], poles: [], pipes: [] };
             let cityWindowsLit = {}; // 夜晚亮灯状态，key为建筑id
-            let cityBgEnabled = true; // 繁茂城市背景开关
-            let cityAlpha = 1; // 城市背景透明度
 
             function generateCityBuildings() {
                 const gy = HEIGHT - GROUND_HEIGHT;
