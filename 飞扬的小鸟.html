@@ -2166,6 +2166,17 @@
                     </div>
                 </div>
                 <div class="setting-group">
+                    <div class="setting-label" data-i18n="🏙️ 背景样式">🏙️ 背景样式</div>
+                    <div class="setting-options" id="bgGroup">
+                        <div class="setting-opt" data-val="sky" data-i18n="☁️ 天空背景">☁️ 天空背景</div>
+                        <div class="setting-opt active" data-val="city" data-i18n="🏙️ 繁茂城市">🏙️ 繁茂城市</div>
+                    </div>
+                </div>
+                <div class="setting-group" id="cityAlphaGroup">
+                    <div class="setting-label"><span data-i18n="城市透明度">城市透明度</span> <span id="cityAlphaVal">100%</span></div>
+                    <input type="range" min="20" max="100" value="100" class="setting-slider" id="cityAlphaSlider">
+                </div>
+                <div class="setting-group">
                     <div class="setting-label" data-i18n="🧟 怪物生成">🧟 怪物生成</div>
                     <div class="setting-options" id="monsterGroup">
                         <div class="setting-opt active" data-val="zombie" data-i18n="🧟 僵尸鸟">🧟 僵尸鸟</div>
@@ -4420,8 +4431,9 @@
             let mpInProgress = false;    // 是否正在联机流程中（创建/加入房间、等待、配置）
 
             // ========== 版本系统 ==========
-            let VERSION = '1.5.3';
+            let VERSION = '1.5.4';
             const VERSION_HISTORY = [
+                { v: '1.5.4', img: '1.5.1.png', text:'🏙️ 繁茂城市背景随游戏滚动：远景近景视差移动，大楼在前遮挡小楼<br>⚙️ 设置新增背景样式切换：天空背景 / 繁茂城市背景可选，配套城市透明度滑块（未开启时置灰不可调）<br>🕸️ 优化绘制层级：楼房在管道后方，不会挡住网<br>👑 修复皇冠重复甩出BUG：皇冠落地后死亡不再触发第二次飞走<br>👑 新增皇冠粘网效果：皇冠飞出去碰到网会粘在网上<br>📢 游戏已进入缓慢更新状态，本游戏几乎不会再更新内容，大多数时候只会修理问题' },
                 { v: '1.5.3', img: '1.5.1.png', text:'🏙️ 新增繁茂城市背景：远景小楼、近景大楼、电线杆、水电站、地下管道错落分布，大楼在前遮挡小楼不重叠；夜晚楼房窗户40%概率亮灯<br>👑 修复粘到网上后皇冠突然消失的BUG：粘网后皇冠直接掉出去' },
                 { v: '1.5.2', img: '1.5.1.png', text:'📢 游戏已进入缓慢更新状态，本游戏几乎不会再更新内容，大多数时候只会修理问题' },
                 { v: '1.5.1', img: '1.5.1.png', text:'📢 游戏已进入缓慢更新状态，本游戏几乎不会再更新内容，大多数时候只会修理问题' },
@@ -5217,7 +5229,7 @@
                     totalGold, totalSilver, lifeCards, timeCards, dayLengthCards,
                     crownUnlocked, crownType, crownPurchasePrice, crownPurchaseDate, crownDeathsLeft, crownOwned, crownEquipped,
                     crownBuyers: JSON.parse(JSON.stringify(crownBuyers)),
-                    bestScore, difficulty, pipePosition, pipeSkin, birdSkin, jumpKeyCode,
+                    bestScore, difficulty, pipePosition, pipeSkin, legacyTexturePack, cityBgEnabled, cityAlpha, birdSkin, jumpKeyCode,
                     spawnZombie, spawnChick, endlessTimeSetting, fontSizeLevel,
                     showFlameBorder, showRecordIndicator, startLives, simpleMode, showAchievementPopup,
                     jumpSoundEnabled, passPipeSoundEnabled, birdShadowEnabled, birdChirpEnabled, birdChirpProbability, netBrightNight, eventEnabled,
@@ -5265,6 +5277,8 @@
                 pipePosition = d.pipePosition || 'random';
                 pipeSkin = d.pipeSkin || 'pipe';
                 legacyTexturePack = d.legacyTexturePack !== undefined ? d.legacyTexturePack : false;
+                cityBgEnabled = d.cityBgEnabled !== undefined ? d.cityBgEnabled : true;
+                cityAlpha = d.cityAlpha !== undefined ? d.cityAlpha : 1;
                 birdSkin = d.birdSkin || 'yellow';
                 jumpKeyCode = d.jumpKeyCode || 'Space';
                 spawnZombie = d.spawnZombie !== undefined ? d.spawnZombie : true;
@@ -6018,56 +6032,58 @@
             // ========== 繁茂城市背景 ==========
             let cityBuildings = { far: [], near: [], poles: [], pipes: [] };
             let cityWindowsLit = {}; // 夜晚亮灯状态，key为建筑id
+            let cityBgEnabled = true; // 繁茂城市背景开关
+            let cityAlpha = 1; // 城市背景透明度
 
             function generateCityBuildings() {
                 const gy = HEIGHT - GROUND_HEIGHT;
                 cityBuildings = { far: [], near: [], poles: [], pipes: [] };
                 cityWindowsLit = {};
+                const totalW = WIDTH * 2.5; // 生成2.5屏宽，保证循环无缝
 
                 // 远景小楼（后排，较小，颜色偏冷偏暗）
                 let farX = -20;
                 let farId = 0;
-                while (farX < WIDTH + 50) {
+                while (farX < totalW) {
                     const w = 35 + Math.random() * 45;
                     const h = 60 + Math.random() * 100;
                     const floors = Math.floor(h / 18);
                     cityBuildings.far.push({
                         id: 'far_' + farId++,
-                        x: farX,
+                        baseX: farX,
                         y: gy - h,
                         w: w,
                         h: h,
                         floors: floors,
                         windowsPerFloor: Math.floor(w / 12)
                     });
-                    farX += w + 3 + Math.random() * 8; // 楼间距小，密集
+                    farX += w + 3 + Math.random() * 8;
                 }
 
                 // 近景大楼（前排，较大，颜色偏暖，遮挡小楼）
                 let nearX = -60;
                 let nearId = 0;
-                while (nearX < WIDTH + 100) {
+                while (nearX < totalW) {
                     const w = 60 + Math.random() * 80;
                     const h = 120 + Math.random() * 180;
                     const floors = Math.floor(h / 22);
                     cityBuildings.near.push({
                         id: 'near_' + nearId++,
-                        x: nearX,
+                        baseX: nearX,
                         y: gy - h,
                         w: w,
                         h: h,
                         floors: floors,
                         windowsPerFloor: Math.floor(w / 16),
-                        isFactory: Math.random() < 0.12 // 少量工厂造型
+                        isFactory: Math.random() < 0.12
                     });
                     nearX += w + 8 + Math.random() * 20;
                 }
 
-                // 水电站（特殊建筑，放在偏左位置）
-                const hydroX = WIDTH * 0.55;
+                // 水电站（特殊建筑）
                 cityBuildings.near.push({
                     id: 'hydro',
-                    x: hydroX,
+                    baseX: WIDTH * 0.8,
                     y: gy - 90,
                     w: 110,
                     h: 90,
@@ -6077,18 +6093,18 @@
                 });
 
                 // 电线杆
-                for (let i = 0; i < 6; i++) {
+                for (let i = 0; i < 12; i++) {
                     cityBuildings.poles.push({
-                        x: 40 + i * (WIDTH / 5.5) + Math.random() * 30,
+                        baseX: i * (WIDTH / 5) + Math.random() * 30,
                         y: gy - 45,
                         h: 45
                     });
                 }
 
-                // 地下管道入口（露出地面的部分）
-                for (let i = 0; i < 4; i++) {
+                // 地下管道入口
+                for (let i = 0; i < 8; i++) {
                     cityBuildings.pipes.push({
-                        x: 80 + i * 180 + Math.random() * 40,
+                        baseX: i * 180 + Math.random() * 40,
                         y: gy - 8,
                         w: 22 + Math.random() * 10
                     });
@@ -6096,6 +6112,54 @@
 
                 // 预先生成夜晚窗户亮灯状态
                 generateWindowLights();
+            }
+
+            // 更新城市背景滚动
+            function updateCityScroll() {
+                if (!cityBgEnabled) return;
+                const frozen = vacuumCleaner && vacuumCleaner.birdCaught && !vacuumCleaner.escaped;
+                if (frozen || gameState !== 'playing') return;
+
+                const farSpeed = 0.6;
+                const nearSpeed = 1.4;
+                const groundSpeed = 2.0;
+
+                // 远景建筑滚动
+                for (const b of cityBuildings.far) {
+                    b.baseX -= farSpeed;
+                    if (b.baseX + b.w < -50) {
+                        const lastB = cityBuildings.far.reduce((a, c) => c.baseX > a.baseX ? c : a);
+                        b.baseX = lastB.baseX + lastB.w + 3 + Math.random() * 8;
+                    }
+                }
+
+                // 近景建筑滚动（水电站不循环）
+                for (const b of cityBuildings.near) {
+                    if (b.isHydro) continue;
+                    b.baseX -= nearSpeed;
+                    if (b.baseX + b.w < -80) {
+                        const lastB = cityBuildings.near.filter(x => !x.isHydro).reduce((a, c) => c.baseX > a.baseX ? c : a);
+                        b.baseX = lastB.baseX + lastB.w + 8 + Math.random() * 20;
+                    }
+                }
+
+                // 电线杆滚动
+                for (const p of cityBuildings.poles) {
+                    p.baseX -= nearSpeed;
+                    if (p.baseX < -20) {
+                        const lastP = cityBuildings.poles.reduce((a, c) => c.baseX > a.baseX ? c : a);
+                        p.baseX = lastP.baseX + WIDTH / 5 + Math.random() * 30;
+                    }
+                }
+
+                // 地下管道滚动
+                for (const p of cityBuildings.pipes) {
+                    p.baseX -= groundSpeed;
+                    if (p.baseX + p.w < -10) {
+                        const lastP = cityBuildings.pipes.reduce((a, c) => c.baseX > a.baseX ? c : a);
+                        p.baseX = lastP.baseX + 180 + Math.random() * 40;
+                    }
+                }
             }
 
             function generateWindowLights() {
@@ -6114,8 +6178,12 @@
             }
 
             function drawCityBuildings(layer) {
+                if (!cityBgEnabled) return;
                 const gy = HEIGHT - GROUND_HEIGHT;
                 const buildings = layer === 'far' ? cityBuildings.far : cityBuildings.near;
+
+                ctx.save();
+                ctx.globalAlpha = cityAlpha;
 
                 for (const b of buildings) {
                     // 建筑主体
@@ -6140,29 +6208,29 @@
                     const shadowColor = lerpColor(darkColor, '#0f0f1a', nightFactor * 0.5);
 
                     ctx.fillStyle = bodyColor;
-                    ctx.fillRect(b.x, b.y, b.w, b.h);
+                    ctx.fillRect(b.baseX, b.y, b.w, b.h);
 
                     // 建筑侧面阴影
                     ctx.fillStyle = shadowColor;
-                    ctx.fillRect(b.x + b.w - 6, b.y, 6, b.h);
-                    ctx.fillRect(b.x, b.y, b.w, 4);
+                    ctx.fillRect(b.baseX + b.w - 6, b.y, 6, b.h);
+                    ctx.fillRect(b.baseX, b.y, b.w, 4);
 
                     // 水电站特殊造型：水坝和水管
                     if (b.isHydro) {
                         ctx.fillStyle = '#3498db';
-                        ctx.fillRect(b.x + 10, b.y + 20, b.w - 20, 8);
+                        ctx.fillRect(b.baseX + 10, b.y + 20, b.w - 20, 8);
                         // 泄洪口
                         ctx.fillStyle = '#2980b9';
                         for (let i = 0; i < 3; i++) {
-                            ctx.fillRect(b.x + 25 + i * 28, b.y + 35, 16, b.h - 40);
+                            ctx.fillRect(b.baseX + 25 + i * 28, b.y + 35, 16, b.h - 40);
                         }
                     }
 
                     // 工厂烟囱
                     if (b.isFactory) {
                         ctx.fillStyle = shadowColor;
-                        ctx.fillRect(b.x + b.w * 0.2, b.y - 25, 12, 28);
-                        ctx.fillRect(b.x + b.w * 0.6, b.y - 18, 10, 22);
+                        ctx.fillRect(b.baseX + b.w * 0.2, b.y - 25, 12, 28);
+                        ctx.fillRect(b.baseX + b.w * 0.6, b.y - 18, 10, 22);
                     }
 
                     // 窗户
@@ -6174,7 +6242,7 @@
                     const lights = cityWindowsLit[b.id] || [];
                     for (let f = 0; f < b.floors; f++) {
                         for (let w = 0; w < b.windowsPerFloor; w++) {
-                            const wx = b.x + winPadX + w * (winW + winPadX);
+                            const wx = b.baseX + winPadX + w * (winW + winPadX);
                             const wy = b.y + winPadY + f * (winH + winPadY);
 
                             // 夜晚亮灯
@@ -6197,16 +6265,16 @@
                     // 电线杆
                     for (const p of cityBuildings.poles) {
                         ctx.fillStyle = '#4a4a4a';
-                        ctx.fillRect(p.x - 2, p.y, 4, p.h);
+                        ctx.fillRect(p.baseX - 2, p.y, 4, p.h);
                         // 横担
-                        ctx.fillRect(p.x - 12, p.y + 6, 24, 2);
-                        ctx.fillRect(p.x - 10, p.y + 14, 20, 2);
+                        ctx.fillRect(p.baseX - 12, p.y + 6, 24, 2);
+                        ctx.fillRect(p.baseX - 10, p.y + 14, 20, 2);
                         // 电线
                         ctx.strokeStyle = '#333';
                         ctx.lineWidth = 1;
                         ctx.beginPath();
-                        ctx.moveTo(p.x - 12, p.y + 7);
-                        ctx.lineTo(p.x + 12, p.y + 7);
+                        ctx.moveTo(p.baseX - 12, p.y + 7);
+                        ctx.lineTo(p.baseX + 12, p.y + 7);
                         ctx.stroke();
                     }
 
@@ -6214,23 +6282,22 @@
                     for (const p of cityBuildings.pipes) {
                         ctx.fillStyle = '#555';
                         ctx.beginPath();
-                        ctx.ellipse(p.x + p.w / 2, p.y + 4, p.w / 2, 6, 0, 0, Math.PI * 2);
+                        ctx.ellipse(p.baseX + p.w / 2, p.y + 4, p.w / 2, 6, 0, 0, Math.PI * 2);
                         ctx.fill();
                         ctx.fillStyle = '#333';
                         ctx.beginPath();
-                        ctx.ellipse(p.x + p.w / 2, p.y + 4, p.w / 2 - 3, 4, 0, 0, Math.PI * 2);
+                        ctx.ellipse(p.baseX + p.w / 2, p.y + 4, p.w / 2 - 3, 4, 0, 0, Math.PI * 2);
                         ctx.fill();
                     }
                 }
+
+                ctx.restore();
             }
 
             // 初始化城市背景
             generateCityBuildings();
 
             function drawGround() {
-                // 繁茂城市背景 - 近景大楼、电线杆、水电站
-                drawCityBuildings('near');
-
                 const gy = HEIGHT-GROUND_HEIGHT;
                 const gg = ctx.createLinearGradient(0,gy,0,HEIGHT);
                 gg.addColorStop(0,'#8b5e3c'); gg.addColorStop(0.08,'#a0724a'); gg.addColorStop(0.4,'#6b3410'); gg.addColorStop(1,'#4a2208');
@@ -8027,6 +8094,7 @@
 
                 if (!gameFrozen) {
                     frameCount++;
+                    updateCityScroll();
 
                 // 事件冷却计时器递减
                 if (eventCooldownTimer > 0) eventCooldownTimer--;
@@ -8368,7 +8436,7 @@
                     saveData(); updateAllCoinUI();
                 } else {
                     // 死亡时皇冠飞走动画
-                    if ((runCrownActive || crownEquipped) && !crownFlyAnim?.active) {
+                    if ((runCrownActive || crownEquipped) && !crownFlyAnim?.active && !crownLanded) {
                         triggerCrownFly();
                     }
                     // 降价版皇冠消耗使用次数
@@ -8500,6 +8568,8 @@
                 // 沙尘暴时没有云
                 const activeWeather = (debugForceWeather && (isAdmin() || hasAnyDebugPerm())) ? debugForceWeather : currentWeather;
                 if (activeWeather !== 'sandstorm') drawClouds();
+                // 繁茂城市近景（在管道前面，地面后面）
+                drawCityBuildings('near');
                 for (const p of pipes) p.draw(ctx);
                 for (const m of monsters) m.draw(ctx);
                 drawGround();
@@ -8651,17 +8721,40 @@
 
             function updateCrownFly() {
                 if (!crownFlyAnim || !crownFlyAnim.active) return;
-                crownFlyAnim.life--;
-                crownFlyAnim.x += crownFlyAnim.vx;
-                crownFlyAnim.y += crownFlyAnim.vy;
-                crownFlyAnim.vy += 0.25; // 重力
-                crownFlyAnim.rotation += crownFlyAnim.vr;
-                const grassY = HEIGHT - GROUND_HEIGHT + 3; // 草坪中央
-                if (crownFlyAnim.life <= 0 || crownFlyAnim.y >= grassY) {
-                    // 皇冠落在草坪上，永久保留
+
+                // 粘在网上就不动了
+                if (!crownFlyAnim.stuck) {
+                    crownFlyAnim.life--;
+                    crownFlyAnim.x += crownFlyAnim.vx;
+                    crownFlyAnim.y += crownFlyAnim.vy;
+                    crownFlyAnim.vy += 0.25; // 重力
+                    crownFlyAnim.rotation += crownFlyAnim.vr;
+
+                    // 皇冠碰到网会粘住
+                    if (pipeSkin === 'net') {
+                        const crownBounds = {
+                            x: crownFlyAnim.x - 10,
+                            y: crownFlyAnim.y - 6,
+                            w: 20,
+                            h: 12
+                        };
+                        for (const p of pipes) {
+                            if (rectCollide(crownBounds, p.getTopBounds()) || rectCollide(crownBounds, p.getBottomBounds())) {
+                                crownFlyAnim.vx = 0;
+                                crownFlyAnim.vy = 0;
+                                crownFlyAnim.vr = 0;
+                                crownFlyAnim.stuck = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                const grassY = HEIGHT - GROUND_HEIGHT + 3;
+                if (!crownFlyAnim.stuck && (crownFlyAnim.life <= 0 || crownFlyAnim.y >= grassY)) {
                     crownLanded = {
                         x: crownFlyAnim.x,
-                        y: grassY - 5, // 皇冠底部贴在草坪上
+                        y: grassY - 5,
                         rotation: crownFlyAnim.rotation
                     };
                     crownFlyAnim.active = false;
@@ -11035,6 +11128,35 @@
                 saveData();
             });
 
+            // 背景样式切换
+            document.getElementById('bgGroup').addEventListener('click', e => {
+                const opt = e.target.closest('.setting-opt');
+                if (!opt) return;
+                cityBgEnabled = opt.dataset.val === 'city';
+                document.querySelectorAll('#bgGroup .setting-opt').forEach(o => o.classList.remove('active'));
+                opt.classList.add('active');
+                // 透明度滑块禁用状态切换
+                const slider = document.getElementById('cityAlphaSlider');
+                const group = document.getElementById('cityAlphaGroup');
+                if (cityBgEnabled) {
+                    slider.disabled = false;
+                    group.style.opacity = '1';
+                } else {
+                    slider.disabled = true;
+                    group.style.opacity = '0.4';
+                }
+                saveData();
+            });
+
+            // 城市透明度滑块
+            document.getElementById('cityAlphaSlider').addEventListener('input', e => {
+                cityAlpha = e.target.value / 100;
+                document.getElementById('cityAlphaVal').textContent = e.target.value + '%';
+            });
+            document.getElementById('cityAlphaSlider').addEventListener('change', () => {
+                saveData();
+            });
+
             document.getElementById('birdSkinGroup').addEventListener('click', e => {
                 const opt = e.target.closest('.setting-opt');
                 if (!opt) return;
@@ -11216,6 +11338,20 @@
                 document.querySelectorAll('#skinGroup .setting-opt').forEach(o => {
                     o.classList.toggle('active', (o.dataset.val === 'legacy') === legacyTexturePack);
                 });
+                // 背景样式
+                document.querySelectorAll('#bgGroup .setting-opt').forEach(o => {
+                    o.classList.toggle('active', (o.dataset.val === 'city') === cityBgEnabled);
+                });
+                // 城市透明度滑块
+                const citySlider = document.getElementById('cityAlphaSlider');
+                const cityAlphaVal = document.getElementById('cityAlphaVal');
+                const cityAlphaGroup = document.getElementById('cityAlphaGroup');
+                if (citySlider) {
+                    citySlider.value = Math.round(cityAlpha * 100);
+                    cityAlphaVal.textContent = Math.round(cityAlpha * 100) + '%';
+                    citySlider.disabled = !cityBgEnabled;
+                    cityAlphaGroup.style.opacity = cityBgEnabled ? '1' : '0.4';
+                }
                 document.querySelectorAll('#monsterGroup .setting-opt').forEach(o => {
                     if (o.dataset.val === 'zombie') o.classList.toggle('active', spawnZombie);
                     if (o.dataset.val === 'chick') o.classList.toggle('active', spawnChick);
